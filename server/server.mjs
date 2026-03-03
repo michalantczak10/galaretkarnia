@@ -70,7 +70,7 @@ app.use(express.static(projectRoot));
 
 // Email configuration - home.pl SMTP (for galaretkarnia.pl domain)
 const transporter = nodemailer.createTransport({
-  host: 'server2632908.home.pl',
+  host: 'galaretkarnia.pl',
   port: 465,
   secure: true, // SSL encryption
   auth: {
