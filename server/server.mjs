@@ -1,5 +1,5 @@
 import express from 'express';
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -68,25 +68,15 @@ app.use(express.json());
 // Serve static files from project root
 app.use(express.static(projectRoot));
 
-// Email configuration - Outlook SMTP (reliable, works from anywhere)
-const transporter = nodemailer.createTransport({
-  host: 'smtp-mail.outlook.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER, // michalantczak@outlook.com
-    pass: process.env.EMAIL_PASSWORD // App Password from Microsoft Account
-  }
-});
+// Email configuration - SendGrid API
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// Test email connection on startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Email configuration error:', error.message);
-  } else {
-    console.log('✅ Email service ready');
-  }
-});
+// Test email configuration on startup
+if (process.env.SENDGRID_API_KEY) {
+  console.log('✅ SendGrid API Key configured');
+} else {
+  console.error('❌ SENDGRID_API_KEY not set in environment');
+}
 
 // Validation helper
 const isPhoneValid = (phone) => /^[0-9+()\-\s]{7,20}$/.test(phone);
@@ -148,8 +138,8 @@ app.post('/api/orders', async (req, res) => {
       .join('\n');
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.ORDER_EMAIL || process.env.EMAIL_USER,
+      to: process.env.ORDER_EMAIL || 'kontakt@galaretkarnia.pl',
+      from: 'kontakt@galaretkarnia.pl',
       subject: `📦 Nowe zamówienie - ${orderId.slice(-6).toUpperCase()}`,
       html: `
         <h2>📦 Nowe zamówienie</h2>
@@ -175,8 +165,8 @@ app.post('/api/orders', async (req, res) => {
       `
     };
 
-    // Fire-and-forget email (won't block response)
-    transporter.sendMail(mailOptions)
+    // Fire-and-forget email via SendGrid (won't block response)
+    sgMail.send(mailOptions)
       .then(() => console.log(`✅ Order email sent for ID: ${orderId}`))
       .catch(err => console.error('⚠️  Email sending failed (but order saved to DB):', err.message));
 
