@@ -261,15 +261,14 @@ button:active {
   top: 20px;
   right: 20px;
   background: var(--color-white);
-  padding: 20px;
+  padding: 18px;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  max-width: 400px;
-  width: 90%;
+  gap: 16px;
+  max-width: 350px;
   box-sizing: border-box;
   z-index: 999;
   transition: transform var(--transition);
@@ -314,16 +313,15 @@ button:active {
 /* ===== LISTA KOSZYKA ===== */
 #cartList {
   position: fixed;
-  top: 110px;
+  top: 98px;
   right: 20px;
   background: var(--color-white);
   padding: 15px;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  max-width: 400px;
-  width: 90%;
+  max-width: 350px;
   box-sizing: border-box;
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 120px);
   overflow-y: auto;
   z-index: 998;
 }
@@ -627,14 +625,31 @@ button:active {
   .checkout-layout {
     padding: 0 25px;
   }
+  
+  .mini-cart {
+    position: relative;
+    margin: 20px auto;
+    max-width: 600px;
+    top: 0;
+    right: 0;
+  }
+  
+  #cartList {
+    position: relative;
+    margin: 20px auto;
+    max-width: 600px;
+    top: 0;
+    right: 0;
+    max-height: 400px;
+  }
 }
 
 /* Mobile landscape & large phones (600px - 767px) */
-@media (max-wid2h: 767px) {
+@media (max-width: 767px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
-    padding: 0 10px;
+    padding: 0 20px;
   }
   
   .product-card {
@@ -656,7 +671,11 @@ button:active {
   .product-card button {
     padding: 10px 14px;
     font-size: 14px;
-    min-height: 4420px;
+    min-height: 44px;
+  }
+  
+  .hero {
+    padding: 40px 20px;
   }
   
   .hero h1 {
@@ -672,25 +691,28 @@ button:active {
   
   .checkout-layout {
     padding: 0 20px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .checkout-form,
+  .checkout-summary {
+    padding: 15px;
   }
   
   .mini-cart {
-    padding: 12px 15px;
-    width: calc(100% - 40px);
-    top: 10px;
-    right: 2 {
-    padding: 12px 15px;
-    width: calc(100% - 20px);
-    top: 10px;
-    right: 10px;
-    gap: 15px;
+    position: relative;
+    margin: 15px auto;
+    max-width: 100%;
+    padding: 15px;
+    gap: 12px;
   }
   
   .mini-cart-icon {
-    width: 32px;40px);
-    padding: 15px;
-    top: 80px;
-    right: 2
+    width: 32px;
+    height: 32px;
+  }
+  
   .mini-cart-info {
     gap: 15px;
     font-size: 14px;
@@ -702,21 +724,22 @@ button:active {
   }
   
   #cartList {
-    width: calc(100% - 20px);
-    padding: 12px;
-    top: 80px;
-    right: 10px;
-    max-height: calc(100vh - 100px);
-  }
-
-  .checkout-layout {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .checkout-form,
-  .checkout-summary {
+    position: relative;
+    margin: 15px auto;
+    max-width: 100%;
     padding: 15px;
+    max-height: 400px;
+  }
+}
+
+/* Mobile portrait (480px - 599px) */
+@media (max-width: 599px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
     padding: 0 20px;
   }
   
@@ -735,7 +758,19 @@ button:active {
   .hero p {
     font-size: 16px;
   }
-  5px;
+  
+  .about,
+  .product,
+  .checkout,
+  .trust {
+    padding: 30px 20px;
+  }
+}
+
+/* Small mobile (below 480px) */
+@media (max-width: 479px) {
+  .product-card {
+    padding: 15px;
   }
   
   .product-card img {
@@ -747,45 +782,13 @@ button:active {
   }
   
   .mini-cart {
-    padding: 10px 15px;
+    padding: 12px 15px;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     align-items: stretch;
-    width: calc(100% - 40px);
-    right: 20px
-    font-size: 26px;
   }
   
-  .hero p {
-    font-size: 16px;
-  }
-}
-
-/* Small mobile (below 480px) */
-@media (max-width: 479px) {
-  .product-card {
-    padding: 12px;
-  }
-  
-  .product-card img {
-    margin-bottom: 10px;
-    width: calc(100% - 40px);
-    right: 20px;
-    padding: 15px;
-  }
-
-  .checkout,
-  .trust {
-    padding: 25px 20px;
-  }
-  
-  .checkout-layout {
-    padding: 0 20px;
-  }
-
-  .checkout-form,
-  .checkout-summary {
-    padding: 15on {
+  .mini-cart-icon {
     width: 28px;
     height: 28px;
     align-self: center;
@@ -803,24 +806,28 @@ button:active {
   }
   
   #cartList {
-    top: 110px;
     font-size: 14px;
+    padding: 12px;
   }
 
   .checkout,
   .trust {
-    padding: 25px 10px;
+    padding: 25px 20px;
+  }
+  
+  .checkout-layout {
+    padding: 0 20px;
   }
 
   .checkout-form,
   .checkout-summary {
-    padding: 12px;
+    padding: 15px;
   }
   
   .checkout-form input,
   .checkout-form textarea {
-    font-size: 16px; /* Prevents zoom on iOS */
-    min-height: 44px; /* Touch-friendly */
+    font-size: 16px;
+    min-height: 44px;
   }
   
   .hero h1 {
@@ -835,4 +842,3 @@ button:active {
     font-size: 24px;
   }
 }
-
