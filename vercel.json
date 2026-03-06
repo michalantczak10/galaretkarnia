@@ -2,6 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".",
   "env": {
-    "API_URL": "https://galaretkarnia-api.onrender.com/api/orders"
+    "API_URL": "https://galaretkarnia.onrender.com/api/orders"
   }
 }

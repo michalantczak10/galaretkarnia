@@ -260,5 +260,5 @@ app.get('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Galaretkarnia API running on port ${PORT}`);
-  console.log(`📧 Orders will be sent to: ${process.env.ORDER_EMAIL || 'zamowienia@galaretkarnia.pl'}`);
+  console.log(`📧 Orders will be sent to: ${process.env.ORDER_EMAIL || 'kontakt@galaretkarnia.pl'}`);
 });
