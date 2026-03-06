@@ -829,8 +829,7 @@ button:active {
 
 .about-story,
 .about-photos {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(1px);
+  background: var(--color-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: 24px;
