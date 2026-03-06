@@ -17,8 +17,18 @@
   </head>
   <body>
     <header class="hero">
-      <h1>Galaretkarnia</h1>
-      <p>Najlepsza galaretka z nóżek w całej Polsce</p>
+      <div class="hero-content">
+        <div class="hero-copy">
+          <div class="hero-brand">
+            <img src="img/logo-galaretkarnia.svg?v=4" alt="Logo Galaretkarnia" class="hero-logo" />
+          </div>
+          <h1>Tradycyjna galaretka z domowej manufaktury</h1>
+          <p>Gotowana powoli, doprawiana z wyczuciem i dostarczana świeża pod Twoje drzwi.</p>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <img src="img/galaretki.png" alt="Trzy rodzaje galaretek: wieprzowa, drobiowa i warzywna" class="hero-image" />
+        </div>
+      </div>
     </header>
     <div class="mini-cart" aria-label="Podsumowanie koszyka">
       <img src="img/cart.svg" class="mini-cart-icon" alt="Ikona koszyka" />
@@ -34,12 +44,14 @@
     <div id="cartList" role="region" aria-label="Zawartość koszyka"></div>
     <section class="about fade-in">
       <h2>O nas</h2>
-      <p>
-        Galaretkarnia to mała rodzinna manufaktura, która od lat zajmuje się tradycyjnym przygotowaniem galaretki z nóżek. Każda porcja to wynik starannego doboru składników i wielogodzinnego procesu gotowania.
-      </p>
-      <p>
-        Wierzymy, że autentyczna galaretka powinna być przygotowana z pasją i zaangażowaniem, tak jak robiła to nasza babcia. Dlatego każdy słoik jest pakowany z miłością.
-      </p>
+      <div class="about-content">
+        <p>
+          Galaretkarnia to mała rodzinna manufaktura, która od lat zajmuje się tradycyjnym przygotowaniem galaretki z nóżek. Każda porcja to wynik starannego doboru składników i wielogodzinnego procesu gotowania.
+        </p>
+        <p>
+          Wierzymy, że autentyczna galaretka powinna być przygotowana z pasją i zaangażowaniem, tak jak robiła to nasza babcia. Dlatego każdy słoik jest pakowany z miłością.
+        </p>
+      </div>
     </section>
 
     <section class="product fade-in">
@@ -174,10 +186,12 @@
 
     <section class="trust fade-in">
       <h2>Kontakt i dostawa</h2>
-      <p>📞 Telefon: +48 500 600 700</p>
-      <p>🕒 Godziny przyjmowania zamówień: pon. - sob. 08:00 - 20:00</p>
-      <p>🚚 Obszar dostawy: Warszawa i okolice do 20 km</p>
-      <p>✅ Zamówienia realizujemy po potwierdzeniu telefonicznym.</p>
+      <div class="trust-grid">
+        <p>📞 Telefon: +48 500 600 700</p>
+        <p>🕒 Godziny przyjmowania zamówień: pon. - sob. 08:00 - 20:00</p>
+        <p>🚚 Obszar dostawy: Warszawa i okolice do 20 km</p>
+        <p>✅ Zamówienia realizujemy po potwierdzeniu telefonicznym.</p>
+      </div>
     </section>
 
     <script type="module" src="app.js"></script>
