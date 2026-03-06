@@ -701,11 +701,6 @@ function renderMiniCartList() {
   progressBox.appendChild(progressTrack);
   cartList.appendChild(progressBox);
 
-  const trustNote = document.createElement("p");
-  trustNote.className = "cart-trust-note";
-  trustNote.textContent = "Świeża produkcja, klasyczny smak, bez konserwantów.";
-  cartList.appendChild(trustNote);
-
   // Breakdown: produkty + dostawa + razem
   const deliveryInfo = getDeliveryInfo(totalPrice);
   const totalWithDelivery = totalPrice + deliveryInfo.finalCost;
