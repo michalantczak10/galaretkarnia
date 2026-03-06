@@ -310,13 +310,14 @@ button:active {
 /* ===== PRODUKTY ===== */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 380px));
   gap: 25px;
   margin-top: 30px;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   padding: 0 30px;
+  justify-content: center;
 }
 
 .product-card {
