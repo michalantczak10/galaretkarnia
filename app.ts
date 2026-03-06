@@ -105,7 +105,7 @@ const copyTransferTitleBtn: HTMLButtonElement = copyTransferTitleBtnElement;
 const STORAGE_KEY = "galaretkarnia_cart";
 const ORDER_REF_STORAGE_KEY = "galaretkarnia_last_order_ref";
 const TOAST_DURATION = 2000;
-const CART_VALUE_TARGET = 120;
+let freeDeliveryThreshold = 50;
 
 type PaymentMethod = "bank_transfer" | "blik";
 
@@ -225,6 +225,14 @@ const loadPaymentConfig = async () => {
         blikPhone: data.payment.blikPhone || paymentConfig.blikPhone,
       };
       renderPaymentInstructions();
+    }
+
+    if (data?.cart?.freeDeliveryThreshold) {
+      const candidate = Number(data.cart.freeDeliveryThreshold);
+      if (Number.isFinite(candidate) && candidate > 0) {
+        freeDeliveryThreshold = candidate;
+        renderCart();
+      }
     }
   } catch (error) {
     console.error("Nie udało się pobrać danych płatności", error);
@@ -564,8 +572,8 @@ function renderMiniCartList() {
   });
 
   const totalPrice = getCartTotalPrice();
-  const remainingToTarget = Math.max(0, CART_VALUE_TARGET - totalPrice);
-  const progressPercent = Math.min(100, Math.round((totalPrice / CART_VALUE_TARGET) * 100));
+  const remainingToTarget = Math.max(0, freeDeliveryThreshold - totalPrice);
+  const progressPercent = Math.min(100, Math.round((totalPrice / freeDeliveryThreshold) * 100));
 
   const progressBox = document.createElement("div");
   progressBox.className = "cart-progress";
@@ -574,8 +582,8 @@ function renderMiniCartList() {
   progressLabel.className = "cart-progress-label";
   progressLabel.textContent =
     remainingToTarget > 0
-      ? `Do progu wygodnego zamówienia (${CART_VALUE_TARGET} zł) brakuje ${remainingToTarget} zł.`
-      : `Świetnie! Osiągnięto próg ${CART_VALUE_TARGET} zł.`;
+      ? `Do darmowej dostawy (${freeDeliveryThreshold} zł) brakuje ${remainingToTarget} zł.`
+      : `Super! Masz już darmową dostawę od ${freeDeliveryThreshold} zł.`;
 
   const progressTrack = document.createElement("div");
   progressTrack.className = "cart-progress-track";

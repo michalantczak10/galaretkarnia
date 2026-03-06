@@ -96,6 +96,8 @@ const PAYMENT_CONFIG = {
   blikPhone: process.env.BLIK_PHONE || '+48 794 535 366'
 };
 
+const FREE_DELIVERY_THRESHOLD = Number(process.env.FREE_DELIVERY_THRESHOLD || 50);
+
 const PAYMENT_METHODS = ['bank_transfer', 'blik'];
 
 const getPaymentTarget = (method) => {
@@ -115,6 +117,11 @@ app.get('/api/payment-config', (req, res) => {
       accountNumber: PAYMENT_CONFIG.accountNumber,
       accountHolder: PAYMENT_CONFIG.accountHolder,
       blikPhone: PAYMENT_CONFIG.blikPhone
+    },
+    cart: {
+      freeDeliveryThreshold: Number.isFinite(FREE_DELIVERY_THRESHOLD) && FREE_DELIVERY_THRESHOLD > 0
+        ? FREE_DELIVERY_THRESHOLD
+        : 50
     }
   });
 });
