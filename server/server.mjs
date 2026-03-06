@@ -115,28 +115,54 @@ const PARCEL_SIZES = [
   {
     name: 'C',
     label: 'Paczkomat C (duży)',
-    maxItems: 999,
+    maxItems: 15,  // Maksymalna pojemność jednej paczki
     cost: Number(process.env.PARCEL_C_COST || 17)
   }
 ];
 
-// Funkcja obliczająca koszt dostawy na podstawie ilości słoików
+// Funkcja obliczająca ile paczek jest potrzebnych i całkowity koszt
 const calculateDeliveryCost = (itemsCount) => {
-  for (const parcel of PARCEL_SIZES) {
-    if (itemsCount <= parcel.maxItems) {
-      return {
-        cost: parcel.cost,
-        parcelSize: parcel.name,
-        parcelLabel: parcel.label
-      };
+  // Tworzymy paczki optymalizując liczbę pojemników
+  let parcels = [];
+  let remainingItems = itemsCount;
+
+  // Najpierw próbujemy paczkami A
+  while (remainingItems > 0 && remainingItems <= PARCEL_SIZES[0].maxItems) {
+    parcels.push(PARCEL_SIZES[0]);
+    remainingItems = 0;
+    break;
+  }
+
+  // Jeśli więcej niż A, próbujemy B
+  if (remainingItems > PARCEL_SIZES[0].maxItems && remainingItems <= PARCEL_SIZES[1].maxItems) {
+    parcels.push(PARCEL_SIZES[1]);
+    remainingItems = 0;
+  }
+
+  // Jeśli więcej niż B, używamy C (może być wiele)
+  if (remainingItems > PARCEL_SIZES[1].maxItems) {
+    const maxC = PARCEL_SIZES[2].maxItems;
+    const parcelCount = Math.ceil(remainingItems / maxC);
+    for (let i = 0; i < parcelCount; i++) {
+      parcels.push(PARCEL_SIZES[2]);
     }
   }
-  // Domyślnie największa paczka (C)
-  const largestParcel = PARCEL_SIZES[PARCEL_SIZES.length - 1];
+
+  // Jeśli puste (nie powinno się zdarzyć), fallback
+  if (parcels.length === 0) {
+    parcels.push(PARCEL_SIZES[1]);
+  }
+
+  const totalCost = parcels.reduce((sum, p) => sum + p.cost, 0);
+  const parcelLabel = parcels.length === 1 
+    ? parcels[0].label 
+    : `${parcels.length} paczki (${parcels.map(p => p.name).join('+')})`;
+
   return {
-    cost: largestParcel.cost,
-    parcelSize: largestParcel.name,
-    parcelLabel: largestParcel.label
+    cost: totalCost,
+    parcelSize: parcels.map(p => p.name).join('+'),
+    parcelLabel: parcelLabel,
+    numberOfParcels: parcels.length
   };
 };
 
@@ -280,7 +306,7 @@ app.post('/api/orders', async (req, res) => {
         <hr>
         <h3>Podsumowanie kosztów:</h3>
         <p><strong>🛒 Produkty (galaretki):</strong> ${productsTotal || order.total} zł</p>
-        <p><strong>📦 Dostawa (${deliveryInfo.parcelLabel}):</strong> ${calculatedDeliveryCost === 0 ? '<strong>GRATIS!</strong>' : `${calculatedDeliveryCost} zł`}</p>
+        <p><strong>📦 Dostawa (${deliveryInfo.numberOfParcels > 1 ? `${deliveryInfo.numberOfParcels} paczki` : '1 paczka'}):</strong> ${calculatedDeliveryCost === 0 ? '<strong>GRATIS!</strong>' : `${calculatedDeliveryCost} zł`}</p>
         <p style="border-top: 2px solid #333; padding-top: 8px; margin-top: 8px;"><strong>📌 RAZEM DO ZAPŁATY:</strong> <span style="font-size: 20px; color: #d32f2f;">${order.total} zł</span></p>
         <hr>
         <p><strong>💳 Płatność:</strong> ${selectedPaymentMethod === 'blik' ? 'BLIK na telefon' : 'przelew tradycyjny'} (oczekiwanie na zaksięgowanie)</p>

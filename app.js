@@ -90,7 +90,7 @@ let freeDeliveryThreshold = 50;
 let parcelSizes = [
     { name: "A", label: "Paczkomat A (mały)", maxItems: 3, cost: 13 },
     { name: "B", label: "Paczkomat B (średni)", maxItems: 8, cost: 15 },
-    { name: "C", label: "Paczkomat C (duży)", maxItems: 999, cost: 17 }
+    { name: "C", label: "Paczkomat C (duży)", maxItems: 15, cost: 17 }
 ];
 let paymentConfig = {
     accountNumber: "60 1140 2004 0000 3102 4831 8846",
@@ -141,29 +141,52 @@ const scrollToCheckout = () => {
 const getCartTotalPrice = () => cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 const getTotalItemsCount = () => cart.reduce((sum, item) => sum + item.qty, 0);
 const calculateDeliveryCost = (itemsCount) => {
-    for (const parcel of parcelSizes) {
-        if (itemsCount <= parcel.maxItems) {
-            return {
-                cost: parcel.cost,
-                parcelSize: parcel.name,
-                parcelLabel: parcel.label
-            };
+    // Obliczamy ile paczek potrzebne
+    const parcels = [];
+    let remainingItems = itemsCount;
+    // Ensure parcelSizes is initialized
+    if (parcelSizes.length < 3) {
+        parcelSizes = [
+            { name: "A", label: "Paczkomat A (mały)", maxItems: 3, cost: 13 },
+            { name: "B", label: "Paczkomat B (średni)", maxItems: 8, cost: 15 },
+            { name: "C", label: "Paczkomat C (duży)", maxItems: 15, cost: 17 }
+        ];
+    }
+    const parcelA = parcelSizes[0];
+    const parcelB = parcelSizes[1];
+    const parcelC = parcelSizes[2];
+    // Najpierw próbujemy paczkami A
+    while (remainingItems > 0 && remainingItems <= parcelA.maxItems) {
+        parcels.push(parcelA);
+        remainingItems = 0;
+        break;
+    }
+    // Jeśli więcej niż A, próbujemy B
+    if (remainingItems > parcelA.maxItems && remainingItems <= parcelB.maxItems) {
+        parcels.push(parcelB);
+        remainingItems = 0;
+    }
+    // Jeśli więcej niż B, używamy C (może być wiele)
+    if (remainingItems > parcelB.maxItems) {
+        const maxC = parcelC.maxItems;
+        const parcelCount = Math.ceil(remainingItems / maxC);
+        for (let i = 0; i < parcelCount; i++) {
+            parcels.push(parcelC);
         }
     }
-    // Domyślnie największa paczka (C) lub fallback
-    const largestParcel = parcelSizes[parcelSizes.length - 1];
-    if (largestParcel) {
-        return {
-            cost: largestParcel.cost,
-            parcelSize: largestParcel.name,
-            parcelLabel: largestParcel.label
-        };
+    // Fallback
+    if (parcels.length === 0) {
+        parcels.push(parcelB);
     }
-    // Fallback gdy brak konfiguracji
+    const totalCost = parcels.reduce((sum, p) => sum + p.cost, 0);
+    const parcelLabel = parcels.length === 1
+        ? parcels[0].label
+        : `${parcels.length} paczki (${parcels.map(p => p.name).join('+')})`;
     return {
-        cost: 15,
-        parcelSize: "B",
-        parcelLabel: "Paczkomat B (średni)"
+        cost: totalCost,
+        parcelSize: parcels.map(p => p.name).join('+'),
+        parcelLabel: parcelLabel,
+        numberOfParcels: parcels.length
     };
 };
 const getDeliveryInfo = (productsTotal) => {
@@ -292,9 +315,12 @@ const renderCheckoutSummary = () => {
     // Dodaj podsumowanie kosztów
     const summaryBreakdown = document.createElement("div");
     summaryBreakdown.className = "checkout-cost-breakdown";
+    const parcelInfo = deliveryInfo.numberOfParcels > 1
+        ? `${deliveryInfo.numberOfParcels} paczki`
+        : `1 paczka`;
     summaryBreakdown.innerHTML = `
     <p class="checkout-summary-row"><strong>Produkty (galaretki):</strong> ${productsTotal} zł</p>
-    <p class="checkout-summary-row"><strong>Dostawa (${deliveryInfo.parcelLabel} — ${itemsCount} szt.):</strong> ${deliveryInfo.finalCost === 0 ? '<strong>Gratis!</strong>' : `${deliveryInfo.finalCost} zł`}</p>
+    <p class="checkout-summary-row"><strong>Dostawa (${parcelInfo}, ${itemsCount} szt.):</strong> ${deliveryInfo.finalCost === 0 ? '<strong>Gratis!</strong>' : `${deliveryInfo.finalCost} zł`}</p>
   `;
     checkoutSummaryList.appendChild(summaryBreakdown);
     checkoutTotal.textContent = totalWithDelivery.toString();
@@ -560,7 +586,10 @@ function renderMiniCartList() {
     const deliveryLine = document.createElement("div");
     deliveryLine.className = "cart-summary-line";
     const deliveryText = deliveryInfo.finalCost === 0 ? "<strong>Gratis!</strong>" : `${deliveryInfo.finalCost} zł`;
-    deliveryLine.innerHTML = `<span>Dostawa (${deliveryInfo.parcelLabel} — ${itemsCount} szt.):</span><span>${deliveryText}</span>`;
+    const parcelInfo = deliveryInfo.numberOfParcels > 1
+        ? `${deliveryInfo.numberOfParcels} paczki`
+        : `1 paczka`;
+    deliveryLine.innerHTML = `<span>Dostawa (${parcelInfo}, ${itemsCount} szt.):</span><span>${deliveryText}</span>`;
     const totalLine = document.createElement("div");
     totalLine.className = "cart-summary-total";
     totalLine.innerHTML = `<span>Razem do zapłaty:</span><span>${totalWithDelivery} zł</span>`;
