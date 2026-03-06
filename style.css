@@ -827,19 +827,56 @@ button:active {
   gap: 20px;
 }
 
-.about-content p {
+.about-story,
+.about-photos {
   background: var(--color-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   padding: 24px;
-  margin: 0;
-  line-height: 1.7;
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
-.about-content p:hover {
+.about-story:hover,
+.about-photos:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+}
+
+.about-story {
+  display: grid;
+  gap: 14px;
+}
+
+.about-story p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.about-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+
+.about-photo-card {
+  margin: 0;
+  text-align: center;
+}
+
+.about-photo-card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  background: #f3f3f3;
+}
+
+.about-photo-card figcaption {
+  margin-top: 8px;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .trust-grid {
@@ -960,6 +997,10 @@ button:active {
     grid-template-columns: 1fr;
   }
 
+  .about-photos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .benefit-card {
     padding: 20px;
   }
@@ -1076,6 +1117,10 @@ button:active {
   .benefits-grid {
     grid-template-columns: 1fr;
     gap: 15px;
+  }
+
+  .about-photos {
+    grid-template-columns: 1fr;
   }
 
   .benefit-card {
