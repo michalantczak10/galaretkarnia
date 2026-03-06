@@ -97,7 +97,48 @@ const PAYMENT_CONFIG = {
 };
 
 const FREE_DELIVERY_THRESHOLD = Number(process.env.FREE_DELIVERY_THRESHOLD || 50);
-const DELIVERY_COST = Number(process.env.DELIVERY_COST || 15);
+
+// Konfiguracja paczek InPost - rozmiary, pojemności, ceny
+const PARCEL_SIZES = [
+  {
+    name: 'A',
+    label: 'Paczkomat A (mały)',
+    maxItems: 3,
+    cost: Number(process.env.PARCEL_A_COST || 13)
+  },
+  {
+    name: 'B',
+    label: 'Paczkomat B (średni)',
+    maxItems: 8,
+    cost: Number(process.env.PARCEL_B_COST || 15)
+  },
+  {
+    name: 'C',
+    label: 'Paczkomat C (duży)',
+    maxItems: 999,
+    cost: Number(process.env.PARCEL_C_COST || 17)
+  }
+];
+
+// Funkcja obliczająca koszt dostawy na podstawie ilości słoików
+const calculateDeliveryCost = (itemsCount) => {
+  for (const parcel of PARCEL_SIZES) {
+    if (itemsCount <= parcel.maxItems) {
+      return {
+        cost: parcel.cost,
+        parcelSize: parcel.name,
+        parcelLabel: parcel.label
+      };
+    }
+  }
+  // Domyślnie największa paczka (C)
+  const largestParcel = PARCEL_SIZES[PARCEL_SIZES.length - 1];
+  return {
+    cost: largestParcel.cost,
+    parcelSize: largestParcel.name,
+    parcelLabel: largestParcel.label
+  };
+};
 
 const PAYMENT_METHODS = ['bank_transfer', 'blik'];
 
@@ -123,9 +164,7 @@ app.get('/api/payment-config', (req, res) => {
       freeDeliveryThreshold: Number.isFinite(FREE_DELIVERY_THRESHOLD) && FREE_DELIVERY_THRESHOLD > 0
         ? FREE_DELIVERY_THRESHOLD
         : 50,
-      deliveryCost: Number.isFinite(DELIVERY_COST) && DELIVERY_COST >= 0
-        ? DELIVERY_COST
-        : 15
+      parcelSizes: PARCEL_SIZES
     }
   });
 });
@@ -165,6 +204,13 @@ app.post('/api/orders', async (req, res) => {
     const normalizedParcelLockerCode = parcelLockerCode.toUpperCase();
     const phoneSuffix = getPhoneSuffix(phone);
 
+    // Oblicz całkowitą ilość słoików
+    const totalItemsCount = items.reduce((sum, item) => sum + (item.qty || 0), 0);
+
+    // Oblicz koszt dostawy na podstawie ilości
+    const deliveryInfo = calculateDeliveryCost(totalItemsCount);
+    const calculatedDeliveryCost = productsTotal >= FREE_DELIVERY_THRESHOLD ? 0 : deliveryInfo.cost;
+
     // Create order object
     const order = {
       phone,
@@ -172,9 +218,12 @@ app.post('/api/orders', async (req, res) => {
       parcelLockerCode: normalizedParcelLockerCode,
       notes: notes || '',
       items,
+      totalItemsCount,
       productsTotal: productsTotal || 0,
-      deliveryCost: deliveryCost !== undefined ? deliveryCost : 0,
-      total,
+      deliveryCost: calculatedDeliveryCost,
+      parcelSize: deliveryInfo.parcelSize,
+      parcelLabel: deliveryInfo.parcelLabel,
+      total: (productsTotal || 0) + calculatedDeliveryCost,
       paymentMethod: selectedPaymentMethod,
       paymentStatus: 'oczekiwanie-na-wplate',
       status: 'oczekuje-na-platnosc', // Status: oczekuje-na-platnosc, oplacone, w-realizacji, gotowe, anulowane
@@ -227,11 +276,12 @@ app.post('/api/orders', async (req, res) => {
         <hr>
         <h3>Pozycje:</h3>
         <pre>${itemsText}</pre>
+        <p><strong>📊 Łączna ilość słoików:</strong> ${totalItemsCount} szt.</p>
         <hr>
         <h3>Podsumowanie kosztów:</h3>
-        <p><strong>🛒 Produkty (galaretki):</strong> ${productsTotal || total} zł</p>
-        <p><strong>📦 Dostawa (InPost Paczkomat):</strong> ${deliveryCost === 0 ? '<strong>GRATIS!</strong>' : `${deliveryCost} zł`}</p>
-        <p style="border-top: 2px solid #333; padding-top: 8px; margin-top: 8px;"><strong>📌 RAZEM DO ZAPŁATY:</strong> <span style="font-size: 20px; color: #d32f2f;">${total} zł</span></p>
+        <p><strong>🛒 Produkty (galaretki):</strong> ${productsTotal || order.total} zł</p>
+        <p><strong>📦 Dostawa (${deliveryInfo.parcelLabel}):</strong> ${calculatedDeliveryCost === 0 ? '<strong>GRATIS!</strong>' : `${calculatedDeliveryCost} zł`}</p>
+        <p style="border-top: 2px solid #333; padding-top: 8px; margin-top: 8px;"><strong>📌 RAZEM DO ZAPŁATY:</strong> <span style="font-size: 20px; color: #d32f2f;">${order.total} zł</span></p>
         <hr>
         <p><strong>💳 Płatność:</strong> ${selectedPaymentMethod === 'blik' ? 'BLIK na telefon' : 'przelew tradycyjny'} (oczekiwanie na zaksięgowanie)</p>
         <p><strong>🏦 Dane płatności:</strong> ${paymentTarget}</p>

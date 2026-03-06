@@ -87,7 +87,11 @@ const STORAGE_KEY = "galaretkarnia_cart";
 const ORDER_REF_STORAGE_KEY = "galaretkarnia_last_order_ref";
 const TOAST_DURATION = 2000;
 let freeDeliveryThreshold = 50;
-let deliveryCost = 15;
+let parcelSizes = [
+    { name: "A", label: "Paczkomat A (mały)", maxItems: 3, cost: 13 },
+    { name: "B", label: "Paczkomat B (średni)", maxItems: 8, cost: 15 },
+    { name: "C", label: "Paczkomat C (duży)", maxItems: 999, cost: 17 }
+];
 let paymentConfig = {
     accountNumber: "60 1140 2004 0000 3102 4831 8846",
     accountHolder: "Galaretkarnia",
@@ -135,8 +139,40 @@ const scrollToCheckout = () => {
     checkoutSection?.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 const getCartTotalPrice = () => cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-const getDeliveryCost = (productsTotal) => {
-    return productsTotal >= freeDeliveryThreshold ? 0 : deliveryCost;
+const getTotalItemsCount = () => cart.reduce((sum, item) => sum + item.qty, 0);
+const calculateDeliveryCost = (itemsCount) => {
+    for (const parcel of parcelSizes) {
+        if (itemsCount <= parcel.maxItems) {
+            return {
+                cost: parcel.cost,
+                parcelSize: parcel.name,
+                parcelLabel: parcel.label
+            };
+        }
+    }
+    // Domyślnie największa paczka (C) lub fallback
+    const largestParcel = parcelSizes[parcelSizes.length - 1];
+    if (largestParcel) {
+        return {
+            cost: largestParcel.cost,
+            parcelSize: largestParcel.name,
+            parcelLabel: largestParcel.label
+        };
+    }
+    // Fallback gdy brak konfiguracji
+    return {
+        cost: 15,
+        parcelSize: "B",
+        parcelLabel: "Paczkomat B (średni)"
+    };
+};
+const getDeliveryInfo = (productsTotal) => {
+    const itemsCount = getTotalItemsCount();
+    const deliveryInfo = calculateDeliveryCost(itemsCount);
+    return {
+        ...deliveryInfo,
+        finalCost: productsTotal >= freeDeliveryThreshold ? 0 : deliveryInfo.cost
+    };
 };
 const formatOrderRef = (orderId) => orderId.slice(-8).toUpperCase();
 const createTransferTitle = (orderRef) => `Opłata za zamówienie nr: ${orderRef}`;
@@ -181,11 +217,8 @@ const loadPaymentConfig = async () => {
                 freeDeliveryThreshold = candidate;
             }
         }
-        if (data?.cart?.deliveryCost !== undefined) {
-            const candidate = Number(data.cart.deliveryCost);
-            if (Number.isFinite(candidate) && candidate >= 0) {
-                deliveryCost = candidate;
-            }
+        if (data?.cart?.parcelSizes && Array.isArray(data.cart.parcelSizes)) {
+            parcelSizes = data.cart.parcelSizes;
         }
         renderCart();
     }
@@ -253,14 +286,15 @@ const renderCheckoutSummary = () => {
         checkoutSummaryList.appendChild(row);
     });
     const productsTotal = getCartTotalPrice();
-    const actualDeliveryCost = getDeliveryCost(productsTotal);
-    const totalWithDelivery = productsTotal + actualDeliveryCost;
+    const deliveryInfo = getDeliveryInfo(productsTotal);
+    const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
+    const itemsCount = getTotalItemsCount();
     // Dodaj podsumowanie kosztów
     const summaryBreakdown = document.createElement("div");
     summaryBreakdown.className = "checkout-cost-breakdown";
     summaryBreakdown.innerHTML = `
     <p class="checkout-summary-row"><strong>Produkty (galaretki):</strong> ${productsTotal} zł</p>
-    <p class="checkout-summary-row"><strong>Dostawa (InPost):</strong> ${actualDeliveryCost === 0 ? '<strong>Gratis!</strong>' : `${actualDeliveryCost} zł`}</p>
+    <p class="checkout-summary-row"><strong>Dostawa (${deliveryInfo.parcelLabel} — ${itemsCount} szt.):</strong> ${deliveryInfo.finalCost === 0 ? '<strong>Gratis!</strong>' : `${deliveryInfo.finalCost} zł`}</p>
   `;
     checkoutSummaryList.appendChild(summaryBreakdown);
     checkoutTotal.textContent = totalWithDelivery.toString();
@@ -299,8 +333,8 @@ const handleCheckoutSubmit = async (event) => {
     if (submitBtn)
         submitBtn.disabled = true;
     const productsTotal = getCartTotalPrice();
-    const actualDeliveryCost = getDeliveryCost(productsTotal);
-    const totalWithDelivery = productsTotal + actualDeliveryCost;
+    const deliveryInfo = getDeliveryInfo(productsTotal);
+    const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
     try {
         const response = await fetch(API_URL, {
             method: "POST",
@@ -314,7 +348,7 @@ const handleCheckoutSubmit = async (event) => {
                 notes: notes || undefined,
                 items: cart,
                 productsTotal,
-                deliveryCost: actualDeliveryCost,
+                deliveryCost: deliveryInfo.finalCost,
                 total: totalWithDelivery,
                 paymentMethod: selectedPaymentMethod,
                 createOptionalAccount: wantsOptionalAccount,
@@ -515,8 +549,9 @@ function renderMiniCartList() {
     trustNote.textContent = "Świeża produkcja, klasyczny smak, bez konserwantów.";
     cartList.appendChild(trustNote);
     // Breakdown: produkty + dostawa + razem
-    const actualDeliveryCost = getDeliveryCost(totalPrice);
-    const totalWithDelivery = totalPrice + actualDeliveryCost;
+    const deliveryInfo = getDeliveryInfo(totalPrice);
+    const totalWithDelivery = totalPrice + deliveryInfo.finalCost;
+    const itemsCount = getTotalItemsCount();
     const cartSummary = document.createElement("div");
     cartSummary.className = "cart-summary";
     const productsLine = document.createElement("div");
@@ -524,8 +559,8 @@ function renderMiniCartList() {
     productsLine.innerHTML = `<span>Produkty (galaretki):</span><span>${totalPrice} zł</span>`;
     const deliveryLine = document.createElement("div");
     deliveryLine.className = "cart-summary-line";
-    const deliveryText = actualDeliveryCost === 0 ? "<strong>Gratis!</strong>" : `${actualDeliveryCost} zł`;
-    deliveryLine.innerHTML = `<span>Dostawa (InPost Paczkomat):</span><span>${deliveryText}</span>`;
+    const deliveryText = deliveryInfo.finalCost === 0 ? "<strong>Gratis!</strong>" : `${deliveryInfo.finalCost} zł`;
+    deliveryLine.innerHTML = `<span>Dostawa (${deliveryInfo.parcelLabel} — ${itemsCount} szt.):</span><span>${deliveryText}</span>`;
     const totalLine = document.createElement("div");
     totalLine.className = "cart-summary-total";
     totalLine.innerHTML = `<span>Razem do zapłaty:</span><span>${totalWithDelivery} zł</span>`;
