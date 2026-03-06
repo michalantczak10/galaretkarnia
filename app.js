@@ -24,6 +24,7 @@ const lastOrderCardElement = document.getElementById("lastOrderCard");
 const lastOrderIdElement = document.getElementById("lastOrderId");
 const lastOrderPaymentMethodElement = document.getElementById("lastOrderPaymentMethod");
 const lastOrderTransferTitleElement = document.getElementById("lastOrderTransferTitle");
+const lastOrderPaymentTargetLabelElement = document.getElementById("lastOrderPaymentTargetLabel");
 const lastOrderPaymentTargetElement = document.getElementById("lastOrderPaymentTarget");
 const lastOrderPhoneSuffixElement = document.getElementById("lastOrderPhoneSuffix");
 const lastOrderLockerElement = document.getElementById("lastOrderLocker");
@@ -51,6 +52,7 @@ if (!miniCartElement ||
     !lastOrderIdElement ||
     !lastOrderPaymentMethodElement ||
     !lastOrderTransferTitleElement ||
+    !lastOrderPaymentTargetLabelElement ||
     !lastOrderPaymentTargetElement ||
     !lastOrderPhoneSuffixElement ||
     !lastOrderLockerElement ||
@@ -81,6 +83,7 @@ const lastOrderCard = lastOrderCardElement;
 const lastOrderId = lastOrderIdElement;
 const lastOrderPaymentMethod = lastOrderPaymentMethodElement;
 const lastOrderTransferTitle = lastOrderTransferTitleElement;
+const lastOrderPaymentTargetLabel = lastOrderPaymentTargetLabelElement;
 const lastOrderPaymentTarget = lastOrderPaymentTargetElement;
 const lastOrderPhoneSuffix = lastOrderPhoneSuffixElement;
 const lastOrderLocker = lastOrderLockerElement;
@@ -212,6 +215,7 @@ const renderLastOrderReference = () => {
     lastOrderId.textContent = lastOrder.orderRef;
     lastOrderPaymentMethod.textContent = getPaymentMethodLabel(savedPaymentMethod);
     lastOrderTransferTitle.textContent = lastOrder.transferTitle;
+    lastOrderPaymentTargetLabel.textContent = isBlikPayment ? "Numer BLIK:" : "Dane płatności:";
     lastOrderPaymentTarget.textContent = lastOrder.paymentTarget || getPaymentTargetText(savedPaymentMethod);
     lastOrderPhoneSuffix.textContent = lastOrder.phoneSuffix;
     lastOrderLocker.textContent = lastOrder.parcelLockerCode;

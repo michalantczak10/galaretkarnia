@@ -32,6 +32,7 @@ const lastOrderCardElement = document.getElementById("lastOrderCard") as HTMLDiv
 const lastOrderIdElement = document.getElementById("lastOrderId") as HTMLSpanElement | null;
 const lastOrderPaymentMethodElement = document.getElementById("lastOrderPaymentMethod") as HTMLSpanElement | null;
 const lastOrderTransferTitleElement = document.getElementById("lastOrderTransferTitle") as HTMLSpanElement | null;
+const lastOrderPaymentTargetLabelElement = document.getElementById("lastOrderPaymentTargetLabel") as HTMLElement | null;
 const lastOrderPaymentTargetElement = document.getElementById("lastOrderPaymentTarget") as HTMLSpanElement | null;
 const lastOrderPhoneSuffixElement = document.getElementById("lastOrderPhoneSuffix") as HTMLSpanElement | null;
 const lastOrderLockerElement = document.getElementById("lastOrderLocker") as HTMLSpanElement | null;
@@ -61,6 +62,7 @@ if (
   !lastOrderIdElement ||
   !lastOrderPaymentMethodElement ||
   !lastOrderTransferTitleElement ||
+  !lastOrderPaymentTargetLabelElement ||
   !lastOrderPaymentTargetElement ||
   !lastOrderPhoneSuffixElement ||
   !lastOrderLockerElement ||
@@ -93,6 +95,7 @@ const lastOrderCard: HTMLDivElement = lastOrderCardElement;
 const lastOrderId: HTMLSpanElement = lastOrderIdElement;
 const lastOrderPaymentMethod: HTMLSpanElement = lastOrderPaymentMethodElement;
 const lastOrderTransferTitle: HTMLSpanElement = lastOrderTransferTitleElement;
+const lastOrderPaymentTargetLabel: HTMLElement = lastOrderPaymentTargetLabelElement;
 const lastOrderPaymentTarget: HTMLSpanElement = lastOrderPaymentTargetElement;
 const lastOrderPhoneSuffix: HTMLSpanElement = lastOrderPhoneSuffixElement;
 const lastOrderLocker: HTMLSpanElement = lastOrderLockerElement;
@@ -270,6 +273,7 @@ const renderLastOrderReference = () => {
   lastOrderId.textContent = lastOrder.orderRef;
   lastOrderPaymentMethod.textContent = getPaymentMethodLabel(savedPaymentMethod);
   lastOrderTransferTitle.textContent = lastOrder.transferTitle;
+  lastOrderPaymentTargetLabel.textContent = isBlikPayment ? "Numer BLIK:" : "Dane płatności:";
   lastOrderPaymentTarget.textContent = lastOrder.paymentTarget || getPaymentTargetText(savedPaymentMethod);
   lastOrderPhoneSuffix.textContent = lastOrder.phoneSuffix;
   lastOrderLocker.textContent = lastOrder.parcelLockerCode;
