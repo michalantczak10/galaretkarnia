@@ -163,7 +163,10 @@
             <input id="optionalAccountEmail" name="optionalAccountEmail" type="email" autocomplete="email" placeholder="Np. jan@przyklad.pl" />
           </div>
 
-          <button type="submit" id="submitOrderBtn">Zamawiam</button>
+          <div class="checkout-actions-row">
+            <button type="submit" id="submitOrderBtn">Zamawiam</button>
+            <button type="button" id="clearCartBtn">Wyczyść koszyk</button>
+          </div>
           <p id="checkoutMessage" class="checkout-message" aria-live="polite"></p>
 
           <div id="lastOrderCard" class="last-order-card" hidden>

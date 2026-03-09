@@ -14,29 +14,46 @@ const PORT = process.env.PORT || 3001;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/galaretkarnia';
 let ordersCollection;
 
-async function connectToDatabase() {
-  try {
-    const client = new MongoClient(MONGODB_URI, {
-      maxPoolSize: 10,
-      minPoolSize: 2,
-    });
-    
-    await client.connect();
-    const db = client.db('galaretkarnia');
-    ordersCollection = db.collection('orders');
-    
-    // Create index for faster queries
-    await ordersCollection.createIndex({ createdAt: -1 });
-    
-    console.log('✅ Connected to MongoDB');
-    return client;
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1);
-  }
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Connect on startup
+async function connectToDatabase({ maxRetries = 5, initialDelay = 1000 } = {}) {
+  let attempt = 0;
+  let client = null;
+  while (attempt < maxRetries) {
+    attempt++;
+    try {
+      client = new MongoClient(MONGODB_URI, {
+        maxPoolSize: 10,
+        minPoolSize: 2,
+      });
+
+      await client.connect();
+      const db = client.db('galaretkarnia');
+      ordersCollection = db.collection('orders');
+      // Create index for faster queries
+      await ordersCollection.createIndex({ createdAt: -1 });
+      console.log('✅ Connected to MongoDB');
+      return client;
+    } catch (error) {
+      const delay = initialDelay * Math.pow(2, attempt - 1);
+      console.error(`❌ MongoDB connection attempt ${attempt}/${maxRetries} failed:`, error.message);
+      if (attempt < maxRetries) {
+        console.log(`→ Retrying in ${delay}ms...`);
+        // wait before next attempt
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(delay);
+        continue;
+      }
+      console.error('❌ MongoDB connection failed after retries. Continuing without DB (endpoints will return 503).');
+      return null;
+    }
+  }
+  return null;
+}
+
+// Try connecting on startup (non-fatal on failure)
 await connectToDatabase();
 
 // Get directory path
@@ -68,14 +85,18 @@ app.use(express.json());
 // Serve static files from project root
 app.use(express.static(projectRoot));
 
-// Email configuration - Resend API
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Test email configuration on startup
+// Email configuration - Resend API (optional)
+let resend = null;
 if (process.env.RESEND_API_KEY) {
-  console.log('✅ Resend API Key configured');
+  try {
+    resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('✅ Resend API Key configured');
+  } catch (err) {
+    resend = null;
+    console.error('❌ Nie udało się zainicjalizować Resend:', err?.message || err);
+  }
 } else {
-  console.error('❌ RESEND_API_KEY not set in environment');
+  console.warn('⚠️ RESEND_API_KEY nie ustawiony — wysyłka maili będzie pominięta');
 }
 
 // Validation helper
@@ -197,6 +218,9 @@ app.get('/api/payment-config', (req, res) => {
 
 // POST /api/orders - Accept order, save to DB and send email to owner
 app.post('/api/orders', async (req, res) => {
+  if (!ordersCollection) {
+    return res.status(503).json({ error: 'Usługa chwilowo niedostępna. Baza danych nieosiągalna.' });
+  }
   try {
     const { phone, parcelLockerCode, notes, items, productsTotal, deliveryCost, total, paymentMethod, createOptionalAccount, optionalAccountEmail } = req.body;
 
@@ -327,17 +351,21 @@ app.post('/api/orders', async (req, res) => {
     };
 
     // Fire-and-forget email via Resend (won't block response)
-    resend.emails.send(mailOptions)
-      .then((result) => {
-        if (result.error) {
-          console.error('⚠️ Email sending failed (but order saved to DB):', result.error);
-        } else {
-          console.log(`✅ Order email sent for ID: ${orderId}`);
-        }
-      })
-      .catch(err => {
-        console.error('⚠️ Email sending failed (but order saved to DB):', err.message);
-      });
+    if (resend) {
+      resend.emails.send(mailOptions)
+        .then((result) => {
+          if (result?.error) {
+            console.error('⚠️ Email sending failed (but order saved to DB):', result.error);
+          } else {
+            console.log(`✅ Order email sent for ID: ${orderId}`);
+          }
+        })
+        .catch(err => {
+          console.error('⚠️ Email sending failed (but order saved to DB):', err?.message || err);
+        });
+    } else {
+      console.warn('⚠️ Pominięto wysyłkę maila — Resend nie jest skonfigurowany');
+    }
 
   } catch (error) {
     console.error('Order processing error:', error);
@@ -350,6 +378,9 @@ app.post('/api/orders', async (req, res) => {
 
 // GET /api/orders - Get all orders (admin view)
 app.get('/api/orders', async (req, res) => {
+  if (!ordersCollection) {
+    return res.status(503).json({ error: 'Usługa chwilowo niedostępna. Baza danych nieosiągalna.' });
+  }
   try {
     const orders = await ordersCollection
       .find({})
@@ -366,6 +397,9 @@ app.get('/api/orders', async (req, res) => {
 
 // GET /api/orders/id/:orderId - Get specific order by ID
 app.get('/api/orders/id/:orderId', async (req, res) => {
+  if (!ordersCollection) {
+    return res.status(503).json({ error: 'Usługa chwilowo niedostępna. Baza danych nieosiągalna.' });
+  }
   try {
     const { orderId } = req.params;
     const order = await ordersCollection.findOne({ _id: new ObjectId(orderId) });
@@ -383,6 +417,9 @@ app.get('/api/orders/id/:orderId', async (req, res) => {
 
 // PUT /api/orders/id/:orderId - Update order status
 app.put('/api/orders/id/:orderId', async (req, res) => {
+  if (!ordersCollection) {
+    return res.status(503).json({ error: 'Usługa chwilowo niedostępna. Baza danych nieosiągalna.' });
+  }
   try {
     const { orderId } = req.params;
     const { status } = req.body;
