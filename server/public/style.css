@@ -820,6 +820,40 @@ button:active {
   }
 }
 
+/* If the cart item content fits on a single line, keep single-line layout
+   otherwise the default stacked/grid layout will apply. JS toggles `.single-line` */
+@media (max-width: 440px) {
+  .cart-item.single-line {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  .cart-item.single-line img {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+  }
+  .cart-item.single-line .cart-item-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cart-item.single-line .cart-item-details {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .cart-item.single-line .cart-item-controls {
+    margin-left: 6px;
+    grid-column: auto;
+    grid-row: auto;
+    display: flex;
+  }
+}
+
 .cart-clear-btn {
   width: 100%;
   background: #dc3545;

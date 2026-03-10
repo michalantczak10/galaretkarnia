@@ -615,6 +615,48 @@ function renderMiniCartList() {
     actions.appendChild(clearBtn);
     actions.appendChild(checkoutBtn);
     cartList.appendChild(actions);
+    // After rendering, adjust items that fit into a single line
+    try {
+        adjustCartItemsSingleLine();
+    }
+    catch (e) {
+        // ignore if helper not yet defined
+    }
+}
+
+// Ensure cart items that fit on one line keep that layout.
+function adjustCartItemsSingleLine() {
+    if (!cartList) return;
+    const rows = cartList.querySelectorAll('.cart-item');
+    rows.forEach(row => {
+        const img = row.querySelector('img');
+        const controls = row.querySelector('.cart-item-controls');
+        const info = row.querySelector('.cart-item-info');
+        if (!info || !img || !controls) return;
+        // Temporarily measure needed width when info is single-line
+        const prevWhite = info.style.whiteSpace;
+        info.style.whiteSpace = 'nowrap';
+        // Needed width: image + controls + info's scrollWidth + small gap
+        const needed = img.offsetWidth + controls.offsetWidth + info.scrollWidth + 16;
+        info.style.whiteSpace = prevWhite || '';
+        if (needed <= row.clientWidth) {
+            row.classList.add('single-line');
+        }
+        else {
+            row.classList.remove('single-line');
+        }
+    });
+}
+
+// Recalculate on resize (debounced)
+{
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            adjustCartItemsSingleLine();
+        }, 120);
+    });
 }
 // Przeliczanie koszyka
 function renderCart() {
