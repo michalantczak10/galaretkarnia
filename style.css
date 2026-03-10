@@ -475,6 +475,40 @@ button:active {
   object-fit: contain;
 }
 
+/* Desktop: show cart items as grid cards */
+@media (min-width: 800px) {
+  #cartList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    margin-bottom: 0; /* spacing handled by grid gap */
+  }
+
+  .cart-item img {
+    width: 100%;
+    height: 160px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+
+  .cart-item-info {
+    flex: none;
+  }
+
+  .cart-item-controls {
+    margin-left: 0;
+    margin-top: 12px;
+    justify-content: flex-end;
+  }
+}
+
 .cart-item-info {
   flex: 1;
 }
