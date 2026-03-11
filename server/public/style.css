@@ -1155,7 +1155,7 @@ button:active {
 /* ===== KONTAKT / DOSTAWA ===== */
 .trust {
   max-width: 1200px;
-  margin: 0 auto 40px;
+  margin: 24px auto 40px; /* restore top margin for visual spacing */
 }
 
 .about-content {
@@ -1223,7 +1223,7 @@ button:active {
 .trust-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px; /* slightly larger gap for breathing room */
 }
 
 .trust p {
