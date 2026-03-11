@@ -1215,7 +1215,7 @@ button:active {
 .trust-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px; /* slightly larger gap for breathing room */
+  gap: 12px; /* reverted spacing for contact section */
 }
 
 /* ===== LEGAL / REGULAMIN / PRIVACY ===== */
@@ -1272,6 +1272,29 @@ button:active {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
+
+/* Privacy contact card styling */
+.privacy-contact {
+  max-width: 900px;
+  margin: 24px auto;
+  background: var(--color-white);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.privacy-contact h2 {
+  color: var(--color-primary);
+  margin-top: 0;
+}
+
+.privacy-contact p,
+.privacy-contact li {
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.privacy-contact a { color: var(--color-primary); text-decoration: underline; }
 
 /* ===== TOAST NOTIFICATIONS ===== */
 .toast {
