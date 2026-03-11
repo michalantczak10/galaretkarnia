@@ -695,7 +695,11 @@ addButtons.forEach(btn => {
             cart.unshift({ name, price, qty: 1, image });
         }
         renderCart();
-        if (window.innerWidth <= 767) {
+        const cartSection = document.querySelector('.cart');
+        if (cartSection) {
+            cartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        else if (window.innerWidth <= 767) {
             miniCart.scrollIntoView({ behavior: "smooth", block: "center" });
         }
         showToast(`${name} dodany do koszyka!`);
