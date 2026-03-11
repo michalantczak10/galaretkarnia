@@ -1296,6 +1296,20 @@ button:active {
 
 .privacy-contact a { color: var(--color-primary); text-decoration: underline; }
 
+/* Page CTA button (used for 'Powrót do strony głównej') */
+.page-cta { text-align: center; margin: 20px 0 36px; }
+.page-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.page-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
 /* ===== TOAST NOTIFICATIONS ===== */
 .toast {
   position: static;
