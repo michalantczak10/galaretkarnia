@@ -1219,22 +1219,25 @@ button:active {
 }
 
 /* ===== LEGAL / REGULAMIN / PRIVACY ===== */
+
 .legal {
-  padding: 18px 16px;
-  max-width: 1200px;
-  margin: 24px auto;
+  width: 100%;
   background: var(--color-accent);
-  border-radius: var(--radius-lg);
+  padding: 40px 0 80px; /* full-bleed background with bottom space */
+  box-sizing: border-box;
 }
 
 .legal h2 {
   text-align: center;
   font-size: 1.8rem;
   color: var(--color-primary);
-  margin-bottom: 12px;
+  margin: 0 0 18px;
 }
 
 .legal-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 18px;
