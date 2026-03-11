@@ -1242,10 +1242,11 @@ button:active {
 
 /* ===== TOAST NOTIFICATIONS ===== */
 .toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(120px);
+  position: static;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  transform: none;
   background: var(--color-primary);
   color: var(--color-white);
   padding: 12px 20px;
