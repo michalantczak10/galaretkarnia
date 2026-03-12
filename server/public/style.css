@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 16px;
   margin-bottom: 8px;
 }
@@ -917,6 +918,13 @@ button:active {
 
 .checkout-actions-row .secondary-clear-btn:active {
   transform: scale(0.98);
+}
+
+/* Ensure buttons inside the checkout row are vertically centered (no extra top margin) */
+.checkout-actions-row .cart-clear-btn,
+.checkout-actions-row .cart-checkout-btn,
+.checkout-actions-row .secondary-clear-btn {
+  margin-top: 0;
 }
  
 /* ===== BENEFITS (3 POWODY) ===== */
