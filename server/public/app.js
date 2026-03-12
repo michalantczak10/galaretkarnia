@@ -304,15 +304,15 @@ const renderPaymentInstructions = () => {
   `;
 };
 const loadPaymentConfig = async () => {
-    try {
-        const response = await fetch(PAYMENT_CONFIG_URL);
-        if (!response.ok)
-            return;
-        const data = await response.json();
-        if (data?.payment) {
-            paymentConfig = {
-                accountNumber: data.payment.accountNumber || paymentConfig.accountNumber,
-                accountHolder: data.payment.accountHolder || paymentConfig.accountHolder,
+var checkoutSubmitBtn = document.getElementById('submitOrderBtn');
+if (checkoutSubmitBtn) {
+    checkoutSubmitBtn.classList.add('cart-checkout-btn');
+}
+var checkoutClearBtn = document.getElementById('clearCartBtn');
+if (checkoutClearBtn) {
+    checkoutClearBtn.classList.add('cart-clear-btn');
+    checkoutClearBtn.addEventListener('click', clearCart);
+}
                 blikPhone: data.payment.blikPhone || paymentConfig.blikPhone,
             };
             renderPaymentInstructions();

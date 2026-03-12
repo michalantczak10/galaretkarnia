@@ -938,6 +938,17 @@ copyTransferTitleBtn.addEventListener("click", async () => {
   }
 });
 
+// Static checkout buttons: apply cart button styles and wire the clear action
+const checkoutSubmitBtn = document.getElementById('submitOrderBtn') as HTMLButtonElement | null;
+if (checkoutSubmitBtn) {
+  checkoutSubmitBtn.classList.add('cart-checkout-btn');
+}
+const checkoutClearBtn = document.getElementById('clearCartBtn') as HTMLButtonElement | null;
+if (checkoutClearBtn) {
+  checkoutClearBtn.classList.add('cart-clear-btn');
+  checkoutClearBtn.addEventListener('click', clearCart);
+}
+
 paymentMethod.addEventListener("change", () => {
   renderPaymentInstructions();
 });
