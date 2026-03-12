@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Audyt autoryzacji</title>
+  <link rel="stylesheet" href="/style.css?v=4">
+</head>
+<body>
+  <main class="container">
+    <h1>Audyt auth</h1>
+    <p>Wprowadź sekret administratora i załaduj ostatnie wpisy audytu.</p>
+
+    <div class="card">
+      <input id="adminSecret" placeholder="X-Admin-Secret" style="width:100%" />
+      <input id="limit" type="number" value="50" min="1" max="200" style="width:100%; margin-top:8px" />
+      <button id="loadBtn" class="btn" style="margin-top:8px">Pobierz wpisy</button>
+    </div>
+
+    <section id="auditResult" style="margin-top:16px"></section>
+
+    <p style="margin-top:24px"><a href="/">Powrót do sklepu</a></p>
+  </main>
+  <script src="/admin-audit.js"></script>
+</body>
+</html>
