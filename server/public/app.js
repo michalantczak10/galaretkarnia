@@ -550,6 +550,12 @@ const clearCart = async () => {
     const prev = cart.map(i => (Object.assign({}, i)));
     cart = [];
     renderCart();
+    
+        // Zresetuj formularz zamówienia i ukryj pola opcjonalne
+        const checkoutFormEl = document.getElementById('checkoutForm');
+        if (checkoutFormEl) checkoutFormEl.reset();
+        const optionalFields = document.getElementById('optionalAccountFields');
+        if (optionalFields) optionalFields.hidden = true;
 
     // Pokazujemy toast z możliwością cofnięcia
     showToast("✨ Koszyk został wyczyszczony.", "success", "Cofnij", () => {
@@ -559,7 +565,7 @@ const clearCart = async () => {
         setCheckoutMessage("🧺 Przywrócono zawartość koszyka.", false);
     });
 
-    setCheckoutMessage("🧺 Koszyk został wyczyszczony. Możesz dodać produkty ponownie.", false);
+    setCheckoutMessage("🧺 Koszyk został wyczyszczony. Możesz dodać produkty ponownie.", true);
 };
 // Funkcja zapisu koszyka do localStorage
 const saveCart = () => {
