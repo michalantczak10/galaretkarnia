@@ -304,21 +304,14 @@ const renderPaymentInstructions = () => {
   `;
 };
 const loadPaymentConfig = async () => {
-    var checkoutSubmitBtn = document.getElementById('submitOrderBtn');
-    if (checkoutSubmitBtn) {
-        checkoutSubmitBtn.classList.add('cart-checkout-btn');
-    }
-    var checkoutClearBtn = document.getElementById('clearCartBtn');
-    if (checkoutClearBtn) {
-        checkoutClearBtn.addEventListener('click', clearCart);
-    }
-    try {
-        const response = await fetch(PAYMENT_CONFIG_URL);
-        const data = await response.json();
-        if (data?.payment) {
-            paymentConfig = {
-                accountNumber: data.payment.accountNumber || paymentConfig.accountNumber,
-                accountHolder: data.payment.accountHolder || paymentConfig.accountHolder,
+var checkoutSubmitBtn = document.getElementById('submitOrderBtn');
+if (checkoutSubmitBtn) {
+    checkoutSubmitBtn.classList.add('cart-checkout-btn');
+}
+var checkoutClearBtn = document.getElementById('clearCartBtn');
+if (checkoutClearBtn) {
+    checkoutClearBtn.addEventListener('click', clearCart);
+}
                 blikPhone: data.payment.blikPhone || paymentConfig.blikPhone,
             };
             renderPaymentInstructions();
