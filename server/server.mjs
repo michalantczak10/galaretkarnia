@@ -16,10 +16,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Token TTLs (days)
-const ACCESS_TOKEN_TTL_DAYS = Number(process.env.ACCESS_TOKEN_TTL_DAYS || 30);
-const ACCESS_TOKEN_TTL_DAYS_CLAIM = Number(process.env.ACCESS_TOKEN_TTL_DAYS_CLAIM || 7);
-
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/galaretkarnia';
 let ordersCollection;
@@ -67,26 +63,6 @@ async function connectToDatabase({ maxRetries = 5, initialDelay = 1000 } = {}) {
 // Try connecting on startup (non-fatal on failure)
 mongoClient = await connectToDatabase();
 
-// Helper to write lightweight audit records for auth events
-async function logAuthEvent(req, eventType, details = {}) {
-  try {
-    if (!mongoClient) return; // no DB
-    const db = mongoClient.db('galaretkarnia');
-    const audit = db.collection('auth_audit');
-    const record = {
-      eventType,
-      ip: req.ip || req.headers['x-forwarded-for'] || null,
-      ua: req.headers['user-agent'] || null,
-      timestamp: new Date(),
-      details
-    };
-    await audit.insertOne(record);
-    console.log('Auth audit:', eventType, details && Object.keys(details).length ? JSON.stringify(details) : '');
-  } catch (err) {
-    console.error('Failed to write auth_audit record:', err?.message || err);
-  }
-}
-
 // Get directory path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -107,13 +83,6 @@ const apiLimiter = rateLimit({
   legacyHeaders: false
 });
 app.use('/api', apiLimiter);
-
-// More restrictive per-route rate limiters for auth/account endpoints
-const authClaimLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false }); // 10/hour
-const authTokenLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false }); // 30/hour
-const accountLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false }); // 60/hour
-const magicLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 6, standardHeaders: true, legacyHeaders: false }); // 6/hour
-const adminLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false }); // 20/hour
 
 // CORS and caching - allow caching for static assets, disable cache for API
 app.use((req, res, next) => {
@@ -331,7 +300,7 @@ app.post('/api/orders', async (req, res) => {
     // Generate access token for order claim
     const rawAccessToken = crypto.randomBytes(32).toString('hex');
     const accessTokenHash = crypto.createHash('sha256').update(rawAccessToken).digest('hex');
-    const accessTokenExpiresAt = new Date(Date.now() + ACCESS_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000);
+    const accessTokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
     const order = {
       phone,
@@ -452,7 +421,7 @@ app.post('/api/orders', async (req, res) => {
 });
 
 // POST /api/auth/token - exchange raw access token for access to order
-app.post('/api/auth/token', authTokenLimiter, async (req, res) => {
+app.post('/api/auth/token', async (req, res) => {
   if (!ordersCollection) return res.status(503).json({ error: 'Baza danych niedostępna' });
   try {
     const { token } = req.body;
@@ -472,7 +441,7 @@ app.post('/api/auth/token', authTokenLimiter, async (req, res) => {
 });
 
 // POST /api/auth/claim - claim by orderRef + phoneSuffix, issues new access token
-app.post('/api/auth/claim', authClaimLimiter, async (req, res) => {
+app.post('/api/auth/claim', async (req, res) => {
   if (!ordersCollection) return res.status(503).json({ error: 'Baza danych niedostępna' });
   try {
     const { orderRef, phoneSuffix } = req.body;
@@ -481,86 +450,20 @@ app.post('/api/auth/claim', authClaimLimiter, async (req, res) => {
     if (!order) return res.status(404).json({ error: 'Zamówienie nie znalezione' });
     if (String(order.phoneSuffix) !== String(phoneSuffix)) return res.status(401).json({ error: 'Nieprawidłowa końcówka telefonu' });
 
-    // Generate new access token and store hash (shorter TTL for claimed tokens)
+    // Generate new access token and store hash
     const rawAccessToken = crypto.randomBytes(32).toString('hex');
     const accessTokenHash = crypto.createHash('sha256').update(rawAccessToken).digest('hex');
-    const accessTokenExpiresAt = new Date(Date.now() + ACCESS_TOKEN_TTL_DAYS_CLAIM * 24 * 60 * 60 * 1000);
+    const accessTokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
     await ordersCollection.updateOne({ _id: order._id }, { $set: { accessTokenHash, accessTokenExpiresAt, updatedAt: new Date() } });
-    // Audit
-    await logAuthEvent(req, 'claim_success', { orderRef: order.orderRef, phoneSuffix, tokenHash: accessTokenHash });
     return res.json({ success: true, orderId: order._id.toString(), orderRef: order.orderRef, orderAccessToken: rawAccessToken });
   } catch (err) {
     console.error('Auth claim error:', err);
-    await logAuthEvent(req, 'claim_error', { error: err?.message || String(err) });
-    return res.status(500).json({ error: 'Błąd serwera' });
-  }
-});
-
-// POST /api/auth/magic - send a short-lived magic link to the customer's email
-app.post('/api/auth/magic', magicLimiter, async (req, res) => {
-  if (!ordersCollection) return res.status(503).json({ error: 'Baza danych niedostępna' });
-  try {
-    const { orderRef, email } = req.body || {};
-    if (!orderRef) return res.status(400).json({ error: 'Brakuje orderRef' });
-
-    const order = await ordersCollection.findOne({ orderRef: String(orderRef) });
-    if (!order) return res.status(404).json({ error: 'Zamówienie nie znalezione' });
-
-    const targetEmail = (email && String(email).trim()) || (order.optionalAccount && order.optionalAccount.email);
-    if (!targetEmail || !isEmailValid(targetEmail)) return res.status(400).json({ error: 'Brak poprawnego e-maila powiązanego z zamówieniem' });
-
-    // Generate short-lived token and store hash
-    const rawToken = crypto.randomBytes(32).toString('hex');
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const expiresAt = new Date(Date.now() + (Number(process.env.MAGIC_LINK_TTL_HOURS || 2) * 60 * 60 * 1000));
-
-    await ordersCollection.updateOne({ _id: order._id }, { $set: { accessTokenHash: tokenHash, accessTokenExpiresAt: expiresAt, updatedAt: new Date() } });
-
-    const appUrl = process.env.APP_URL || `http://localhost:${PORT}`;
-    const magicLink = `${appUrl.replace(/\/$/, '')}/account.html?token=${rawToken}`;
-
-    const subject = `${process.env.NODE_ENV === 'development' ? '[TEST] ' : ''}Link dostępu do zamówienia ${order.orderRef}`;
-    const html = `
-      <p>Witaj,</p>
-      <p>Kliknij poniższy link, aby uzyskać dostęp do swojego zamówienia <strong>${order.orderRef}</strong>. Link wygasa za ${process.env.MAGIC_LINK_TTL_HOURS || 2} godzin.</p>
-      <p><a href="${magicLink}">${magicLink}</a></p>
-      <p>Jeśli nie prosiłeś o link, zignoruj tę wiadomość.</p>
-    `;
-
-    if (resend) {
-      // Send email (fire and forget)
-      resend.emails.send({
-        to: targetEmail,
-        from: process.env.RESEND_FROM_EMAIL || 'noreply@galaretkarnia.onresend.com',
-        subject,
-        html
-      }).then(() => {
-        console.log(`Magic link sent to ${targetEmail} for order ${order.orderRef}`);
-      }).catch(err => {
-        console.error('Error sending magic link:', err?.message || err);
-      });
-      await logAuthEvent(req, 'magic_sent', { orderRef: order.orderRef, email: targetEmail });
-      return res.status(202).json({ success: true, message: 'Link wysłany jeśli e-mail istnieje w systemie.' });
-    }
-
-    // If Resend not configured, in development return the link to allow testing
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Resend not configured — returning magic link in response for dev testing');
-      await logAuthEvent(req, 'magic_generated_dev', { orderRef: order.orderRef, email: targetEmail, magicLink });
-      return res.status(202).json({ success: true, message: 'TEST: magic link (development)', magicLink });
-    }
-
-    console.warn('Magic link requested but Resend not configured');
-    await logAuthEvent(req, 'magic_failed_no_resend', { orderRef: order.orderRef, email: targetEmail });
-    return res.status(501).json({ error: 'Wysyłka e-maili nie skonfigurowana' });
-  } catch (err) {
-    console.error('Auth magic error:', err);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 });
 
 // GET /api/account/orders - returns order details when provided Authorization: Bearer <token>
-app.get('/api/account/orders', accountLimiter, async (req, res) => {
+app.get('/api/account/orders', async (req, res) => {
   if (!ordersCollection) return res.status(503).json({ error: 'Baza danych niedostępna' });
   try {
     const auth = req.headers.authorization || req.headers.Authorization;
@@ -587,70 +490,6 @@ app.get('/api/account/orders', accountLimiter, async (req, res) => {
     return res.json({ success: true, order: safeOrder });
   } catch (err) {
     console.error('Account orders error:', err);
-    return res.status(500).json({ error: 'Błąd serwera' });
-  }
-});
-
-// POST /api/auth/revoke - revoke an access token (by token) or revoke by orderId (admin)
-app.post('/api/auth/revoke', authClaimLimiter, async (req, res) => {
-  if (!ordersCollection) return res.status(503).json({ error: 'Baza danych niedostępna' });
-  try {
-    const { token, orderId } = req.body || {};
-    if (!token && !orderId) return res.status(400).json({ error: 'Brakuje tokenu lub orderId' });
-
-    // Revoke by token (owner can revoke their token)
-    if (token) {
-      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-      const result = await ordersCollection.updateOne({ accessTokenHash: tokenHash }, { $unset: { accessTokenHash: '', accessTokenExpiresAt: '' }, $set: { updatedAt: new Date() } });
-      if (result.matchedCount === 0) return res.status(404).json({ error: 'Nie znaleziono tokenu' });
-      await logAuthEvent(req, 'revoke_by_token', { tokenHash });
-      console.log('Token revoked for order (by token)');
-      return res.json({ success: true });
-    }
-
-    // Revoke by orderId requires ADMIN_SECRET header
-    const adminSecret = process.env.ADMIN_SECRET;
-    const provided = req.headers['x-admin-secret'] || req.headers['X-Admin-Secret'];
-    if (!adminSecret || String(provided) !== String(adminSecret)) return res.status(401).json({ error: 'Brak uprawnień' });
-
-    try {
-      const oid = new ObjectId(orderId);
-      const result = await ordersCollection.updateOne({ _id: oid }, { $unset: { accessTokenHash: '', accessTokenExpiresAt: '' }, $set: { updatedAt: new Date() } });
-      if (result.matchedCount === 0) return res.status(404).json({ error: 'Zamówienie nie znalezione' });
-      await logAuthEvent(req, 'revoke_by_admin', { orderId });
-      console.log(`Admin revoked token for order ${orderId}`);
-      return res.json({ success: true });
-    } catch (e) {
-      await logAuthEvent(req, 'revoke_admin_invalid_orderId', { provided: orderId, error: e?.message || String(e) });
-      return res.status(400).json({ error: 'Nieprawidłowy orderId' });
-    }
-  } catch (err) {
-    console.error('Auth revoke error:', err);
-    return res.status(500).json({ error: 'Błąd serwera' });
-  }
-});
-
-// GET /api/admin/auth-audit - view recent auth audit entries (admin only)
-app.get('/api/admin/auth-audit', adminLimiter, async (req, res) => {
-  if (!mongoClient) return res.status(503).json({ error: 'Baza danych niedostępna' });
-  try {
-    const adminSecret = process.env.ADMIN_SECRET;
-    const provided = req.headers['x-admin-secret'] || req.headers['X-Admin-Secret'];
-
-    // Require ADMIN_SECRET in all environments for admin access
-    if (!adminSecret || !provided || String(provided) !== String(adminSecret)) {
-      return res.status(401).json({ error: 'Brak uprawnień' });
-    }
-
-    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50));
-    const db = mongoClient.db('galaretkarnia');
-    const audit = db.collection('auth_audit');
-    const rows = await audit.find({}).sort({ timestamp: -1 }).limit(limit).toArray();
-
-    // Return entries (they already avoid raw tokens)
-    return res.json({ success: true, count: rows.length, entries: rows });
-  } catch (err) {
-    console.error('Admin auth_audit error:', err);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 });
