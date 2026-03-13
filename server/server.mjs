@@ -146,12 +146,12 @@ app.use(express.json({ limit: '64kb' }));
 const publicDir = join(__dirname, 'public');
 app.use(express.static(publicDir, { maxAge: '7d', immutable: true, dotfiles: 'ignore', index: false }));
 
-// Ensure private receipts directory exists for generated PDFs (not served publicly)
-const receiptsDir = join(__dirname, 'receipts');
+// Ensure receipts directory exists for generated PDFs
+const receiptsDir = join(publicDir, 'receipts');
 try {
   fs.mkdirSync(receiptsDir, { recursive: true });
 } catch (err) {
-  console.error('Failed to create private receipts directory:', err?.message || err);
+  console.error('Failed to create receipts directory:', err?.message || err);
 }
 
 // Serve images and favicons from project root via dedicated routes (keeps other files private)
@@ -421,7 +421,8 @@ app.post('/api/orders', async (req, res) => {
         stream.on('finish', resolve);
         stream.on('error', reject);
       });
-      const receiptUrl = `/api/receipts/${orderRef}`;
+      const baseUrl = process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : `${req.protocol}://${req.get('host')}`;
+      const receiptUrl = `${baseUrl}/receipts/${receiptFilename}`;
 
       // Respond with order metadata and receipt URL
       res.json({
@@ -628,47 +629,6 @@ app.post('/api/auth/magic', magicLimiter, async (req, res) => {
     return res.status(501).json({ error: 'Wysyłka e-maili nie skonfigurowana' });
   } catch (err) {
     console.error('Auth magic error:', err);
-    return res.status(500).json({ error: 'Błąd serwera' });
-  }
-});
-
-// GET /api/receipts/:orderRef - stream receipt PDF if authorized
-app.get('/api/receipts/:orderRef', accountLimiter, async (req, res) => {
-  try {
-    const { orderRef } = req.params;
-    const auth = req.headers.authorization || '';
-    const adminSecret = req.headers['x-admin-secret'] || req.query.admin_secret;
-
-    // Admin can fetch with X-Admin-Secret
-    if (adminSecret && process.env.ADMIN_SECRET && adminSecret === process.env.ADMIN_SECRET) {
-      const filePath = join(receiptsDir, `${orderRef}.pdf`);
-      if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Receipt not found' });
-      return res.sendFile(filePath);
-    }
-
-    if (!auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Brak autoryzacji' });
-    const token = auth.slice(7).trim();
-    if (!token) return res.status(401).json({ error: 'Brak tokenu' });
-
-    if (!ordersCollection) return res.status(503).json({ error: 'Baza danych niedostępna' });
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const order = await ordersCollection.findOne({ orderRef: String(orderRef), accessTokenHash: tokenHash });
-    if (!order) return res.status(404).json({ error: 'Zamówienie nieznalezione lub token nieprawidłowy' });
-    if (order.accessTokenExpiresAt && new Date(order.accessTokenExpiresAt) < new Date()) return res.status(401).json({ error: 'Token wygasł' });
-
-    const filePath = join(receiptsDir, `${orderRef}.pdf`);
-    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Paragon niedostępny' });
-
-    // stream file
-    res.setHeader('Content-Type', 'application/pdf');
-    const stream = fs.createReadStream(filePath);
-    stream.pipe(res);
-    stream.on('error', (err) => {
-      console.error('Receipt stream error:', err?.message || err);
-      if (!res.headersSent) res.status(500).end();
-    });
-  } catch (err) {
-    console.error('Receipt fetch error:', err?.message || err);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 });
