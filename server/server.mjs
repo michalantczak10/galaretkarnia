@@ -6,6 +6,8 @@ import { dirname, join } from 'path';
 import { MongoClient, ObjectId } from 'mongodb';
 import compression from 'compression';
 import crypto from 'crypto';
+import fs from 'fs';
+import PDFDocument from 'pdfkit';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
@@ -143,6 +145,14 @@ app.use(express.json({ limit: '64kb' }));
 // Serve static files from `public` directory inside the server folder
 const publicDir = join(__dirname, 'public');
 app.use(express.static(publicDir, { maxAge: '7d', immutable: true, dotfiles: 'ignore', index: false }));
+
+// Ensure receipts directory exists for generated PDFs
+const receiptsDir = join(publicDir, 'receipts');
+try {
+  fs.mkdirSync(receiptsDir, { recursive: true });
+} catch (err) {
+  console.error('Failed to create receipts directory:', err?.message || err);
+}
 
 // Serve images and favicons from project root via dedicated routes (keeps other files private)
 app.use('/img', express.static(join(projectRoot, 'img'), { maxAge: '7d', immutable: true, dotfiles: 'ignore' }));
@@ -368,19 +378,82 @@ app.post('/api/orders', async (req, res) => {
     const transferTitle = createTransferTitle(orderRef);
     const paymentTarget = getPaymentTarget(selectedPaymentMethod);
 
-    // IMMEDIATELY send success response to client (don't wait for email)
-    res.json({
-      success: true,
-      orderId: orderId,
-      orderRef,
-      orderAccessToken: rawAccessToken,
-      transferTitle,
-      paymentMethod: selectedPaymentMethod,
-      paymentTarget,
-      message: 'Zamówienie zapisane. Realizacja po zaksięgowaniu wpłaty.',
-      status: 'oczekuje-na-platnosc',
-      paymentStatus: 'oczekiwanie-na-wplate'
-    });
+    // Generate a simple PDF receipt and return its URL to the client
+    try {
+      const receiptFilename = `${orderRef}.pdf`;
+      const receiptFilePath = join(receiptsDir, receiptFilename);
+      const doc = new PDFDocument({ size: 'A4', margin: 40 });
+      const stream = fs.createWriteStream(receiptFilePath);
+      doc.pipe(stream);
+
+      doc.fontSize(20).text('Podsumowanie zamówienia', { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(12).text(`Numer zamówienia: ${orderRef}`);
+      doc.text(`ID bazy: ${orderId}`);
+      doc.text(`Data: ${new Date().toLocaleString('pl-PL')}`);
+      doc.moveDown();
+
+      doc.fontSize(14).text('Pozycje:');
+      items.forEach(it => {
+        doc.fontSize(12).text(`- ${it.name} x${it.qty} @ ${it.price} zł = ${it.qty * it.price} zł`);
+      });
+      doc.moveDown();
+
+      doc.fontSize(12).text(`Produkty: ${productsTotal || order.total} zł`);
+      doc.text(`Dostawa: ${calculatedDeliveryCost} zł (${deliveryInfo.parcelLabel})`);
+      doc.text(`RAZEM DO ZAPŁATY: ${order.total} zł`);
+      doc.moveDown();
+
+      doc.text(`Płatność: ${selectedPaymentMethod}`);
+      doc.text(`Dane do przelewu: ${paymentTarget}`);
+      doc.text(`Tytuł przelewu: ${transferTitle}`);
+      doc.moveDown();
+
+      doc.text('Dane klienta:');
+      doc.text(`Telefon: ${phone}`);
+      doc.text(`Paczkomat: ${normalizedParcelLockerCode}`);
+      doc.text(`Uwagi: ${notes || 'Brak'}`);
+
+      doc.end();
+
+      // wait for file finish
+      await new Promise((resolve, reject) => {
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+      const baseUrl = process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : `${req.protocol}://${req.get('host')}`;
+      const receiptUrl = `${baseUrl}/receipts/${receiptFilename}`;
+
+      // Respond with order metadata and receipt URL
+      res.json({
+        success: true,
+        orderId: orderId,
+        orderRef,
+        orderAccessToken: rawAccessToken,
+        receiptUrl,
+        transferTitle,
+        paymentMethod: selectedPaymentMethod,
+        paymentTarget,
+        message: 'Zamówienie zapisane. Realizacja po zaksięgowaniu wpłaty.',
+        status: 'oczekuje-na-platnosc',
+        paymentStatus: 'oczekiwanie-na-wplate'
+      });
+    } catch (pdfErr) {
+      console.error('Failed to generate PDF receipt:', pdfErr?.message || pdfErr);
+      // Fallback: respond without receiptUrl
+      res.json({
+        success: true,
+        orderId: orderId,
+        orderRef,
+        orderAccessToken: rawAccessToken,
+        transferTitle,
+        paymentMethod: selectedPaymentMethod,
+        paymentTarget,
+        message: 'Zamówienie zapisane. Realizacja po zaksięgowaniu wpłaty.',
+        status: 'oczekuje-na-platnosc',
+        paymentStatus: 'oczekiwanie-na-wplate'
+      });
+    }
 
     // Send email in background (fire-and-forget, non-blocking)
     const itemsText = items
