@@ -114,18 +114,14 @@ ORDER_EMAIL=kontakt@galaretkarnia.pl
 
 ## 🏃 Uruchomienie
 
-### Dla developmentu - Terminal 1 (Frontend)
+### Dla developmentu
 ```bash
-npx vite
-```
-Otwórz `http://localhost:5173` w przeglądarce.
-
-### Dla developmentu - Terminal 2 (Backend)
-```bash
+# Zainstaluj zależności backendu i uruchom serwer
 cd server
+npm install
 npm run dev
 ```
-Backend będzie dostępny na `http://localhost:3001`.
+Otwórz `http://localhost:3001` w przeglądarce. Frontend jest serwowany przez backend (statyczne pliki w `server/public`).
 
 ### Dla produkcji - Frontend
 ```bash
