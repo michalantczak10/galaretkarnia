@@ -688,19 +688,7 @@ const clearCart = async () => {
 const saveCart = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 };
-// Funkcja załadowania koszyka z localStorage
-const loadCart = () => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try {
-            cart = JSON.parse(saved);
-        }
-        catch (e) {
-            console.error("Błąd przy ładowaniu koszyka", e);
-            cart = [];
-        }
-    }
-};
+// Funkcja załadowania koszyka z localStorage — niepotrzebna, koszyk zawsze pusty
 // Wyświetlanie listy produktów
 function renderMiniCartList() {
     cartList.innerHTML = "";
@@ -961,7 +949,7 @@ createOptionalAccount.addEventListener("change", () => {
 });
 // Załaduj koszyk z localStorage przy starcie
 checkoutForm.addEventListener("submit", handleCheckoutSubmit);
-loadCart();
+// Koszyk nie jest ładowany z localStorage — zawsze pusty po odświeżeniu
 renderCart();
 renderPaymentInstructions();
 void loadPaymentConfig();
