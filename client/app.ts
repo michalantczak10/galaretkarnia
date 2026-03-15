@@ -2,12 +2,13 @@
 // Brak globalnych deklaracji — cała logika i deklaracje wewnątrz DOMContentLoaded
 
 window.addEventListener("DOMContentLoaded", () => {
+      // Stała STORAGE_KEY musi być zadeklarowana przed użyciem
+      const STORAGE_KEY = "cartStorage";
       // Usuwanie koszyka przy każdym wejściu na stronę
       localStorage.removeItem(STORAGE_KEY);
     // Deklaracje zmiennych i funkcji
     let freeDeliveryThreshold = 100;
     let cart: any[] = [];
-    const STORAGE_KEY = "cartStorage";
     const cartList = document.getElementById("cartList") as HTMLElement;
     const addButtons = document.querySelectorAll(".addToCartBtn") as NodeListOf<HTMLButtonElement>;
     const miniCart = document.querySelector(".mini-cart") as HTMLElement;
