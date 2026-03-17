@@ -286,8 +286,9 @@ app.get('/api/health', (req, res) => {
 
 // ...existing code...
 // SPA fallback — przeniesione na sam koniec pliku
+const clientDir = path.join(projectRoot, 'client');
 app.get('*', (req, res) => {
-  res.sendFile(join(clientDir, 'index.html'));
+  res.sendFile(path.join(clientDir, 'index.html'));
 });
 
 // Start server

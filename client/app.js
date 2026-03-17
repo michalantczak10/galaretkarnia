@@ -28,6 +28,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 searchAutocompleteBox.className = "autocomplete-box";
                 searchWrapper.appendChild(searchAutocompleteBox);
 
+                let autocompleteClicked = false;
                 parcelSearchInput.addEventListener("input", () => {
                     const value = parcelSearchInput.value.trim().toLowerCase();
                     searchAutocompleteBox.innerHTML = "";
@@ -47,11 +48,13 @@ window.addEventListener("DOMContentLoaded", () => {
                             const option = document.createElement("div");
                             option.className = "autocomplete-option";
                             option.innerHTML = `<strong>${locker.code}</strong> — ${locker.name} <span style="color:#888">(${locker.postalCode})</span><br><small>${locker.address}</small>`;
-                            option.addEventListener("click", () => {
+                            option.addEventListener("mousedown", (e) => {
+                                autocompleteClicked = true;
                                 parcelLockerCodeInput.value = locker.code;
                                 parcelSearchInput.value = `${locker.name} (${locker.postalCode})`;
                                 searchAutocompleteBox.innerHTML = "";
                                 searchAutocompleteBox.style.display = "none";
+                                setTimeout(() => { autocompleteClicked = false; }, 10);
                             });
                             searchAutocompleteBox.appendChild(option);
                         });
@@ -65,8 +68,10 @@ window.addEventListener("DOMContentLoaded", () => {
                 });
                 parcelSearchInput.addEventListener("blur", () => {
                     setTimeout(() => {
-                        searchAutocompleteBox.innerHTML = "";
-                        searchAutocompleteBox.style.display = "none";
+                        if (!autocompleteClicked) {
+                            searchAutocompleteBox.innerHTML = "";
+                            searchAutocompleteBox.style.display = "none";
+                        }
                     }, 150);
                 });
         // Usuwanie koszyka przy każdym wejściu na stronę
