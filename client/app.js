@@ -1,5 +1,15 @@
 // Cała logika DOM wewnątrz DOMContentLoaded
 window.addEventListener("DOMContentLoaded", () => {
+                                                // Maskowanie numeru telefonu: 500 600 700
+                                                const customerPhoneInput = document.getElementById("customerPhone");
+                                                if (customerPhoneInput) {
+                                                    customerPhoneInput.addEventListener("input", (e) => {
+                                                        let value = customerPhoneInput.value.replace(/\D/g, "");
+                                                        value = value.slice(0, 9); // max 9 cyfr
+                                                        value = value.replace(/(\d{3})(\d{3})(\d{0,3})/, (m, g1, g2, g3) => g3 ? `${g1} ${g2} ${g3}` : g2 ? `${g1} ${g2}` : g1);
+                                                        customerPhoneInput.value = value;
+                                                    });
+                                                }
                                 // Pobieranie paczkomatów z pliku JSON
                                 let parcelLockers = [];
                                 fetch("parcelLockers.json?v=" + Date.now())
