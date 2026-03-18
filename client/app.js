@@ -212,7 +212,7 @@ const lastOrderPaymentTargetElement = document.getElementById("lastOrderPaymentT
 const lastOrderPhoneSuffixElement = document.getElementById("lastOrderPhoneSuffix");
 const lastOrderLockerElement = document.getElementById("lastOrderLocker");
 const copyTransferTitleBtnElement = document.getElementById("copyTransferTitleBtn");
-// Sprawdzenie czy wszystkie elementy istnieją
+ 
 if (!miniCartElement ||
     !cartListElement ||
     !checkoutFormElement ||
@@ -240,7 +240,7 @@ if (!miniCartElement ||
     console.error("Nie znaleziono wymaganych elementów DOM");
     throw new Error("Brak wymaganych elementów na stronie");
 }
-// Przypisanie do zmiennych z pewnymi typami
+ 
 const miniCart = miniCartElement;
 const cartList = cartListElement;
 const checkoutForm = checkoutFormElement;
@@ -265,11 +265,11 @@ const lastOrderPaymentTarget = lastOrderPaymentTargetElement;
 const lastOrderPhoneSuffix = lastOrderPhoneSuffixElement;
 const lastOrderLocker = lastOrderLockerElement;
 const copyTransferTitleBtn = copyTransferTitleBtnElement;
-// Stałe konfiguracyjne
+ 
 const STORAGE_KEY = "galaretkarnia_cart";
 const ORDER_REF_STORAGE_KEY = "galaretkarnia_last_order_ref";
 const TOAST_DURATION = 2000;
-// Pixel offset when scrolling to the cart (positive number subtracts from element top)
+ 
 const CART_SCROLL_OFFSET = 20;
 let freeDeliveryThreshold = 50;
 let parcelSizes = [
@@ -289,7 +289,7 @@ const API_BASE_URL = isDevelopment
     : "https://galaretkarnia.onrender.com";
 const API_URL = `${API_BASE_URL}/api/orders`;
 const PAYMENT_CONFIG_URL = `${API_BASE_URL}/api/payment-config`;
-// Funkcja animacji - usuwa klasę, wymusza reflow i dodaje ponownie
+ 
 const animate = (el, cls) => {
     el.classList.remove(cls);
     void el.offsetWidth; // Wymusza reflow
@@ -300,7 +300,7 @@ const animate = (el, cls) => {
         el.classList.remove(cls);
     }, animationDuration);
 };
-// Funkcja wyświetlania toast notyfikacji (opcjonalnie z akcją: label + callback)
+ 
 const showToast = (message, type = "default", actionLabel, actionCallback) => {
     const toast = document.createElement("div");
     toast.className = `toast toast-show ${type === "success" ? "toast-success" : ""}`.trim();
@@ -336,7 +336,7 @@ const showToast = (message, type = "default", actionLabel, actionCallback) => {
     }, TOAST_DURATION);
 };
 
-// Dismiss any existing toast whose message contains the provided text
+ 
 const dismissToastContaining = (text) => {
     document.querySelectorAll('.toast').forEach(t => {
         const msgEl = t.querySelector('.toast-message');
@@ -346,7 +346,7 @@ const dismissToastContaining = (text) => {
         }
     });
 };
-// Show a custom confirmation modal. Returns a Promise that resolves to true if confirmed.
+ 
 const showConfirmModal = (title, message, singleButton = false) => {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
@@ -406,10 +406,10 @@ const scrollToCheckout = () => {
 const getCartTotalPrice = () => cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 const getTotalItemsCount = () => cart.reduce((sum, item) => sum + item.qty, 0);
 const calculateDeliveryCost = (itemsCount) => {
-    // Obliczamy ile paczek potrzebne
+    
     const parcels = [];
     let remainingItems = itemsCount;
-    // Ensure parcelSizes is initialized
+    
     if (parcelSizes.length < 3) {
         parcelSizes = [
             { name: "A", label: "Paczkomat A (mały)", maxItems: 3, cost: 13 },
@@ -420,18 +420,18 @@ const calculateDeliveryCost = (itemsCount) => {
     const parcelA = parcelSizes[0];
     const parcelB = parcelSizes[1];
     const parcelC = parcelSizes[2];
-    // Najpierw próbujemy paczkami A
+    
     while (remainingItems > 0 && remainingItems <= parcelA.maxItems) {
         parcels.push(parcelA);
         remainingItems = 0;
         break;
     }
-    // Jeśli więcej niż A, próbujemy B
+    
     if (remainingItems > parcelA.maxItems && remainingItems <= parcelB.maxItems) {
         parcels.push(parcelB);
         remainingItems = 0;
     }
-    // Jeśli więcej niż B, używamy C (może być wiele)
+    
     if (remainingItems > parcelB.maxItems) {
         const maxC = parcelC.maxItems;
         const parcelCount = Math.ceil(remainingItems / maxC);
@@ -439,7 +439,7 @@ const calculateDeliveryCost = (itemsCount) => {
             parcels.push(parcelC);
         }
     }
-    // Fallback
+    
     if (parcels.length === 0) {
         parcels.push(parcelB);
     }
@@ -589,7 +589,7 @@ const renderCheckoutSummary = () => {
     const deliveryInfo = getDeliveryInfo(productsTotal);
     const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
     const itemsCount = getTotalItemsCount();
-    // Dodaj podsumowanie kosztów
+    
     const summaryBreakdown = document.createElement("div");
     summaryBreakdown.className = "checkout-cost-breakdown";
     const parcelInfo = deliveryInfo.numberOfParcels > 1
@@ -642,7 +642,7 @@ const handleCheckoutSubmit = async (event) => {
     } else {
         if (emailError) emailError.textContent = "";
     }
-    // Show loading state
+    
     showToast("⏳ Wysyłanie zamówienia...", "default");
     const submitBtn = checkoutForm.querySelector('button[type="submit"]');
     if (submitBtn)
@@ -650,7 +650,7 @@ const handleCheckoutSubmit = async (event) => {
     const productsTotal = getCartTotalPrice();
     const deliveryInfo = getDeliveryInfo(productsTotal);
     const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
-    // Handle traditional payment methods (bank transfer, BLIK)
+    
     try {
         const response = await fetch(API_URL, {
             method: "POST",
@@ -675,7 +675,7 @@ const handleCheckoutSubmit = async (event) => {
         if (!response.ok) {
             throw new Error(data.error || "Błąd przy wysyłaniu zamówienia");
         }
-        // Success!
+        
         const orderRef = data.orderRef || formatOrderRef(data.orderId);
         const transferTitle = data.transferTitle || createTransferTitle(orderRef);
         const paymentTarget = data.paymentTarget || getPaymentTargetText(selectedPaymentMethod);
@@ -693,7 +693,7 @@ const handleCheckoutSubmit = async (event) => {
             parcelLockerCode: parcelLocker,
         });
         renderLastOrderReference();
-        // Clear form
+        
         customerPhone.value = "";
         parcelLockerCode.value = "";
         parcelSearchQuery.value = "";
@@ -701,47 +701,44 @@ const handleCheckoutSubmit = async (event) => {
         optionalAccountFields.hidden = true;
         optionalAccountEmail.value = "";
         customerNotes.value = "";
-        // Clear cart
+        
         cart = [];
         renderCart();
-        // Scroll to confirmation modal/toast is not needed
+        
     }
     catch (error) {
         const errorMsg = error instanceof Error ? error.message : "Nieznany błąd";
-        showToast(`❌ ${errorMsg}`, "error");
     }
-    finally {
-        if (submitBtn)
-            submitBtn.disabled = false;
-    }
-};
-// Funkcja usunięcia produktu z koszyka
-const removeItem = (name) => {
-    cart = cart.filter(item => item.name !== name);
-    renderCart();
-    showToast(`${name} usunięty z koszyka`);
-};
-// Funkcja zmniejszenia ilości
-const decreaseQty = (name) => {
-    const item = cart.find(i => i.name === name);
-    if (item) {
-        if (item.qty > 1) {
-            item.qty--;
-            renderCart();
-        }
-        else {
-            removeItem(name);
-        }
-    }
-};
-// Funkcja zwiększenia ilości
-const increaseQty = (name) => {
-    const item = cart.find(i => i.name === name);
-    if (item) {
+                                                
+                                                    const customerPhoneInput = document.getElementById("customerPhone");
+                                                    if (customerPhoneInput) {
+                                                        customerPhoneInput.addEventListener("input", (e) => {
+                                                            let value = customerPhoneInput.value.replace(/\D/g, "");
+                                                            value = value.slice(0, 9);
+                                                            value = value.replace(/(\d{3})(\d{3})(\d{0,3})/, (m, g1, g2, g3) => g3 ? `${g1} ${g2} ${g3}` : g2 ? `${g1} ${g2}` : g1);
+                                                            customerPhoneInput.value = value;
+                                                        });
+                                                    }
+                                    let parcelLockers = [];
+                                    fetch("parcelLockers.json?v=" + Date.now())
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            parcelLockers = data.map(locker => ({
+                                                code: locker.n,
+                                                name: `${locker.c}, ${locker.e} ${locker.b}`,
+                                                address: locker.d ? locker.d : `${locker.e} ${locker.b}, ${locker.c}, ${locker.o}`,
+                                                postalCode: locker.o
+                                            }));
+                                            console.log(`Baza paczkomatów załadowana: ${parcelLockers.length} rekordów. Wszystko OK.`);
+                                        })
+                                        .catch(() => {
+                                            parcelLockers = [];
+                                            console.warn("Nie udało się pobrać listy paczkomatów.");
+                                        });
         item.qty++;
         renderCart();
     }
-};
+                
 // Funkcja wyczyszczenia koszyka
 const clearCart = async () => {
     if (cart.length === 0)
@@ -749,18 +746,18 @@ const clearCart = async () => {
     const confirmed = await showConfirmModal("Wyczyść koszyk", "Na pewno chcesz wyczyścić cały koszyk?");
     if (!confirmed) return;
 
-    // Zapisz kopię koszyka, aby umożliwić cofnięcie
+    
     const prev = cart.map(i => (Object.assign({}, i)));
     cart = [];
     renderCart();
     
-        // Zresetuj formularz zamówienia i ukryj pola opcjonalne
+        
         const checkoutFormEl = document.getElementById('checkoutForm');
         if (checkoutFormEl) checkoutFormEl.reset();
         const optionalFields = document.getElementById('optionalAccountFields');
         if (optionalFields) optionalFields.hidden = true;
 
-    // Pokazujemy toast z możliwością cofnięcia
+    
     showToast("✨ Koszyk został wyczyszczony.", "success", "Cofnij", () => {
         cart = prev;
         renderCart();
@@ -768,12 +765,12 @@ const clearCart = async () => {
     });
     showToast("🧺 Koszyk został wyczyszczony. Możesz dodać produkty ponownie.", "info");
 };
-// Funkcja zapisu koszyka do localStorage
+ 
 const saveCart = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 };
-// Funkcja załadowania koszyka z localStorage — niepotrzebna, koszyk zawsze pusty
-// Wyświetlanie listy produktów
+ 
+ 
 function renderMiniCartList() {
     cartList.innerHTML = "";
     const totalPrice = getCartTotalPrice();
@@ -791,10 +788,10 @@ function renderMiniCartList() {
         img.src = item.image;
         img.alt = item.name;
         img.onerror = () => {
-            // Fallback gdy obrazek nie istnieje
+            
             img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='55' height='55'%3E%3Crect fill='%23ddd' width='55' height='55'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='12'%3E?%3C/text%3E%3C/svg%3E";
         };
-        const info = document.createElement("div");
+        
         info.classList.add("cart-item-info");
         const name = document.createElement("div");
         name.classList.add("cart-item-name");
@@ -811,21 +808,21 @@ function renderMiniCartList() {
         details.appendChild(subtotalLine);
         const controls = document.createElement("div");
         controls.classList.add("cart-item-controls");
-        // Przycisk minus
+        
         const btnMinus = document.createElement("button");
         btnMinus.className = "cart-btn cart-btn-minus";
         btnMinus.textContent = "−";
         btnMinus.addEventListener("click", () => decreaseQty(item.name));
-        // Ilość
+        
         const qtySpan = document.createElement("span");
         qtySpan.className = "cart-item-qty";
         qtySpan.textContent = item.qty.toString();
-        // Przycisk plus
+        
         const btnPlus = document.createElement("button");
         btnPlus.className = "cart-btn cart-btn-plus";
         btnPlus.textContent = "+";
         btnPlus.addEventListener("click", () => increaseQty(item.name));
-        // Przycisk usuń
+        
         const btnRemove = document.createElement("button");
         btnRemove.className = "cart-btn cart-btn-remove";
         btnRemove.textContent = "✕";
@@ -860,7 +857,7 @@ function renderMiniCartList() {
     progressBox.appendChild(progressLabel);
     progressBox.appendChild(progressTrack);
     cartList.appendChild(progressBox);
-    // Breakdown: produkty + dostawa + razem
+    
     const deliveryInfo = getDeliveryInfo(totalPrice);
     const totalWithDelivery = totalPrice + deliveryInfo.finalCost;
     const itemsCount = getTotalItemsCount();
@@ -883,12 +880,12 @@ function renderMiniCartList() {
     cartSummary.appendChild(deliveryLine);
     cartSummary.appendChild(totalLine);
     cartList.appendChild(cartSummary);
-    // Przycisk wyczyść koszyk
+    
     const clearBtn = document.createElement("button");
     clearBtn.className = "cart-clear-btn";
     clearBtn.textContent = "Wyczyść koszyk";
     clearBtn.addEventListener("click", clearCart);
-    // Group action buttons so they appear side-by-side
+    
     const checkoutBtn = document.createElement("button");
     checkoutBtn.className = "cart-checkout-btn";
     checkoutBtn.textContent = "Zamawiam teraz";
@@ -899,16 +896,16 @@ function renderMiniCartList() {
     actions.appendChild(clearBtn);
     actions.appendChild(checkoutBtn);
     cartList.appendChild(actions);
-    // After rendering, adjust items that fit into a single line
+    
     try {
         adjustCartItemsSingleLine();
     }
     catch (e) {
-        // ignore if helper not yet defined
+        
     }
 }
 
-// Ensure cart items that fit on one line keep that layout.
+    
 function adjustCartItemsSingleLine() {
     if (!cartList) return;
     const rows = cartList.querySelectorAll('.cart-item');
@@ -917,10 +914,10 @@ function adjustCartItemsSingleLine() {
         const controls = row.querySelector('.cart-item-controls');
         const info = row.querySelector('.cart-item-info');
         if (!info || !img || !controls) return;
-        // Temporarily measure needed width when info is single-line
+        
         const prevWhite = info.style.whiteSpace;
         info.style.whiteSpace = 'nowrap';
-        // Needed width: image + controls + info's scrollWidth + small gap
+        
         const needed = img.offsetWidth + controls.offsetWidth + info.scrollWidth + 16;
         info.style.whiteSpace = prevWhite || '';
         if (needed <= row.clientWidth) {
@@ -932,7 +929,7 @@ function adjustCartItemsSingleLine() {
     });
 }
 
-// Recalculate on resize (debounced)
+    
 {
     let resizeTimer = null;
     window.addEventListener('resize', () => {
@@ -942,16 +939,16 @@ function adjustCartItemsSingleLine() {
         }, 120);
     });
 }
-// Przeliczanie koszyka
+    
 function renderCart() {
-    // Animacje mini‑koszyka
+    
     animate(miniCart, "mini-cart-shake");
     animate(miniCart, "mini-cart-pulse");
     renderMiniCartList();
     renderCheckoutSummary();
     saveCart();
 }
-// Obsługa kliknięcia "Dodaj do koszyka"
+    
 addButtons.forEach(btn => {
     btn.addEventListener("click", () => {
         const name = btn.dataset.product;
@@ -966,16 +963,16 @@ addButtons.forEach(btn => {
             console.error("Nieprawidłowa cena produktu");
             return;
         }
-        // Szukamy produktu w koszyku
+        
         const existingIndex = cart.findIndex(item => item.name === name);
         if (existingIndex !== -1) {
-            // Zwiększ ilość i przenieś pozycję na początek (dynamiczne ustawianie)
+            
             cart[existingIndex].qty++;
             const [item] = cart.splice(existingIndex, 1);
             cart.unshift(item);
         }
         else {
-            // Dodaj nową pozycję na początek listy
+            
             cart.unshift({ name, price, qty: 1, image });
         }
         renderCart();
@@ -990,8 +987,8 @@ addButtons.forEach(btn => {
         else if (window.innerWidth <= 767) {
             miniCart.scrollIntoView({ behavior: "smooth", block: "center" });
         }
-        // Usuwam komunikat o pustym koszyku przy dodaniu produktu (niepotrzebne po refaktorze)
-        // If a 'cart cleared' message/toast is present, dismiss it when adding a new item
+        
+        
         dismissToastContaining("Koszyk został wyczyszczony");
         showToast(`${name} dodany do koszyka!`);
     });
@@ -1033,7 +1030,7 @@ createOptionalAccount.addEventListener("change", () => {
 });
 // Załaduj koszyk z localStorage przy starcie
 checkoutForm.addEventListener("submit", handleCheckoutSubmit);
-// Koszyk nie jest ładowany z localStorage — zawsze pusty po odświeżeniu
+    
 renderCart();
 renderPaymentInstructions();
 void loadPaymentConfig();

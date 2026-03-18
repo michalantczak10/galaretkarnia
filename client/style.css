@@ -1,3 +1,14 @@
+ 
+.checkout-info-box {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 12px;
+  color: #444;
+  padding: 18px 16px;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(255, 200, 0, 0.08);
+}
 .autocomplete-box {
   position: absolute;
   top: 100%;
@@ -16,13 +27,12 @@
   max-height: 350px;
   overflow-y: auto;
 }
-/* ===== AUTOCOMPLETE PACZKOMAT ===== */
+ 
 .parcel-search-row {
   position: relative;
   width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-flow: row nowrap;
 }
 
 .autocomplete-box {
@@ -30,8 +40,7 @@
   left: 0;
   top: 100%;
   width: 100%;
-  min-width: 0;
-  max-width: 100%;
+    flex-flow: column wrap;
   box-sizing: border-box;
   margin-top: 4px;
   margin-bottom: 12px;
@@ -66,13 +75,12 @@
   margin-top: 4px;
   min-height: 18px;
 }
-/* ===== CHECKOUT ACTIONS ROW (NAPRAWIONY) ===== */
+ 
 .checkout-actions-row {
   display: flex;
-  flex-direction: row;
+  flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
-  flex-wrap: nowrap;
   gap: 16px;
   margin-bottom: 8px;
 }
@@ -86,10 +94,9 @@
 
 @media (max-width: 600px) {
   .checkout-actions-row {
-    flex-direction: column;
+    flex-flow: column wrap;
     gap: 10px;
     align-items: stretch;
-    flex-wrap: wrap;
   }
 
   .checkout-actions-row button {
@@ -98,7 +105,7 @@
   }
 }
 
-/* Cart-specific actions: make buttons side-by-side and compact */
+ 
 .cart-actions {
   display: flex;
   gap: 10px;
@@ -114,7 +121,7 @@
   margin-top: 0;
 }
 
-/* Force side-by-side actions on very small screens as requested */
+ 
 @media (max-width: 600px) {
   .cart-actions {
     flex-direction: row;
@@ -129,7 +136,7 @@
   }
 }
 
-/* Extra small screens (<=440px): reduce gaps and button padding */
+ 
 @media (max-width: 440px) {
   .cart-actions {
     gap: 6px;
@@ -150,7 +157,7 @@
   margin-right: 8px;
 }
 
-/* ===== ZMIENNE CSS ===== */
+ 
 
 :root {
   --color-primary: #b30000;
@@ -1429,10 +1436,16 @@ button:active {
   line-height: 1.6;
 }
 
-.privacy-contact a { color: var(--color-primary); text-decoration: underline; }
+.privacy-contact a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
 
 /* Page CTA button (used for 'Powrót do strony głównej') */
-.page-cta { text-align: center; margin: 20px 0 36px; }
+.page-cta {
+  text-align: center;
+  margin: 20px 0 36px;
+}
 .page-btn {
   display: inline-block;
   padding: 12px 20px;
@@ -1443,10 +1456,16 @@ button:active {
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition), box-shadow var(--transition);
 }
-.page-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.page-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
 
 /* Ensure CTA inside contact card has visible text (higher specificity) */
-.privacy-contact .page-btn { color: var(--color-white); text-decoration: none; }
+.privacy-contact .page-btn {
+  color: var(--color-white);
+  text-decoration: none;
+}
 
 /* Section heading icons */
 .section-icon {

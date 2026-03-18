@@ -12,9 +12,9 @@ const projectRoot = path.resolve(__dirname, '..');
 app.use(express.json());
 app.use(express.static(path.join(projectRoot, 'client')));
 
-// Endpoint API do pobierania paczkomatów
-// ...existing code...
-// Endpoint API do pobierania paczkomatów
+ 
+ 
+ 
 app.get('/api/parcelLockers', (req, res) => {
   const lockersPath = path.join(projectRoot, 'client', 'parcelLockers.json');
   fs.readFile(lockersPath, 'utf8', (err, data) => {
@@ -31,7 +31,7 @@ app.get('/api/parcelLockers', (req, res) => {
   });
 });
 
-// Endpoint API do pobierania paczkomatów (po inicjalizacji app)
+ 
 app.get('/api/parcelLockers', (req, res) => {
   const lockersPath = path.join(projectRoot, 'client', 'parcelLockers.json');
   fs.readFile(lockersPath, 'utf8', (err, data) => {
@@ -48,7 +48,7 @@ app.get('/api/parcelLockers', (req, res) => {
   });
 });
 
-// ...pozostaw tylko jedną deklarację app i PORT po importach...
+ 
 
 // POST /api/orders - Accept order, save to DB and send email to owner
 app.post('/api/orders', async (req, res) => {
@@ -58,7 +58,7 @@ app.post('/api/orders', async (req, res) => {
   try {
     const { phone, parcelLockerCode, notes, items, productsTotal, deliveryCost, total, paymentMethod, createOptionalAccount, optionalAccountEmail } = req.body;
 
-    // Validation
+    
     if (!phone || !isPhoneValid(phone)) {
       return res.status(400).json({ error: 'Podaj poprawny numer telefonu.' });
     }
@@ -88,14 +88,14 @@ app.post('/api/orders', async (req, res) => {
     const normalizedParcelLockerCode = parcelLockerCode.toUpperCase();
     const phoneSuffix = getPhoneSuffix(phone);
 
-    // Oblicz całkowitą ilość słoików
+    
     const totalItemsCount = items.reduce((sum, item) => sum + (item.qty || 0), 0);
 
-    // Oblicz koszt dostawy na podstawie ilości
+    
     const deliveryInfo = calculateDeliveryCost(totalItemsCount);
     const calculatedDeliveryCost = productsTotal >= FREE_DELIVERY_THRESHOLD ? 0 : deliveryInfo.cost;
 
-    // Create order object
+    
     const order = {
       phone,
       phoneSuffix,
@@ -120,14 +120,14 @@ app.post('/api/orders', async (req, res) => {
       updatedAt: new Date()
     };
 
-    // Save to MongoDB
+    
     const result = await ordersCollection.insertOne(order);
     const orderId = result.insertedId.toString();
     const orderRef = formatOrderRef(orderId);
     const transferTitle = createTransferTitle(orderRef);
     const paymentTarget = getPaymentTarget(selectedPaymentMethod);
 
-    // IMMEDIATELY send success response to client (don't wait for email)
+    
     res.json({
       success: true,
       orderId: orderId,
@@ -140,7 +140,7 @@ app.post('/api/orders', async (req, res) => {
       paymentStatus: 'oczekiwanie-na-wplate'
     });
 
-    // Send email in background (fire-and-forget, non-blocking)
+    
     const itemsText = items
       .map(item => `- ${item.name}: ${item.qty} słoik(ów) × ${item.price} zł = ${item.qty * item.price} zł`)
       .join('\n');
@@ -184,7 +184,7 @@ app.post('/api/orders', async (req, res) => {
       `
     };
 
-    // Fire-and-forget email via Resend (won't block response)
+    
     if (resend) {
       resend.emails.send(mailOptions)
         .then((result) => {
@@ -300,14 +300,14 @@ const server = app.listen(PORT, () => {
 // Graceful shutdown - close Mongo client and HTTP server
 const shutdown = async () => {
   console.log('Shutting down gracefully...');
-  try {
-    if (mongoClient) {
-      await mongoClient.close();
-      console.log('✅ MongoClient closed');
-    }
-  } catch (err) {
-    console.error('Error closing MongoClient:', err?.message || err);
-  }
+   try {
+     if (typeof mongoClient !== 'undefined' && mongoClient) {
+       await mongoClient.close();
+       console.log('✅ MongoClient closed');
+     }
+   } catch (err) {
+     console.error('Error closing MongoClient:', err?.message || err);
+   }
 
   server.close(() => {
     console.log('✅ HTTP server closed');

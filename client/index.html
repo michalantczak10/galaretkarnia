@@ -19,7 +19,7 @@
     <div id="checkoutMessage"></div>
     <button id="openParcelSearchBtn" style="display:none">Szukaj paczkomatu</button>
     <div class="autocomplete-box" style="display:none"></div>
-    <!-- Pozostałe elementy już są w szablonie -->
+    
     <header class="hero">
       <div class="hero-content">
         <div class="hero-copy">
@@ -71,7 +71,7 @@
       <h2>Oferta</h2>
 
       <div class="product-grid">
-        <!-- Galaretka drobiowa -->
+        
         <div class="product-card">
           <img src="img/products/galaretka_drobiowa.png" alt="Galaretka drobiowa" />
           <h3>Galaretka drobiowa</h3>
@@ -88,7 +88,7 @@
           </button>
         </div>
 
-        <!-- Galaretka wieprzowa -->
+        
         <div class="product-card">
           <img src="img/products/galaretka_wieprzowa.png" alt="Galaretka wieprzowa" />
           <h3>Galaretka wieprzowa</h3>
@@ -156,8 +156,11 @@
           <input id="parcelLockerCode" name="parcelLockerCode" type="text" placeholder="Np. WAW01A" required />
           <div class="input-error" id="lockerError" aria-live="polite"></div>
 
+          <div class="checkout-info-box">
+            Jeśli nie znalazłeś swojego paczkomatu w naszej bazie, wybierz najbliższy dostępny, a w polu "Uwagi do zamówienia" podaj faktyczną nazwę lub kod paczkomatu, do którego mamy wysłać zamówienie. Po weryfikacji, jeśli nasza baza jest nieaktualna, wyślemy paczkę do wskazanego paczkomatu i dodamy go do naszej bazy.
+          </div>
           <label for="customerNotes">Uwagi do zamówienia (opcjonalnie)</label>
-          <textarea id="customerNotes" name="customerNotes" rows="4" placeholder="Np. kod domofonu, preferowane godziny odbioru"></textarea>
+          <textarea id="customerNotes" name="customerNotes" rows="4" placeholder="Np. kod paczkomatu, którego nie znalazłeś w naszej bazie"></textarea>
 
           <label class="optional-account-toggle" for="createOptionalAccount">
             <input id="createOptionalAccount" name="createOptionalAccount" type="checkbox" />
@@ -206,7 +209,7 @@
     <section class="legal fade-in">
       <h2>Regulamin i polityka prywatności</h2>
       <div class="legal-grid">
-        <p>📄 Zapoznaj się z naszym <a href="/regulamin.html">Regulaminem</a>, który opisuje zasady składania zamówień, płatności i reklamacji.</p>
+        <p>📄 Zapoznaj się z naszym <a href="terms.html">Regulaminem</a>, który opisuje zasady składania zamówień, płatności i reklamacji.</p>
         <p>🔒 Polityka prywatności (RODO): <a href="/privacy.html">Polityka prywatności</a> wyjaśnia, jakie dane zbieramy, w jakim celu i na jakiej podstawie prawnej je przetwarzamy.</p>
         <p>🍪 Korzystając z serwisu zgadzasz się na przetwarzanie danych niezbędnych do realizacji zamówienia oraz na używanie plików cookies zgodnie z <a href="/privacy.html#cookies">Polityką prywatności</a>.</p>
         <p>Kontakt w sprawach RODO: <a href="mailto:kontakt@galaretkarnia.pl">kontakt@galaretkarnia.pl</a></p>

@@ -71,12 +71,12 @@ window.addEventListener("DOMContentLoaded", () => {
     }, 150);
   });
 
-          // Stała STORAGE_KEY
+          
           const STORAGE_KEY = "cartStorage";
           let cart: any[] = [];
           localStorage.removeItem(STORAGE_KEY);
           let freeDeliveryThreshold = 100;
-          // ...existing code...
+          
           const cartList = document.getElementById("cartList") as HTMLElement | null;
           const addButtons = document.querySelectorAll(".addToCartBtn") as NodeListOf<HTMLButtonElement>;
           const miniCart = document.querySelector(".mini-cart") as HTMLElement | null;
@@ -91,7 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
           const customerPhone = document.getElementById("customerPhone") as HTMLInputElement | null;
           const CART_SCROLL_OFFSET = 20;
 
-          // Sprawdzenie czy wymagane elementy istnieją
+          
           if (!cartList) console.warn("Brak elementu cartList");
           if (!miniCart) console.warn("Brak elementu miniCart");
           if (!checkoutFormEl) console.warn("Brak elementu checkoutFormEl");
@@ -103,7 +103,7 @@ window.addEventListener("DOMContentLoaded", () => {
           if (!openParcelSearchBtn) console.warn("Brak elementu openParcelSearchBtn");
           if (!customerPhone) console.warn("Brak elementu customerPhone");
 
-          // Maskowanie numeru telefonu
+          
           if (customerPhone) {
             customerPhone.addEventListener("input", () => {
               let val = customerPhone.value.replace(/\D/g, "");
@@ -160,14 +160,14 @@ window.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => el.classList.remove(cls), 500);
     }
 
-    // Zapis koszyka do localStorage
+    
     const saveCart = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
     };
 
-    // Załadowanie koszyka z localStorage — niepotrzebne, koszyk zawsze pusty
+    
 
-    // Wyświetlanie listy produktów
+    
     function renderMiniCartList() {
       if (!cartList) return;
       cartList.innerHTML = "";
