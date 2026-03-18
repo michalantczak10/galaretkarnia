@@ -47,7 +47,7 @@ app.get('/api/parcelLockers', (req, res) => {
     }
   });
 });
-
+// ...existing code...
  
 
 // POST /api/orders - Accept order, save to DB and send email to owner
