@@ -1,0 +1,52 @@
+// Autocomplete module
+export function setupParcelAutocomplete(parcelLockers: any[], parcelSearchInput: HTMLInputElement, parcelLockerCodeInput: HTMLInputElement, searchAutocompleteBox: HTMLElement) {
+  parcelSearchInput.addEventListener("input", () => {
+    const value = parcelSearchInput.value.trim().toLowerCase();
+    searchAutocompleteBox.innerHTML = "";
+    searchAutocompleteBox.style.width = parcelSearchInput.offsetWidth + "px";
+    if (!value) {
+      searchAutocompleteBox.style.display = "none";
+      return;
+    }
+    if (!parcelLockers || parcelLockers.length === 0) {
+      searchAutocompleteBox.style.display = "block";
+      const noResult = document.createElement("div");
+      noResult.className = "autocomplete-option autocomplete-no-result";
+      noResult.textContent = "Brak danych paczkomatów";
+      searchAutocompleteBox.appendChild(noResult);
+      return;
+    }
+    const matches = parcelLockers.filter((locker: any) =>
+      locker.name.toLowerCase().includes(value) ||
+      locker.address.toLowerCase().includes(value) ||
+      locker.code.toLowerCase().includes(value)
+    );
+    if (matches.length > 0) {
+      searchAutocompleteBox.style.display = "block";
+      matches.forEach((locker: any) => {
+        const option = document.createElement("div");
+        option.className = "autocomplete-option";
+        option.innerHTML = `<strong>${locker.code}</strong> — ${locker.name}, ${locker.address}`;
+        option.addEventListener("click", () => {
+          parcelLockerCodeInput.value = locker.code;
+          parcelSearchInput.value = `${locker.name}, ${locker.address}`;
+          searchAutocompleteBox.innerHTML = "";
+          searchAutocompleteBox.style.display = "none";
+        });
+        searchAutocompleteBox.appendChild(option);
+      });
+    } else {
+      searchAutocompleteBox.style.display = "block";
+      const noResult = document.createElement("div");
+      noResult.className = "autocomplete-option autocomplete-no-result";
+      noResult.textContent = "Brak wyników";
+      searchAutocompleteBox.appendChild(noResult);
+    }
+  });
+  parcelSearchInput.addEventListener("blur", () => {
+    setTimeout(() => {
+      searchAutocompleteBox.innerHTML = "";
+      searchAutocompleteBox.style.display = "none";
+    }, 150);
+  });
+}

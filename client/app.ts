@@ -1,4 +1,7 @@
 
+import { renderCart, showCartError } from "./modules/cart";
+import { setupParcelAutocomplete } from "./modules/autocomplete";
+
 window.addEventListener("DOMContentLoaded", () => {
   const parcelSearchInput = document.getElementById("parcelSearchQuery") as HTMLInputElement;
   const parcelLockerCodeInput = document.getElementById("parcelLockerCode") as HTMLInputElement;
@@ -15,69 +18,26 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
       parcelLockers = data;
+      setupParcelAutocomplete(parcelLockers, parcelSearchInput, parcelLockerCodeInput, searchAutocompleteBox);
     })
     .catch((error) => {
       parcelLockers = [];
+      showCartError("Nie udało się pobrać listy paczkomatów.", searchAutocompleteBox);
       console.warn("Nie udało się pobrać listy paczkomatów.", error);
     });
 
-  parcelSearchInput.addEventListener("input", () => {
-    const value = parcelSearchInput.value.trim().toLowerCase();
-    searchAutocompleteBox.innerHTML = "";
-    searchAutocompleteBox.style.width = parcelSearchInput.offsetWidth + "px";
-    if (!value) {
-      searchAutocompleteBox.style.display = "none";
-      return;
-    }
-    if (!parcelLockers || parcelLockers.length === 0) {
-      searchAutocompleteBox.style.display = "block";
-      const noResult = document.createElement("div");
-      noResult.className = "autocomplete-option autocomplete-no-result";
-      noResult.textContent = "Brak danych paczkomatów";
-      searchAutocompleteBox.appendChild(noResult);
-      return;
-    }
-    const matches = parcelLockers.filter((locker: any) =>
-      locker.name.toLowerCase().includes(value) ||
-      locker.address.toLowerCase().includes(value) ||
-      locker.code.toLowerCase().includes(value)
-    );
-    if (matches.length > 0) {
-      searchAutocompleteBox.style.display = "block";
-      matches.forEach((locker: any) => {
-        const option = document.createElement("div");
-        option.className = "autocomplete-option";
-        option.innerHTML = `<strong>${locker.code}</strong> — ${locker.name}, ${locker.address}`;
-        option.addEventListener("click", () => {
-          parcelLockerCodeInput.value = locker.code;
-          parcelSearchInput.value = `${locker.name}, ${locker.address}`;
-          searchAutocompleteBox.innerHTML = "";
-          searchAutocompleteBox.style.display = "none";
-        });
-        searchAutocompleteBox.appendChild(option);
-      });
-    } else {
-      searchAutocompleteBox.style.display = "block";
-      const noResult = document.createElement("div");
-      noResult.className = "autocomplete-option autocomplete-no-result";
-      noResult.textContent = "Brak wyników";
-      searchAutocompleteBox.appendChild(noResult);
-    }
-  });
-  parcelSearchInput.addEventListener("blur", () => {
-    setTimeout(() => {
-      searchAutocompleteBox.innerHTML = "";
-      searchAutocompleteBox.style.display = "none";
-    }, 150);
-  });
+  const STORAGE_KEY = "cartStorage";
+  let cart: any[] = [];
+  localStorage.removeItem(STORAGE_KEY);
+  let freeDeliveryThreshold = 100;
+  const cartList = document.getElementById("cartList") as HTMLElement | null;
 
-          
-          const STORAGE_KEY = "cartStorage";
-          let cart: any[] = [];
-          localStorage.removeItem(STORAGE_KEY);
-          let freeDeliveryThreshold = 100;
-          
-          const cartList = document.getElementById("cartList") as HTMLElement | null;
+  // Przykład użycia renderCart i showCartError
+  if (cartList) {
+    renderCart(cart, cartList);
+  }
+
+  // ...existing code...
           const addButtons = document.querySelectorAll(".addToCartBtn") as NodeListOf<HTMLButtonElement>;
           const miniCart = document.querySelector(".mini-cart") as HTMLElement | null;
           const checkoutFormEl = document.getElementById("checkoutForm") as HTMLFormElement | null;
