@@ -1,8 +1,10 @@
-
 // ...existing code...
 declare global {
   interface Window {
     showToast: (msg: string) => void;
+    decreaseQty: (name: string) => void;
+    increaseQty: (name: string) => void;
+    removeItem: (name: string) => void;
   }
 }
 
