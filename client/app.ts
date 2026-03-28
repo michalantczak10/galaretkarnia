@@ -1,4 +1,9 @@
 // ...existing code...
+// Globalna deklaracja miniCart (tylko jedna w całym pliku!)
+var miniCart: HTMLElement | null = null;
+// Wymuś globalność także dla JS
+(window as any).miniCart = null;
+
 declare global {
   interface Window {
     showToast: (msg: string) => void;
@@ -8,11 +13,12 @@ declare global {
   }
 }
 
-import { renderCartList, showCartError } from "./modules/cart";
-import { setupParcelAutocomplete } from "./modules/autocomplete";
+import { renderCartList, showCartError } from "./modules/cart.js";
+import { setupParcelAutocomplete } from "./modules/autocomplete.js";
 
 window.addEventListener("DOMContentLoaded", () => {
   const parcelSearchInput = document.getElementById("parcelSearchQuery") as HTMLInputElement;
+
   const parcelLockerCodeInput = document.getElementById("parcelLockerCode") as HTMLInputElement;
   const searchWrapper = parcelSearchInput.parentElement as HTMLElement;
   searchWrapper.style.position = "relative";
@@ -47,8 +53,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   // ...existing code...
+
           const addButtons = document.querySelectorAll(".addToCartBtn") as NodeListOf<HTMLButtonElement>;
-          const miniCart = document.querySelector(".mini-cart") as HTMLElement | null;
           const checkoutFormEl = document.getElementById("checkoutForm") as HTMLFormElement | null;
           const checkoutMessage = document.getElementById("checkoutMessage") as HTMLElement | null;
           const paymentMethod = document.getElementById("paymentMethod") as HTMLSelectElement | null;
@@ -56,9 +62,14 @@ window.addEventListener("DOMContentLoaded", () => {
           const optionalAccountFields = document.getElementById("optionalAccountFields") as HTMLElement | null;
           const optionalAccountEmail = document.getElementById("optionalAccountEmail") as HTMLInputElement | null;
           const parcelSearchQuery = document.getElementById("parcelSearchQuery") as HTMLInputElement | null;
-          const openParcelSearchBtn = document.getElementById("openParcelSearchBtn") as HTMLButtonElement | null;
           const customerPhone = document.getElementById("customerPhone") as HTMLInputElement | null;
+          const openParcelSearchBtn = document.getElementById("openParcelSearchBtn") as HTMLButtonElement | null;
           const CART_SCROLL_OFFSET = 20;
+
+
+          // Przypisz miniCart po wszystkich deklaracjach (do globalnej zmiennej!)
+          miniCart = document.querySelector(".mini-cart") as HTMLElement | null;
+          (window as any).miniCart = miniCart;
 
           
           if (!cartList) console.warn("Brak elementu cartList");
@@ -113,10 +124,9 @@ function showToast(message: string) {
     toast.style.display = 'none';
   }, 3000);
 }
+
 // Udostępnij showToast globalnie
 (window as any).showToast = showToast;
-
-    // ...existing code...
     function setCheckoutMessage(msg: string) {
       if (checkoutMessage) checkoutMessage.innerText = msg;
     }
@@ -322,7 +332,7 @@ function showToast(message: string) {
   // Przeliczanie koszyka
   function renderCart() {
     // Animacje mini‑koszyka
-    if (miniCart) {
+    if (typeof (window as any).miniCart !== "undefined" && miniCart) {
       animate(miniCart, "mini-cart-shake");
       animate(miniCart, "mini-cart-pulse");
     }
@@ -417,4 +427,10 @@ function showToast(message: string) {
 
   renderMiniCartList();
 });
+
+// Defensywna ochrona: NIE wywołuj renderCart ani renderMiniCartList poza DOMContentLoaded!
+
+// Jeśli masz wywołania renderCart() lub renderMiniCartList() poza tym blokiem, USUŃ je lub przenieś do środka powyższego eventu.
+
+// Jeśli chcesz wywołać renderCart z innych plików, eksportuj funkcję, ale nie wywołuj jej automatycznie przed DOMContentLoaded.
 

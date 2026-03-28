@@ -82,11 +82,9 @@ window.addEventListener("DOMContentLoaded", () => {
                         }
                     }, 150);
                 });
-        // Usuwanie koszyka przy każdym wejściu na stronę
-        localStorage.removeItem(STORAGE_KEY);
+        // localStorage.removeItem(STORAGE_KEY); // Usuwanie koszyka przy każdym wejściu na stronę — USUNIĘTE, by koszyk działał poprawnie
     // Pobranie elementów z HTML z bezpieczną obsługą null
     const addButtons = document.querySelectorAll(".addToCartBtn");
-    const miniCartElement = document.querySelector(".mini-cart");
     const cartListElement = document.getElementById("cartList");
     const checkoutFormElement = document.getElementById("checkoutForm");
     const checkoutSummaryListElement = document.getElementById("checkoutSummaryList");
@@ -112,7 +110,8 @@ window.addEventListener("DOMContentLoaded", () => {
     const copyTransferTitleBtnElement = document.getElementById("copyTransferTitleBtn");
 
     // Sprawdzenie czy wszystkie elementy istnieją
-    if (!miniCartElement ||
+        const miniCart = document.querySelector(".mini-cart");
+        if (!miniCart ||
         !cartListElement ||
         !checkoutFormElement ||
         !checkoutSummaryListElement ||
@@ -141,7 +140,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // Przypisanie do zmiennych z pewnymi typami
-    const miniCart = miniCartElement;
+        // const miniCart = miniCartElement; // Removed as miniCart is already defined
     const cartList = cartListElement;
     const checkoutForm = checkoutFormElement;
     const checkoutSummaryList = checkoutSummaryListElement;
@@ -181,38 +180,73 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
     // ...existing code...
+    // Deklaracja showToast przed użyciem
+    function showToast(message, type = "default", actionLabel, actionCallback) {
+        const toast = document.createElement("div");
+        toast.className = `toast toast-show ${type === "success" ? "toast-success" : ""}`.trim();
+
+        const msg = document.createElement("span");
+        msg.className = "toast-message";
+        msg.innerHTML = message;
+        toast.appendChild(msg);
+
+        if (actionLabel && typeof actionCallback === "function") {
+            const actionBtn = document.createElement("button");
+            actionBtn.className = "toast-action";
+            actionBtn.textContent = actionLabel;
+            actionBtn.addEventListener("click", () => {
+                try {
+                    actionCallback();
+                }
+                catch (e) {
+                    console.error("Toast action failed", e);
+                }
+                if (toast.parentElement) toast.parentElement.removeChild(toast);
+            });
+            toast.appendChild(actionBtn);
+        }
+
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            if (!document.body.contains(toast)) return;
+            toast.classList.remove("toast-show");
+            setTimeout(() => {
+                if (toast.parentElement) toast.parentElement.removeChild(toast);
+            }, 300);
+        }, 2000);
+        return toast;
+    }
     window.showToast = showToast;
 });
-// Tablica koszyka
+// --- KOSZYK: GLOBALNY ZAKRES ---
 let cart = [];
-// Pobranie elementów z HTML z bezpieczną obsługą null
-const addButtons = document.querySelectorAll(".addToCartBtn");
-const miniCartElement = document.querySelector(".mini-cart");
-const cartListElement = document.getElementById("cartList");
-const checkoutFormElement = document.getElementById("checkoutForm");
-const checkoutSummaryListElement = document.getElementById("checkoutSummaryList");
-const checkoutTotalElement = document.getElementById("checkoutTotal");
-const paymentMethodElement = document.getElementById("paymentMethod");
-const paymentInstructionsElement = document.getElementById("paymentInstructions");
-const customerPhoneElement = document.getElementById("customerPhone");
-const parcelLockerCodeElement = document.getElementById("parcelLockerCode");
-const parcelSearchQueryElement = document.getElementById("parcelSearchQuery");
-const openParcelSearchBtnElement = document.getElementById("openParcelSearchBtn");
-const createOptionalAccountElement = document.getElementById("createOptionalAccount");
-const optionalAccountFieldsElement = document.getElementById("optionalAccountFields");
-const optionalAccountEmailElement = document.getElementById("optionalAccountEmail");
-const customerNotesElement = document.getElementById("customerNotes");
-const lastOrderCardElement = document.getElementById("lastOrderCard");
-const lastOrderIdElement = document.getElementById("lastOrderId");
-const lastOrderPaymentMethodElement = document.getElementById("lastOrderPaymentMethod");
-const lastOrderTransferTitleElement = document.getElementById("lastOrderTransferTitle");
-const lastOrderPaymentTargetLabelElement = document.getElementById("lastOrderPaymentTargetLabel");
-const lastOrderPaymentTargetElement = document.getElementById("lastOrderPaymentTarget");
-const lastOrderPhoneSuffixElement = document.getElementById("lastOrderPhoneSuffix");
-const lastOrderLockerElement = document.getElementById("lastOrderLocker");
-const copyTransferTitleBtnElement = document.getElementById("copyTransferTitleBtn");
+function decreaseQty(name) {
+    const idx = cart.findIndex(item => item.name === name);
+    if (idx !== -1) {
+        if (cart[idx].qty > 1) {
+            cart[idx].qty--;
+        } else {
+            cart.splice(idx, 1);
+        }
+        renderCart();
+    }
+}
+function increaseQty(name) {
+    const idx = cart.findIndex(item => item.name === name);
+    if (idx !== -1) {
+        cart[idx].qty++;
+        renderCart();
+    }
+}
+function removeItem(name) {
+    const idx = cart.findIndex(item => item.name === name);
+    if (idx !== -1) {
+        cart.splice(idx, 1);
+        renderCart();
+    }
+}
  
-if (!miniCartElement ||
+if (!miniCart ||
     !cartListElement ||
     !checkoutFormElement ||
     !checkoutSummaryListElement ||
@@ -240,7 +274,7 @@ if (!miniCartElement ||
     throw new Error("Brak wymaganych elementów na stronie");
 }
  
-const miniCart = miniCartElement;
+// const miniCart = miniCartElement; // Already defined above
 const cartList = cartListElement;
 const checkoutForm = checkoutFormElement;
 const checkoutSummaryList = checkoutSummaryListElement;
@@ -565,7 +599,7 @@ const loadLastOrderReference = () => {
 const renderLastOrderReference = () => {
     const lastOrder = loadLastOrderReference();
     if (!lastOrder) {
-        lastOrderCard.hidden = true;
+        if (lastOrderCard) lastOrderCard.hidden = false;
         return;
     }
     const savedPaymentMethod = lastOrder.paymentMethod === "blik" ? "blik" : "bank_transfer";
@@ -706,8 +740,7 @@ const handleCheckoutSubmit = async (event) => {
             phoneSuffix,
             parcelLockerCode: parcelLocker,
         });
-        renderLastOrderReference();
-        
+
         customerPhone.value = "";
         parcelLockerCode.value = "";
         parcelSearchQuery.value = "";
@@ -715,9 +748,14 @@ const handleCheckoutSubmit = async (event) => {
         optionalAccountFields.hidden = true;
         optionalAccountEmail.value = "";
         customerNotes.value = "";
-        
+
         cart = [];
         renderCart();
+        // Show confirmation box after clearing form/cart
+        renderLastOrderReference();
+        // Wymuś widoczność boxa z potwierdzeniem zamówienia
+        const lastOrderCard = document.getElementById('lastOrderCard');
+        if (lastOrderCard) lastOrderCard.hidden = false;
         
     }
     catch (error) {
@@ -990,9 +1028,13 @@ addButtons.forEach(btn => {
             cart.unshift({ name, price, qty: 1, image });
         }
         renderCart();
-        const cartDock = document.querySelector('.cart-dock');
-        });
+        // Scroll to cart after adding product
+        const cartList = document.getElementById("cartList");
+        if (cartList) {
+            cartList.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
     });
+});
 
     checkoutForm.addEventListener("submit", handleCheckoutSubmit);
     renderCart();

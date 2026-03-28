@@ -3,36 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Galaretkarnia - najlepsza tradycyjna galaretka z nóżek w całej Polsce. Domowe produkty najwyższej jakości." />
-    <meta name="keywords" content="galaretka, galaretka z nóżek, galaretka drobiowa, galaretka wieprzowa, galaretka warzywna" />
+    <meta
+      name="description"
+      content="Galaretkarnia - najlepsza tradycyjna galaretka z nóżek w całej Polsce. Domowe produkty najwyższej jakości."
+    />
+    <meta
+      name="keywords"
+      content="galaretka, galaretka z nóżek, galaretka drobiowa, galaretka wieprzowa, galaretka warzywna"
+    />
     <meta name="theme-color" content="#b30000" />
     <meta name="author" content="Galaretkarnia" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-32x32.png?v=4" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png?v=4" sizes="96x96" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon/favicon-32x32.png?v=4"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon/favicon-96x96.png?v=4"
+      sizes="96x96"
+    />
     <link rel="shortcut icon" href="/favicon/favicon.ico?v=4" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=4" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon/apple-touch-icon.png?v=4"
+    />
     <link rel="manifest" href="/favicon/site.webmanifest?v=4" />
     <title>Galaretkarnia - Tradycyjna Galaretka z Nóżek</title>
     <link rel="stylesheet" href="style.css?v=4" />
   </head>
   <body>
     <div id="checkoutMessage"></div>
-    <button id="openParcelSearchBtn" style="display:none">Szukaj paczkomatu</button>
-    <div class="autocomplete-box" style="display:none"></div>
-    
+    <button id="openParcelSearchBtn" style="display: none">
+      Szukaj paczkomatu
+    </button>
+    <div class="autocomplete-box" style="display: none"></div>
+
     <header class="hero">
       <div class="hero-content">
         <div class="hero-copy">
           <div class="hero-brand">
-            <img src="img/branding/logo-galaretkarnia.svg?v=4" alt="Logo Galaretkarnia" class="hero-logo" />
+            <img
+              src="img/branding/logo-galaretkarnia.svg?v=4"
+              alt="Logo Galaretkarnia"
+              class="hero-logo"
+            />
             <span class="hero-brand-text">Galaretkarnia</span>
           </div>
           <h1>Tradycyjna galaretka z domowej manufaktury</h1>
-          <p>Smak jak dawniej: tradycyjna receptura, klasyczne składniki i przygotowanie z sercem — zawsze bez konserwantów.</p>
-          <p class="hero-tagline">✓ Świeża produkcja • Klasyczny smak • Bez konserwantów</p>
+          <p>
+            Smak jak dawniej: tradycyjna receptura, klasyczne składniki i
+            przygotowanie z sercem — zawsze bez konserwantów.
+          </p>
+          <p class="hero-tagline">
+            ✓ Świeża produkcja • Klasyczny smak • Bez konserwantów
+          </p>
         </div>
         <div class="hero-visual" aria-hidden="true">
-          <img src="img/hero/galaretki.png" alt="Trzy rodzaje galaretek: wieprzowa, drobiowa i warzywna" class="hero-image" />
+          <img
+            src="img/hero/galaretki.png"
+            alt="Trzy rodzaje galaretek: wieprzowa, drobiowa i warzywna"
+            class="hero-image"
+          />
         </div>
       </div>
     </header>
@@ -40,27 +75,46 @@
       <div class="mini-cart" aria-label="Podsumowanie koszyka">
         <p class="mini-cart-title">Twój koszyk</p>
       </div>
-      <div id="cartList" role="region" aria-label="Zawartość koszyka"></div>
+      <div
+        id="cartList"
+        role="region"
+        aria-label="Zawartość koszyka"
+        data-test-id="cart-list"
+      ></div>
     </section>
     <section class="about fade-in">
       <h2>O nas</h2>
       <div class="about-content">
         <div class="about-story">
           <p>
-            Galaretkarnia to świeży projekt, który otworzyliśmy niedawno z miłości do klasycznej kuchni. Tworzymy ją jako zgrane, kochające się małżeństwo — po prostu ludzie, których do działania popchnęła pasja do gotowania i jedzenia.
+            Galaretkarnia to świeży projekt, który otworzyliśmy niedawno z
+            miłości do klasycznej kuchni. Tworzymy ją jako zgrane, kochające się
+            małżeństwo — po prostu ludzie, których do działania popchnęła pasja
+            do gotowania i jedzenia.
           </p>
           <p>
-            Uwielbiamy tradycyjne smaki i trzymamy się sprawdzonych receptur. Stawiamy na prosty skład, gotowanie z sercem i jakość, do której chce się wracać. Największą satysfakcję daje nam to, gdy klienci wracają po kolejny słoik.
+            Uwielbiamy tradycyjne smaki i trzymamy się sprawdzonych receptur.
+            Stawiamy na prosty skład, gotowanie z sercem i jakość, do której
+            chce się wracać. Największą satysfakcję daje nam to, gdy klienci
+            wracają po kolejny słoik.
           </p>
         </div>
 
         <div class="about-photos" aria-label="Założyciele Galaretkarni">
           <figure class="about-photo-card">
-            <img src="img/team/zespol-michal.jpg" alt="Michał, współzałożyciel Galaretkarni" loading="lazy" />
+            <img
+              src="img/team/zespol-michal.jpg"
+              alt="Michał, współzałożyciel Galaretkarni"
+              loading="lazy"
+            />
             <figcaption>Michał</figcaption>
           </figure>
           <figure class="about-photo-card">
-            <img src="img/team/zespol-justyna.jpg" alt="Justynka, współzałożycielka Galaretkarni" loading="lazy" />
+            <img
+              src="img/team/zespol-justyna.jpg"
+              alt="Justynka, współzałożycielka Galaretkarni"
+              loading="lazy"
+            />
             <figcaption>Justynka</figcaption>
           </figure>
         </div>
@@ -71,9 +125,11 @@
       <h2>Oferta</h2>
 
       <div class="product-grid">
-        
         <div class="product-card">
-          <img src="img/products/galaretka_drobiowa.png" alt="Galaretka drobiowa" />
+          <img
+            src="img/products/galaretka_drobiowa.png"
+            alt="Galaretka drobiowa"
+          />
           <h3>Galaretka drobiowa</h3>
           <p>Z warzywami, tradycyjna receptura</p>
           <p class="price">18 zł</p>
@@ -83,14 +139,17 @@
             data-price="18"
             data-image="img/products/galaretka_drobiowa.png"
             aria-label="Dodaj Galaretka drobiowa do koszyka"
+            data-test-id="btn-add-to-cart"
           >
             Dodaj do koszyka
           </button>
         </div>
 
-        
         <div class="product-card">
-          <img src="img/products/galaretka_wieprzowa.png" alt="Galaretka wieprzowa" />
+          <img
+            src="img/products/galaretka_wieprzowa.png"
+            alt="Galaretka wieprzowa"
+          />
           <h3>Galaretka wieprzowa</h3>
           <p>Z warzywami, tradycyjna receptura</p>
           <p class="price">19 zł</p>
@@ -100,6 +159,7 @@
             data-price="19"
             data-image="img/products/galaretka_wieprzowa.png"
             aria-label="Dodaj Galaretka wieprzowa do koszyka"
+            data-test-id="btn-add-to-cart"
           >
             Dodaj do koszyka
           </button>
@@ -113,88 +173,98 @@
         <div class="benefit-card">
           <div class="benefit-icon">🏡</div>
           <h3>Tradycyjna receptura</h3>
-          <p>Przygotowujemy galaretką według sprawdzonych, tradycyjnych metod. Bez sztucznych dodatków i konserwantów.</p>
+          <p>
+            Przygotowujemy galaretką według sprawdzonych, tradycyjnych metod.
+            Bez sztucznych dodatków i konserwantów.
+          </p>
         </div>
         <div class="benefit-card">
           <div class="benefit-icon">⭐</div>
           <h3>Najwyższa jakość</h3>
-          <p>Wybieramy tylko najlepsze składniki. Galaretka dojrzewa przez wiele godzin, aby osiągnąć idealny smak i konsystencję.</p>
+          <p>
+            Wybieramy tylko najlepsze składniki. Galaretka dojrzewa przez wiele
+            godzin, aby osiągnąć idealny smak i konsystencję.
+          </p>
         </div>
         <div class="benefit-card">
           <div class="benefit-icon">⚡</div>
           <h3>Szybka dostawa</h3>
-          <p>Realizujemy zamówienia w ciągu 24-48 godzin od zaksięgowania płatności na naszym koncie. Swoje zamówienie odbierzesz zawekowane i gotowe do spożycia po kilkugodzinnym chłodzeniu.</p>
+          <p>
+            Realizujemy zamówienia w ciągu 24-48 godzin od zaksięgowania
+            płatności na naszym koncie. Swoje zamówienie odbierzesz zawekowane i
+            gotowe do spożycia po kilkugodzinnym chłodzeniu.
+          </p>
         </div>
       </div>
     </section>
 
     <section class="checkout fade-in" id="checkout">
-      <h2>Zamówienie</h2>
-      <div class="checkout-layout">
-        <form id="checkoutForm" class="checkout-form" novalidate>
-          <p class="checkout-note">Realizujemy zamówienia opłacone z góry i dostarczamy je do paczkomatu wskazanego przez klienta. Zbieramy tylko dane niezbędne do realizacji wysyłki.</p>
+  <h2>Zamówienie</h2>
+  <div class="checkout-layout">
+    <form id="checkoutForm" class="checkout-form" novalidate data-test-id="order-form">
+      <p class="checkout-note">Realizujemy zamówienia opłacone z góry i dostarczamy je do paczkomatu wskazanego przez klienta. Zbieramy tylko dane niezbędne do realizacji wysyłki.</p>
 
-          <label for="paymentMethod">Metoda płatności</label>
-          <select id="paymentMethod" name="paymentMethod">
-            <option value="bank_transfer" selected>Przelew tradycyjny</option>
-            <option value="blik">BLIK na telefon</option>
-          </select>
+      <label for="paymentMethod">Metoda płatności</label>
+      <select id="paymentMethod" name="paymentMethod" data-test-id="select-payment-method">
+        <option value="bank_transfer" selected>Przelew tradycyjny</option>
+        <option value="blik">BLIK na telefon</option>
+      </select>
 
-          <div id="paymentInstructions" class="payment-instructions" aria-live="polite"></div>
+      <div id="paymentInstructions" class="payment-instructions" aria-live="polite" data-test-id="msg-payment-instructions"></div>
 
-          <label for="customerPhone">Telefon do odbioru paczkomatu</label>
-          <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" placeholder="Np. 500 600 700" required />
-          <div class="input-error" id="phoneError" aria-live="polite"></div>
+      <label for="customerPhone">Telefon do odbioru paczkomatu</label>
+      <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" placeholder="Np. 500 600 700" required data-test-id="input-customer-phone" />
+      <div class="input-error" id="phoneError" aria-live="polite" data-test-id="msg-phone-error"></div>
 
-          <!-- Pola do paczkomatu tuż pod numerem telefonu -->
-          <label for="parcelSearchQuery">Wyszukaj paczkomat</label>
-          <div class="parcel-search-row">
-            <input id="parcelSearchQuery" name="parcelSearchQuery" type="text" placeholder="Np. Warszawa, Mokotów" />
-          </div>
-
-          <label for="parcelLockerCode">Kod paczkomatu</label>
-          <input id="parcelLockerCode" name="parcelLockerCode" type="text" placeholder="Np. WAW01A" required />
-          <div class="input-error" id="lockerError" aria-live="polite"></div>
-
-          <div class="checkout-info-box">
-            Jeśli nie znalazłeś swojego paczkomatu w naszej bazie, wybierz najbliższy dostępny, a w polu "Uwagi do zamówienia" podaj faktyczną nazwę lub kod paczkomatu, do którego mamy wysłać zamówienie. Po weryfikacji, jeśli nasza baza jest nieaktualna, wyślemy paczkę do wskazanego paczkomatu i dodamy go do naszej bazy.
-          </div>
-          <label for="customerNotes">Uwagi do zamówienia (opcjonalnie)</label>
-          <textarea id="customerNotes" name="customerNotes" rows="4" placeholder="Np. kod paczkomatu, którego nie znalazłeś w naszej bazie"></textarea>
-
-          <label class="optional-account-toggle" for="createOptionalAccount">
-            <input id="createOptionalAccount" name="createOptionalAccount" type="checkbox" />
-            Chcę opcjonalnie założyć konto klienta (dla historii zamówień)
-          </label>
-
-          <div id="optionalAccountFields" hidden>
-            <label for="optionalAccountEmail">E-mail do konta (opcjonalnie)</label>
-            <input id="optionalAccountEmail" name="optionalAccountEmail" type="email" autocomplete="email" placeholder="Np. jan@przyklad.pl" />
-            <div class="input-error" id="emailError" aria-live="polite"></div>
-          </div>
-
-          <div class="checkout-actions-row">
-            <button type="button" id="clearCartBtn" class="secondary-clear-btn">Wyczyść koszyk</button>
-            <button type="submit" id="submitOrderBtn" class="cart-checkout-btn">Zamawiam teraz</button>
-          </div>
-
-          <div id="lastOrderCard" class="last-order-card" hidden>
-            <p><strong>Twój ostatni numer zamówienia:</strong> <span id="lastOrderId">-</span></p>
-            <p><strong>Metoda płatności:</strong> <span id="lastOrderPaymentMethod">-</span></p>
-            <p><strong>Tytuł płatności:</strong> <span id="lastOrderTransferTitle">-</span></p>
-            <p><strong id="lastOrderPaymentTargetLabel">Dane płatności:</strong> <span id="lastOrderPaymentTarget">-</span></p>
-            <p><strong>Paczkomat:</strong> <span id="lastOrderLocker">-</span> • <strong>Telefon (końcówka):</strong> <span id="lastOrderPhoneSuffix">-</span></p>
-            <button type="button" id="copyTransferTitleBtn">Kopiuj tytuł płatności</button>
-          </div>
-        </form>
-
-        <aside class="checkout-summary" aria-label="Podsumowanie zamówienia">
-          <h3>Podsumowanie koszyka</h3>
-          <div id="checkoutSummaryList"></div>
-          <p class="checkout-total">Do zapłaty: <span id="checkoutTotal">0</span> zł</p>
-        </aside>
+      <!-- Pola do paczkomatu tuż pod numerem telefonu -->
+      <label for="parcelSearchQuery">Wyszukaj paczkomat</label>
+      <div class="parcel-search-row">
+        <input id="parcelSearchQuery" name="parcelSearchQuery" type="text" placeholder="Np. Warszawa, Mokotów" data-test-id="input-parcel-search" />
       </div>
-    </section>
+
+      <label for="parcelLockerCode">Kod paczkomatu</label>
+      <input id="parcelLockerCode" name="parcelLockerCode" type="text" placeholder="Np. WAW01A" required data-test-id="input-parcel-locker-code" />
+      <div class="input-error" id="lockerError" aria-live="polite" data-test-id="msg-locker-error"></div>
+
+      <div class="checkout-info-box">
+        Jeśli nie znalazłeś swojego paczkomatu w naszej bazie, wybierz najbliższy dostępny, a w polu "Uwagi do zamówienia" podaj faktyczną nazwę lub kod paczkomatu, do którego mamy wysłać zamówienie. Po weryfikacji, jeśli nasza baza jest nieaktualna, wyślemy paczkę do wskazanego paczkomatu i dodamy go do naszej bazy.
+      </div>
+      <label for="customerNotes">Uwagi do zamówienia (opcjonalnie)</label>
+      <textarea id="customerNotes" name="customerNotes" rows="4" placeholder="Np. kod paczkomatu, którego nie znalazłeś w naszej bazie" data-test-id="input-customer-notes"></textarea>
+
+      <label class="optional-account-toggle" for="createOptionalAccount">
+        <input id="createOptionalAccount" name="createOptionalAccount" type="checkbox" data-test-id="input-create-optional-account" />
+        Chcę opcjonalnie założyć konto klienta (dla historii zamówień)
+      </label>
+
+      <div id="optionalAccountFields" hidden>
+        <label for="optionalAccountEmail">E-mail do konta (opcjonalnie)</label>
+        <input id="optionalAccountEmail" name="optionalAccountEmail" type="email" autocomplete="email" placeholder="Np. jan@przyklad.pl" data-test-id="input-optional-account-email" />
+        <div class="input-error" id="emailError" aria-live="polite" data-test-id="msg-email-error"></div>
+      </div>
+
+      <div class="checkout-actions-row">
+        <button type="button" id="clearCartBtn" class="secondary-clear-btn" data-test-id="btn-clear-cart">Wyczyść koszyk</button>
+        <button type="submit" id="submitOrderBtn" class="cart-checkout-btn" data-test-id="btn-submit-order">Zamawiam teraz</button>
+      </div>
+
+      <div id="lastOrderCard" class="last-order-card" hidden>
+        <p><strong>Twój ostatni numer zamówienia:</strong> <span id="lastOrderId" data-test-id="last-order-id">-</span></p>
+        <p><strong>Metoda płatności:</strong> <span id="lastOrderPaymentMethod" data-test-id="last-order-payment-method">-</span></p>
+        <p><strong>Tytuł płatności:</strong> <span id="lastOrderTransferTitle" data-test-id="last-order-transfer-title">-</span></p>
+        <p><strong id="lastOrderPaymentTargetLabel">Dane płatności:</strong> <span id="lastOrderPaymentTarget" data-test-id="last-order-payment-target">-</span></p>
+        <p><strong>Paczkomat:</strong> <span id="lastOrderLocker" data-test-id="last-order-locker">-</span> • <strong>Telefon (końcówka):</strong> <span id="lastOrderPhoneSuffix" data-test-id="last-order-phone-suffix">-</span></p>
+        <button type="button" id="copyTransferTitleBtn" data-test-id="btn-copy-transfer-title">Kopiuj tytuł płatności</button>
+      </div>
+    </form>
+
+    <aside class="checkout-summary" aria-label="Podsumowanie zamówienia">
+      <h3>Podsumowanie koszyka</h3>
+      <div id="checkoutSummaryList" data-test-id="checkout-summary-list"></div>
+      <p class="checkout-total">Do zapłaty: <span id="checkoutTotal" data-test-id="checkout-total">0</span> zł</p>
+    </aside>
+  </div>
+</section>
 
     <section class="trust fade-in">
       <h2>Kontakt i dostawa</h2>
@@ -209,14 +279,27 @@
     <section class="legal fade-in">
       <h2>Regulamin i polityka prywatności</h2>
       <div class="legal-grid">
-        <p>📄 Zapoznaj się z naszym <a href="terms.html">Regulaminem</a>, który opisuje zasady składania zamówień, płatności i reklamacji.</p>
-        <p>🔒 Polityka prywatności (RODO): <a href="/privacy.html">Polityka prywatności</a> wyjaśnia, jakie dane zbieramy, w jakim celu i na jakiej podstawie prawnej je przetwarzamy.</p>
-        <p>🍪 Korzystając z serwisu zgadzasz się na przetwarzanie danych niezbędnych do realizacji zamówienia oraz na używanie plików cookies zgodnie z <a href="/privacy.html#cookies">Polityką prywatności</a>.</p>
-        <p>Kontakt w sprawach RODO: <a href="mailto:kontakt@galaretkarnia.pl">kontakt@galaretkarnia.pl</a></p>
+        <p>
+          📄 Zapoznaj się z naszym <a href="terms.html">Regulaminem</a>, który
+          opisuje zasady składania zamówień, płatności i reklamacji.
+        </p>
+        <p>
+          🔒 Polityka prywatności (RODO):
+          <a href="/privacy.html">Polityka prywatności</a> wyjaśnia, jakie dane
+          zbieramy, w jakim celu i na jakiej podstawie prawnej je przetwarzamy.
+        </p>
+        <p>
+          🍪 Korzystając z serwisu zgadzasz się na przetwarzanie danych
+          niezbędnych do realizacji zamówienia oraz na używanie plików cookies
+          zgodnie z <a href="/privacy.html#cookies">Polityką prywatności</a>.
+        </p>
+        <p>
+          Kontakt w sprawach RODO:
+          <a href="mailto:kontakt@galaretkarnia.pl">kontakt@galaretkarnia.pl</a>
+        </p>
       </div>
     </section>
 
-    <script type="module" src="app.js?v=4"></script>
-    
+    <script type="module" src="./app.ts"></script>
   </body>
 </html>
