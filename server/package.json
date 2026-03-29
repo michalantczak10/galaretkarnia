@@ -6,9 +6,10 @@
   "main": "server.mjs",
   "scripts": {
     "start": "node server.mjs",
-    "dev": "node --watch server.mjs",
+    "dev": "nodemon server.mjs",
     "nodemon": "nodemon server.mjs",
-    "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'",
+    "restart": "for /f \"tokens=2\" %a in ('tasklist ^| findstr /i nodemon') do taskkill /F /PID %a & npm run dev"
   },
   "dependencies": {
     "compression": "^1.7.4",

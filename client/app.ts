@@ -1,4 +1,372 @@
-// ...existing code...
+// @ts-ignore
+import { renderCartList, showCartError } from "./modules/cart.js";
+import { setupParcelAutocomplete } from "./modules/autocomplete.js";
+// Renderuje podsumowanie zamówienia w sekcji checkout-summary (analogicznie do modala i mini-koszyka)
+
+// Deklaracja checkoutFormEl na poziomie modułu, przed pierwszym użyciem
+const checkoutFormEl = document.getElementById("checkoutForm") as HTMLFormElement | null;
+
+function renderCheckoutSummary() {
+  const summaryEl = document.getElementById("checkoutSummary");
+  if (!summaryEl) return;
+  summaryEl.innerHTML = "";
+
+  // Jeśli koszyk jest pusty, pokaż tylko komunikat i ukryj przycisk "Wyczyść koszyk"
+  if (cart.length === 0) {
+    const emptyMsg = document.createElement("div");
+    emptyMsg.className = "checkout-summary-empty";
+    emptyMsg.style.textAlign = "center";
+    emptyMsg.style.padding = "40px 0 32px 0";
+    emptyMsg.style.color = "#b30000";
+    emptyMsg.style.fontWeight = "bold";
+    emptyMsg.style.fontSize = "1.2em";
+    // Większa ikona koszyka i zachęta
+    emptyMsg.innerHTML = `
+      <span style="font-size:4em;display:block;margin-bottom:12px;">🛒</span>
+      <div style="font-size:1.3em;margin-bottom:8px;">Koszyk jest pusty</div>
+      <div style="font-size:1.05em;color:#444;margin-bottom:18px;font-weight:400;">Dodaj coś pysznego do koszyka i rozpocznij zamówienie!</div>
+    `;
+    // Przycisk "Przeglądaj produkty"
+    const browseBtn = document.createElement("button");
+    browseBtn.type = "button";
+    browseBtn.textContent = "Przeglądaj produkty";
+    browseBtn.className = "browse-products-btn";
+    browseBtn.setAttribute("data-test-id", "btn-browse-offer");
+    // Scroll do sekcji z produktami (id="products" lub class="products-section")
+    browseBtn.onclick = () => {
+      const productsSection = document.getElementById("products") || document.querySelector(".products-section");
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: "smooth" });
+      }
+      // Jeśli nie ma sekcji, nie przewijaj do góry
+    };
+    emptyMsg.appendChild(browseBtn);
+    summaryEl.appendChild(emptyMsg);
+    // Ukryj przycisk "Wyczyść koszyk" jeśli istnieje
+    const clearBtn = document.getElementById("clearCartBtn") as HTMLButtonElement | null;
+    if (clearBtn) clearBtn.style.display = "none";
+    return;
+  }
+
+  // Obliczenia tylko jeśli koszyk nie jest pusty
+  const productsTotal = getCartTotalPrice();
+  const deliveryInfo = getDeliveryInfo(productsTotal);
+  const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
+  const itemsCount = getTotalItemsCount();
+  const parcelInfo = deliveryInfo.numberOfParcels > 1 ? `${deliveryInfo.numberOfParcels} paczki` : `1 paczka`;
+
+  // Przywróć renderowanie listy produktów
+  const productsList = document.createElement("div");
+  productsList.className = "checkout-summary-products";
+  cart.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "checkout-summary-product-row";
+    // Wybierz odpowiedni opis ilości
+    let qtyLabel = "sztuk";
+    if (item.qty === 1) qtyLabel = "sztuka";
+    else if (item.qty >= 2 && item.qty <= 4) qtyLabel = "sztuki";
+    // Dodaj ikonkę produktu jeśli jest
+    let imgHtml = "";
+    if (item.image) {
+      imgHtml = `<img src="${item.image}" alt="${item.name}" class="checkout-summary-product-img" style="width:32px;height:32px;object-fit:cover;margin-right:8px;vertical-align:middle;">`;
+    }
+    // Przyciski: - ilość + x (w jednej linii, jak dawniej)
+    const btnsHtml = `
+      <div class="checkout-summary-product-actions" style="display:flex;align-items:center;gap:2px;">
+        <button class="cart-btn cart-btn-decrease" title="Zmniejsz ilość" onclick="window.decreaseQty('${item.name.replace(/'/g, "\\'")}')" style="min-width:32px;height:40px;background:#b30000;color:#fff;font-size:1.2em;border-radius:8px;">-</button>
+        <span class="checkout-summary-product-qty" style="min-width:24px;text-align:center;display:inline-block;font-size:1.1em;">${item.qty}</span>
+        <button class="cart-btn cart-btn-increase" title="Zwiększ ilość" onclick="window.increaseQty('${item.name.replace(/'/g, "\\'")}')" style="min-width:32px;height:40px;background:#b30000;color:#fff;font-size:1.2em;border-radius:8px;">+</button>
+        <button class="cart-btn cart-btn-remove" title="Usuń produkt" onclick="window.removeItem('${item.name.replace(/'/g, "\\'")}')" style="min-width:32px;height:40px;background:#e74c3c;color:#fff;font-size:1.2em;border-radius:8px;margin-left:8px;">×</button>
+      </div>
+    `;
+    // Layout jak na screenie: obrazek | info (nazwa, 1 szt. × 19 zł) | przyciski
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;">
+        ${imgHtml}
+        <div style="flex:1;display:flex;flex-direction:column;align-items:flex-start;">
+          <span class="checkout-summary-product-name" style="font-weight:600;font-size:1.1em;">${item.name}</span>
+          <span style="color:#444;font-size:1em;">${item.qty} ${qtyLabel}. × ${item.price} zł</span>
+        </div>
+        ${btnsHtml}
+      </div>
+      <div style="margin-left:56px;margin-top:2px;color:#b30000;font-weight:600;font-size:1.05em;">Razem: ${item.qty * item.price} zł</div>
+    `;
+    row.style.textAlign = "left";
+    productsList.appendChild(row);
+  });
+  summaryEl.appendChild(productsList);
+
+  // Upewnij się, że przycisk "Wyczyść koszyk" jest widoczny
+  const clearBtnShow = document.getElementById("clearCartBtn") as HTMLButtonElement | null;
+  if (clearBtnShow) clearBtnShow.style.display = "";
+
+function scrollToCheckout() {
+  checkoutFormEl?.scrollIntoView({ behavior: "smooth" });
+}
+window.scrollToCheckout = scrollToCheckout;
+
+  // Linia oddzielająca
+  const hr1 = document.createElement("hr");
+  hr1.className = "checkout-summary-hr";
+  summaryEl.appendChild(hr1);
+
+  // Suma produktów
+  const productsLine = document.createElement("div");
+  productsLine.innerHTML = `<strong>Produkty w koszyku:</strong> ${productsTotal} zł`;
+  productsLine.className = "checkout-summary-total-line";
+  summaryEl.appendChild(productsLine);
+
+  // Dostawa (koszt)
+  const deliveryCostLine = document.createElement("div");
+  deliveryCostLine.className = "checkout-summary-delivery-cost-line";
+  if (deliveryInfo.finalCost === 0) {
+    deliveryCostLine.innerHTML = `<span class="checkout-summary-gratis-label"><strong>Dostawa:</strong> <span class="checkout-summary-gratis">GRATIS!</span></span>`;
+  } else {
+    deliveryCostLine.innerHTML = `<span><strong>Dostawa:</strong> <span class="checkout-summary-delivery-cost">${deliveryInfo.finalCost} zł</span></span>`;
+  }
+  summaryEl.appendChild(deliveryCostLine);
+
+  // Szczegóły dostawy
+  const deliveryLine = document.createElement("div");
+  deliveryLine.innerHTML = `<strong>Szczegóły dostawy:</strong> ${parcelInfo}, ${itemsCount} szt.`;
+  deliveryLine.className = "checkout-summary-delivery-line";
+  summaryEl.appendChild(deliveryLine);
+
+  // Linia oddzielająca
+  const hr2 = document.createElement("hr");
+  hr2.className = "checkout-summary-hr";
+  summaryEl.appendChild(hr2);
+
+  // Suma do zapłaty
+  const totalLine = document.createElement("div");
+  totalLine.innerHTML = `<span class="checkout-summary-final-label">Do zapłaty:</span> <span class="checkout-summary-final">${totalWithDelivery} zł</span>`;
+  totalLine.className = "checkout-summary-final-line";
+  summaryEl.appendChild(totalLine);
+
+  // Przycisk Wyczyść koszyk (dynamicznie stylowany i aktywowany)
+  const clearBtnEl = document.getElementById("clearCartBtn") as HTMLButtonElement | null;
+  if (!clearBtnEl) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = "clearCartBtn";
+    btn.className = "cart-checkout-btn clear-cart-btn";
+    btn.setAttribute("data-test-id", "btn-clear-cart");
+    btn.textContent = "Wyczyść koszyk";
+    btn.addEventListener("mouseenter", () => {
+      if (!btn.disabled) {
+        btn.style.background = "linear-gradient(90deg,#b30000 0%,#e74c3c 100%)";
+      }
+    });
+    btn.addEventListener("mouseleave", () => {
+      if (!btn.disabled) {
+        btn.style.background = "linear-gradient(90deg,#e74c3c 0%,#b30000 100%)";
+      }
+    });
+    btn.addEventListener("mouseleave", () => {
+      if (!btn.disabled) {
+        btn.style.background = "linear-gradient(90deg,#e74c3c 0%,#b30000 100%)";
+      }
+    });
+    btn.addEventListener("focus", () => {
+      btn.style.boxShadow = "none";
+      btn.style.border = "none";
+    });
+    btn.addEventListener("blur", () => {
+      btn.style.boxShadow = "none";
+      btn.style.border = "none";
+    });
+    btn.addEventListener("click", () => {
+      if (!btn.disabled) window.clearCart();
+    });
+    const actionsRow = document.createElement("div");
+    actionsRow.className = "checkout-actions-row";
+    actionsRow.appendChild(btn);
+    summaryEl.appendChild(actionsRow);
+    setClearBtnState(btn);
+  } else {
+    setClearBtnState(clearBtnEl);
+  }
+
+  function setClearBtnState(btn: HTMLButtonElement) {
+    if (cart.length === 0) {
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+      btn.style.cursor = "not-allowed";
+      btn.style.background = "#f2f2f2";
+      btn.style.color = "#aaa";
+      btn.title = "Koszyk jest pusty";
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+      btn.style.background = "linear-gradient(90deg,#e74c3c 0%,#b30000 100%)";
+      btn.style.color = "#fff";
+      btn.title = "Usuń wszystkie produkty z koszyka";
+    }
+  }
+}
+// Modal potwierdzenia zamówienia
+// Globalna deklaracja koszyka (naprawa błędu 'Cannot find name cart')
+var cart: { name: string; price: number; qty: number; image?: string }[] = [];
+
+// Funkcje pomocnicze używane w showOrderConfirmationModal
+function getCartTotalPrice(): number {
+  return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+}
+function getDeliveryInfo(totalPrice: number): any {
+  // Przyjmujemy, że do jednej paczki mieści się 4 sztuki
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+  const numberOfParcels = Math.ceil(totalItems / 4);
+  return { finalCost: totalPrice > 100 ? 0 : 15, numberOfParcels };
+}
+function getTotalItemsCount(): number {
+  return cart.reduce((sum, item) => sum + item.qty, 0);
+}
+
+type OrderConfirmationData = {
+  orderRef?: string;
+  orderId?: string;
+  status?: string;
+  orderTotal?: string;
+  total?: string;
+  transferTitle?: string;
+  paymentTarget?: string;
+};
+
+function showOrderConfirmationModal(data: OrderConfirmationData) {
+  // Usuń istniejący modal jeśli jest
+  const existing = document.getElementById('order-confirm-modal');
+  if (existing) existing.remove();
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'order-confirm-modal';
+  overlay.className = 'order-confirm-modal-overlay';
+
+  // Modal
+  const modal = document.createElement('div');
+  modal.className = 'order-confirm-modal';
+
+  // Close button (X)
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'order-confirm-modal-close';
+  closeBtn.setAttribute('aria-label', 'Zamknij');
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', () => overlay.remove());
+  modal.appendChild(closeBtn);
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'order-confirm-modal-body';
+  body.innerHTML = `
+    <div class="order-confirm-modal-thankyou">Zamówienie przyjęte!</div>
+    <div style="margin-bottom:10px;">Dziękujemy za zakupy w <b>Galaretkarnia.pl</b> 🎉</div>
+    <div style="margin-bottom:6px;"><b>Numer zamówienia:</b> <span class="order-confirm-modal-ref">${data.orderRef || data.orderId || ''}</span></div>
+    <div style="margin-bottom:6px;"><b>Status:</b> <span class="order-confirm-modal-status">${data.status || 'oczekuje-na-platnosc'}</span></div>
+    <div style="margin-bottom:6px;"><b>Kwota do zapłaty:</b> <span class="order-confirm-modal-total">${data.orderTotal || data.total || ''} zł</span></div>
+    <div style="margin-bottom:6px;"><b>Tytuł przelewu:</b> <span class="order-confirm-modal-transfer">${data.transferTitle || ''}</span></div>
+    <div style="margin-bottom:6px;"><b>Dane do płatności:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget || ''}</span></div>
+    <div class="order-confirm-modal-info">Zamówienie zostanie zrealizowane po zaksięgowaniu wpłaty.</div>
+  `;
+  modal.appendChild(body);
+
+  // Sekcja podsumowania zamówienia
+  const checkoutSummaryList = document.createElement('div');
+  checkoutSummaryList.className = 'order-confirm-modal-summary';
+
+  // Lista produktów bez kropek
+  const productsList = document.createElement('div');
+  productsList.className = 'checkout-summary-products checkout-summary-products-nodots';
+  cart.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'checkout-summary-product-row';
+    // Wybierz odpowiedni opis ilości
+    let qtyLabel = "sztuk";
+    if (item.qty === 1) qtyLabel = "sztuka";
+    else if (item.qty >= 2 && item.qty <= 4) qtyLabel = "sztuki";
+    // Dodaj ikonkę produktu jeśli jest
+    let imgHtml = "";
+    if (item.image) {
+      imgHtml = `<img src="https://example.com/${item.image}" alt="${item.name}" class="checkout-summary-product-img" style="width:32px;height:32px;object-fit:cover;margin-right:8px;vertical-align:middle;">`;
+    }
+    row.innerHTML = `${imgHtml}<span class="checkout-summary-product-name">${item.name}</span> — <span class="checkout-summary-product-qty">${item.qty} ${qtyLabel}</span> × <span class="checkout-summary-product-price">${item.price} zł</span>`;
+    productsList.appendChild(row);
+  });
+  checkoutSummaryList.appendChild(productsList);
+
+  // Linia oddzielająca
+  const hr1 = document.createElement('hr');
+  hr1.className = 'checkout-summary-hr';
+  checkoutSummaryList.appendChild(hr1);
+
+  // Suma produktów
+  const productsTotal = getCartTotalPrice();
+  const productsLine = document.createElement('div');
+  productsLine.innerHTML = `<strong>Produkty w koszyku:</strong> ${productsTotal} zł`;
+  productsLine.className = 'checkout-summary-total-line';
+  checkoutSummaryList.appendChild(productsLine);
+
+  // Dostawa (koszt)
+  const deliveryInfo = getDeliveryInfo(productsTotal);
+  const itemsCount = getTotalItemsCount();
+  const parcelInfo = deliveryInfo.numberOfParcels > 1 
+    ? `${deliveryInfo.numberOfParcels} paczki` 
+    : `1 paczka`;
+  const deliveryCostLine = document.createElement('div');
+  deliveryCostLine.className = 'checkout-summary-delivery-cost-line';
+  if (deliveryInfo.finalCost === 0) {
+    deliveryCostLine.innerHTML = `<span class="checkout-summary-gratis-label"><strong>Dostawa:</strong> <span class="checkout-summary-gratis">GRATIS!</span></span>`;
+  } else {
+    deliveryCostLine.innerHTML = `<span><strong>Dostawa:</strong> <span class="checkout-summary-delivery-cost">${deliveryInfo.finalCost} zł</span></span>`;
+  }
+  checkoutSummaryList.appendChild(deliveryCostLine);
+
+  // Szczegóły dostawy
+  const deliveryLine = document.createElement('div');
+  deliveryLine.innerHTML = `<strong>Szczegóły dostawy:</strong> ${parcelInfo}, ${itemsCount} szt.`;
+  deliveryLine.className = 'checkout-summary-delivery-line';
+  checkoutSummaryList.appendChild(deliveryLine);
+
+  // Linia oddzielająca
+  const hr2 = document.createElement('hr');
+  hr2.className = 'checkout-summary-hr';
+  checkoutSummaryList.appendChild(hr2);
+
+  // Suma do zapłaty (tylko w podsumowaniu, nie w dolnym polu)
+  const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
+  const totalLine = document.createElement('div');
+  totalLine.innerHTML = `<span class="checkout-summary-final-label">Do zapłaty:</span> <span class="checkout-summary-final">${totalWithDelivery} zł</span>`;
+  totalLine.className = 'checkout-summary-final-line';
+  checkoutSummaryList.appendChild(totalLine);
+
+  // Dodaj podsumowanie do modala
+  modal.appendChild(checkoutSummaryList);
+
+  // Actions (OK button)
+  const actions = document.createElement('div');
+  actions.className = 'order-confirm-modal-actions';
+  const okBtn = document.createElement('button');
+  okBtn.className = 'order-confirm-modal-btn';
+  okBtn.textContent = 'OK';
+  okBtn.addEventListener('click', () => overlay.remove());
+  actions.appendChild(okBtn);
+  modal.appendChild(actions);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Zamknięcie modala po kliknięciu poza modalem
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+  // Zamknięcie ESC
+  document.addEventListener('keydown', function escHandler(ev) {
+    if (ev.key === 'Escape') {
+      overlay.remove();
+      document.removeEventListener('keydown', escHandler);
+    }
+  });
+}
 // Globalna deklaracja miniCart (tylko jedna w całym pliku!)
 var miniCart: HTMLElement | null = null;
 // Wymuś globalność także dla JS
@@ -10,14 +378,56 @@ declare global {
     decreaseQty: (name: string) => void;
     increaseQty: (name: string) => void;
     removeItem: (name: string) => void;
+    getTotalItemsCount: () => number;
+    clearCart: () => Promise<void>;
+    scrollToCheckout: () => void;
   }
 }
 
-import { renderCartList, showCartError } from "./modules/cart.js";
-import { setupParcelAutocomplete } from "./modules/autocomplete.js";
 
 window.addEventListener("DOMContentLoaded", () => {
+    // Konfiguracja płatności (możesz rozbudować o pobieranie z backendu)
+    const paymentConfig = {
+      accountHolder: "Galaretkarnia",
+      accountNumber: "60 1140 2004 0000 3102 4831 8846",
+      blikPhone: "794 535 366" // Twój numer BLIK
+    };
+
+    function renderPaymentInstructions() {
+      if (!paymentInstructions || !paymentMethod) return;
+      if (paymentMethod.value === "blik") {
+        paymentInstructions.innerHTML = `
+          <p><strong>Płatność BLIK:</strong> wykonaj przelew na telefon.</p>
+          <p><strong>Numer telefonu BLIK:</strong> ${paymentConfig.blikPhone}</p>
+          <p><small>W tytule wpisz numer zamówienia po jego utworzeniu.</small></p>
+        `;
+        return;
+      }
+      paymentInstructions.innerHTML = `
+        <p><strong>Płatność przelewem tradycyjnym:</strong></p>
+        <p><strong>Odbiorca:</strong> ${paymentConfig.accountHolder}</p>
+        <p><strong>Numer konta:</strong> ${paymentConfig.accountNumber}</p>
+        <p><small>Tytuł przelewu otrzymasz po złożeniu zamówienia.</small></p>
+      `;
+    }
+  // Automatyczne ładowanie koszyka z localStorage
+  const STORAGE_KEY = "cartStorage";
+  const savedCart = localStorage.getItem(STORAGE_KEY);
+  if (savedCart) {
+    try {
+      cart = JSON.parse(savedCart);
+    } catch {
+      cart = [];
+    }
+  }
+
   const parcelSearchInput = document.getElementById("parcelSearchQuery") as HTMLInputElement;
+  // Dodaj margines pod etykietą 'Wyszukaj paczkomat', jeśli istnieje
+  const parcelSearchLabel = document.querySelector("label[for='parcelSearchQuery']") as HTMLElement | null;
+  if (parcelSearchLabel) {
+    parcelSearchLabel.style.marginBottom = "12px";
+    parcelSearchLabel.style.display = "block";
+  }
 
   const parcelLockerCodeInput = document.getElementById("parcelLockerCode") as HTMLInputElement;
   const searchWrapper = parcelSearchInput.parentElement as HTMLElement;
@@ -32,7 +442,13 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch("parcelLockers.json")
     .then(res => res.json())
     .then(data => {
-      parcelLockers = data;
+      // Mapuj dane z JSON-a na oczekiwane przez autocomplete pola
+      parcelLockers = data.map((locker: any) => ({
+        code: locker.n,
+        name: `${locker.c}${locker.e ? ", " + locker.e : ""}${locker.b ? " " + locker.b : ""}`.trim(),
+        address: locker.d || ""
+      }));
+      // Wywołanie funkcji importowanej na górze pliku
       setupParcelAutocomplete(parcelLockers, parcelSearchInput, parcelLockerCodeInput, searchAutocompleteBox);
     })
     .catch((error) => {
@@ -41,62 +457,84 @@ window.addEventListener("DOMContentLoaded", () => {
       console.warn("Nie udało się pobrać listy paczkomatów.", error);
     });
 
-  const STORAGE_KEY = "cartStorage";
-  let cart: any[] = [];
-  localStorage.removeItem(STORAGE_KEY);
-  let freeDeliveryThreshold = 100;
-  const cartList = document.getElementById("cartList") as HTMLElement | null;
+  // localStorage.removeItem(STORAGE_KEY); // Usunięto czyszczenie koszyka przy starcie strony (UX)
 
-  // Przykład użycia renderCart i showCartError
-  if (cartList) {
-    renderCartList(cart, cartList);
-  }
+  // Usunięto renderowanie mini-koszyka (cartList)
+
 
   // ...existing code...
+  const addButtons = document.querySelectorAll(".addToCartBtn") as NodeListOf<HTMLButtonElement>;
+  const checkoutFormEl = document.getElementById("checkoutForm") as HTMLFormElement | null;
+  const checkoutMessage = document.getElementById("checkoutMessage") as HTMLElement | null;
+  const paymentMethod = document.getElementById("paymentMethod") as HTMLSelectElement | null;
+  const paymentInstructions = document.getElementById("paymentInstructions") as HTMLElement | null;
+  const parcelSearchQuery = document.getElementById("parcelSearchQuery") as HTMLInputElement | null;
+  const customerPhone = document.getElementById("customerPhone") as HTMLInputElement | null;
+  const openParcelSearchBtn = document.getElementById("openParcelSearchBtn") as HTMLButtonElement | null;
+  const CART_SCROLL_OFFSET = 20;
 
-          const addButtons = document.querySelectorAll(".addToCartBtn") as NodeListOf<HTMLButtonElement>;
-          const checkoutFormEl = document.getElementById("checkoutForm") as HTMLFormElement | null;
-          const checkoutMessage = document.getElementById("checkoutMessage") as HTMLElement | null;
-          const paymentMethod = document.getElementById("paymentMethod") as HTMLSelectElement | null;
-          const createOptionalAccount = document.getElementById("createOptionalAccount") as HTMLInputElement | null;
-          const optionalAccountFields = document.getElementById("optionalAccountFields") as HTMLElement | null;
-          const optionalAccountEmail = document.getElementById("optionalAccountEmail") as HTMLInputElement | null;
-          const parcelSearchQuery = document.getElementById("parcelSearchQuery") as HTMLInputElement | null;
-          const customerPhone = document.getElementById("customerPhone") as HTMLInputElement | null;
-          const openParcelSearchBtn = document.getElementById("openParcelSearchBtn") as HTMLButtonElement | null;
-          const CART_SCROLL_OFFSET = 20;
+  // MASKA I WALIDACJA NA NUMER TELEFONU (format 000 000 000)
+  if (customerPhone !== null) {
+    const phoneError = document.getElementById("phoneError");
+    function validatePhone(showMsg = true) {
+      if (!customerPhone) return false;
+      const raw = customerPhone.value.replace(/\D/g, "");
+      let msg = "";
+      if (raw.length === 0) {
+        msg = "Podaj numer telefonu.";
+      } else if (raw.length < 9) {
+        msg = "Numer telefonu musi mieć 9 cyfr.";
+      } else if (!/^[5-8]/.test(raw)) {
+        msg = "Numer powinien zaczynać się od 5, 6, 7 lub 8.";
+      }
+      if (phoneError && showMsg) phoneError.textContent = msg;
+      return msg === "";
+    }
+    customerPhone.addEventListener("input", () => {
+      if (!customerPhone) return;
+      let value = customerPhone.value.replace(/\D/g, "");
+      if (value.length > 9) value = value.slice(0, 9);
+      let formatted = value;
+      if (value.length > 6) {
+        formatted = value.slice(0, 3) + " " + value.slice(3, 6) + " " + value.slice(6);
+      } else if (value.length > 3) {
+        formatted = value.slice(0, 3) + " " + value.slice(3);
+      }
+      customerPhone.value = formatted;
+      validatePhone();
+    });
+    customerPhone.addEventListener("blur", () => {
+      if (!customerPhone) return;
+      validatePhone();
+    });
+    customerPhone.addEventListener("focus", () => {
+      if (phoneError) phoneError.textContent = "";
+    });
+  }
 
+  // Przypisz miniCart po wszystkich deklaracjach (do globalnej zmiennej!)
+  // miniCart = document.querySelector(".mini-cart") as HTMLElement | null;
+  // (window as any).miniCart = miniCart;
 
-          // Przypisz miniCart po wszystkich deklaracjach (do globalnej zmiennej!)
-          miniCart = document.querySelector(".mini-cart") as HTMLElement | null;
-          (window as any).miniCart = miniCart;
+  // Usunięto obsługę cartList (mini-koszyk)
+  // if (!miniCart) console.warn("Brak elementu miniCart");
+  if (!checkoutFormEl) console.warn("Brak elementu checkoutFormEl");
+  if (!paymentMethod) console.warn("Brak elementu paymentMethod");
+  if (!parcelSearchQuery) console.warn("Brak elementu parcelSearchQuery");
+  if (!openParcelSearchBtn) console.warn("Brak elementu openParcelSearchBtn");
+  if (!customerPhone) console.warn("Brak elementu customerPhone");
 
-          
-          if (!cartList) console.warn("Brak elementu cartList");
-          if (!miniCart) console.warn("Brak elementu miniCart");
-          if (!checkoutFormEl) console.warn("Brak elementu checkoutFormEl");
-          if (!paymentMethod) console.warn("Brak elementu paymentMethod");
-          if (!createOptionalAccount) console.warn("Brak elementu createOptionalAccount");
-          if (!optionalAccountFields) console.warn("Brak elementu optionalAccountFields");
-          if (!optionalAccountEmail) console.warn("Brak elementu optionalAccountEmail");
-          if (!parcelSearchQuery) console.warn("Brak elementu parcelSearchQuery");
-          if (!openParcelSearchBtn) console.warn("Brak elementu openParcelSearchBtn");
-          if (!customerPhone) console.warn("Brak elementu customerPhone");
+  // Obsługa przycisku "Wyczyść koszyk" tylko w podsumowaniu
+  const clearCartBtn = document.querySelector(".checkout-summary .browse-products-btn.clear-cart-btn") as HTMLButtonElement | null;
+  if (clearCartBtn) {
+    clearCartBtn.addEventListener("click", () => {
+      window.clearCart();
+    });
+  }
 
-          
-          if (customerPhone) {
-            customerPhone.addEventListener("input", () => {
-              let val = customerPhone.value.replace(/\D/g, "");
-              if (val.length > 9) val = val.slice(0, 9);
-              let masked = val;
-              if (val.length > 3 && val.length <= 6) {
-                masked = val.slice(0, 3) + " " + val.slice(3);
-              } else if (val.length > 6) {
-                masked = val.slice(0, 3) + " " + val.slice(3, 6) + " " + val.slice(6);
-              }
-              customerPhone.value = masked;
-            });
-          }
+  // Obsługa przycisku "Zamawiam teraz" tylko w formularzu (submit obsługiwany przez event na formie)
+
+  // ...pozostała logika bez zmian...
 
 function showToast(message: string) {
   let toast = document.getElementById('toastMessage');
@@ -133,38 +571,105 @@ function showToast(message: string) {
     function decreaseQty(name: string) {
       const item = cart.find(i => i.name === name);
       if (item && item.qty > 1) item.qty--;
-      renderMiniCartList();
+      renderCart();
     }
     function increaseQty(name: string) {
       const item = cart.find(i => i.name === name);
       if (item) item.qty++;
-      renderMiniCartList();
+      renderCart();
     }
     function removeItem(name: string) {
       cart = cart.filter(i => i.name !== name);
-      renderMiniCartList();
+      renderCart();
     }
+
+    // Expose cart item functions globally for use in HTML event handlers
+    window.decreaseQty = decreaseQty;
+    window.increaseQty = increaseQty;
+    window.removeItem = removeItem;
     function getCartTotalPrice(): number {
       return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     }
     function getDeliveryInfo(totalPrice: number): any {
-      return { finalCost: totalPrice > 100 ? 0 : 15, numberOfParcels: 1 };
+      // Przyjmujemy, że do jednej paczki mieści się 4 sztuki
+      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+      const numberOfParcels = Math.ceil(totalItems / 4);
+      return { finalCost: totalPrice > 100 ? 0 : 15, numberOfParcels };
     }
+
     function getTotalItemsCount(): number {
       return cart.reduce((sum, item) => sum + item.qty, 0);
     }
-    function clearCart() {
+    window.getTotalItemsCount = getTotalItemsCount;
+
+    // Confirmation modal (ported from app.js)
+    function showConfirmModal(title: string, message: string, singleButton = false): Promise<boolean> {
+      return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-modal-overlay';
+
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-modal';
+
+        const h = document.createElement('h3');
+        h.textContent = title;
+        h.style.color = '#b30000';
+        h.style.marginBottom = '8px';
+        const p = document.createElement('p');
+        p.textContent = message;
+        p.style.marginBottom = '12px';
+
+        const actions = document.createElement('div');
+        actions.className = 'confirm-actions';
+
+        if (singleButton) {
+          const btnOk = document.createElement('button');
+          btnOk.className = 'btn btn-confirm';
+          btnOk.textContent = 'OK';
+          btnOk.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+          });
+          actions.appendChild(btnOk);
+        } else {
+          const btnCancel = document.createElement('button');
+          btnCancel.className = 'browse-products-btn btn-cancel';
+          btnCancel.textContent = 'Anuluj';
+          btnCancel.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+          });
+          const btnConfirm = document.createElement('button');
+          btnConfirm.className = 'browse-products-btn';
+          btnConfirm.textContent = 'Tak, wyczyść';
+          btnConfirm.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+          });
+          actions.appendChild(btnCancel);
+          actions.appendChild(btnConfirm);
+        }
+
+        dialog.appendChild(h);
+        dialog.appendChild(p);
+        dialog.appendChild(actions);
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+      });
+    }
+
+    // Async clearCart with confirmation
+    async function clearCart() {
+      if (cart.length === 0) return;
+      const confirmed = await showConfirmModal("Wyczyść koszyk", "Na pewno chcesz wyczyścić cały koszyk?");
+      if (!confirmed) return;
       cart = [];
-      renderMiniCartList();
+      renderCart();
       setCheckoutMessage("Koszyk został wyczyszczony.");
     }
-    function scrollToCheckout() {
-      checkoutFormEl?.scrollIntoView({ behavior: "smooth" });
-    }
-    function animate(el: HTMLElement, cls: string) {
-      el.classList.add(cls);
-      setTimeout(() => el.classList.remove(cls), 500);
-    }
+    window.clearCart = clearCart;
+    // ...existing code...
+    // ...existing code...
 
     
     const saveCart = () => {
@@ -174,171 +679,11 @@ function showToast(message: string) {
     
 
     
-    function renderMiniCartList() {
-      if (!cartList) return;
-      cartList.innerHTML = "";
-      const totalPrice = getCartTotalPrice();
 
-      if (cart.length === 0) {
-        const empty = document.createElement("p");
-        empty.textContent = "Koszyk jest pusty — dodaj pierwszą galaretkę 😊";
-        empty.classList.add("fade-in", "cart-empty-state");
-        cartList.appendChild(empty);
-  // ...existing code...
-        return;
-      }
-
-      cart.forEach((item: any) => {
-        const row = document.createElement("div");
-        row.classList.add("cart-item", "fade-in");
-
-        const img = document.createElement("img");
-        img.src = item.image;
-        img.alt = item.name;
-        img.onerror = () => {
-          img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='55' height='55'%3E%3Crect fill='%23ddd' width='55' height='55'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='12'%3E?%3C/text%3E%3C/svg%3E";
-        };
-
-        const info = document.createElement("div");
-        info.classList.add("cart-item-info");
-
-        const name = document.createElement("div");
-        name.classList.add("cart-item-name");
-        name.textContent = item.name;
-
-        const details = document.createElement("div");
-        details.classList.add("cart-item-details");
-
-        const unitLine = document.createElement("span");
-        unitLine.className = "cart-item-unit";
-        unitLine.textContent = `${item.qty} szt. × ${item.price} zł`;
-
-        const subtotalLine = document.createElement("span");
-        subtotalLine.className = "cart-item-subtotal";
-        subtotalLine.textContent = `Razem: ${item.qty * item.price} zł`;
-
-        details.appendChild(unitLine);
-        details.appendChild(subtotalLine);
-
-        const controls = document.createElement("div");
-        controls.classList.add("cart-item-controls");
-
-        // Przycisk minus
-        const btnMinus = document.createElement("button");
-        btnMinus.className = "cart-btn cart-btn-minus";
-        btnMinus.textContent = "−";
-        btnMinus.addEventListener("click", () => decreaseQty(item.name));
-
-        // Ilość
-        const qtySpan = document.createElement("span");
-        qtySpan.className = "cart-item-qty";
-        qtySpan.textContent = item.qty.toString();
-
-        // Przycisk plus
-        const btnPlus = document.createElement("button");
-        btnPlus.className = "cart-btn cart-btn-plus";
-        btnPlus.textContent = "+";
-        btnPlus.addEventListener("click", () => increaseQty(item.name));
-
-        // Przycisk usuń
-        const btnRemove = document.createElement("button");
-        btnRemove.className = "cart-btn cart-btn-remove";
-        btnRemove.textContent = "✕";
-        btnRemove.addEventListener("click", () => removeItem(item.name));
-
-        controls.appendChild(btnMinus);
-        controls.appendChild(qtySpan);
-        controls.appendChild(btnPlus);
-        controls.appendChild(btnRemove);
-
-        info.appendChild(name);
-        info.appendChild(details);
-
-        row.appendChild(img);
-        row.appendChild(info);
-        row.appendChild(controls);
-
-        cartList.appendChild(row);
-      });
-
-      const remainingToTarget = Math.max(0, freeDeliveryThreshold - totalPrice);
-      const progressPercent = Math.min(100, Math.round((totalPrice / freeDeliveryThreshold) * 100));
-
-      const progressBox = document.createElement("div");
-      progressBox.className = "cart-progress";
-
-      const progressLabel = document.createElement("p");
-      progressLabel.className = "cart-progress-label";
-      progressLabel.textContent =
-        remainingToTarget > 0
-          ? `Do darmowej dostawy (${freeDeliveryThreshold} zł) brakuje ${remainingToTarget} zł.`
-          : `Super! Masz już darmową dostawę od ${freeDeliveryThreshold} zł.`;
-
-      const progressTrack = document.createElement("div");
-      progressTrack.className = "cart-progress-track";
-
-      const progressBar = document.createElement("div");
-      progressBar.className = "cart-progress-bar";
-      progressBar.style.width = `${progressPercent}%`;
-
-      progressTrack.appendChild(progressBar);
-      progressBox.appendChild(progressLabel);
-      progressBox.appendChild(progressTrack);
-      cartList.appendChild(progressBox);
-
-      // Breakdown: produkty + dostawa + razem
-      const deliveryInfo = getDeliveryInfo(totalPrice);
-      const totalWithDelivery = totalPrice + deliveryInfo.finalCost;
-      const itemsCount = getTotalItemsCount();
-
-      const cartSummary = document.createElement("div");
-      cartSummary.className = "cart-summary";
-
-      const productsLine = document.createElement("div");
-      productsLine.className = "cart-summary-line";
-      productsLine.innerHTML = `<span>Produkty (galaretki):</span><span>${totalPrice} zł</span>`;
-
-      const deliveryLine = document.createElement("div");
-      deliveryLine.className = "cart-summary-line";
-      const deliveryText = deliveryInfo.finalCost === 0 ? "<strong>Gratis!</strong>" : `${deliveryInfo.finalCost} zł`;
-      const parcelInfo = deliveryInfo.numberOfParcels > 1 
-        ? `${deliveryInfo.numberOfParcels} paczki` 
-        : `1 paczka`;
-      deliveryLine.innerHTML = `<span>Dostawa (${parcelInfo}, ${itemsCount} szt.):</span><span>${deliveryText}</span>`;
-
-      const totalLine = document.createElement("div");
-      totalLine.className = "cart-summary-total";
-      totalLine.innerHTML = `<span>Razem do zapłaty:</span><span>${totalWithDelivery} zł</span>`;
-
-      cartSummary.appendChild(productsLine);
-      cartSummary.appendChild(deliveryLine);
-      cartSummary.appendChild(totalLine);
-      cartList.appendChild(cartSummary);
-
-      // Przycisk wyczyść koszyk
-      const clearBtn = document.createElement("button");
-      clearBtn.className = "cart-clear-btn";
-      clearBtn.textContent = "Wyczyść koszyk";
-      clearBtn.addEventListener("click", clearCart);
-      cartList.appendChild(clearBtn);
-
-      const checkoutBtn = document.createElement("button");
-      checkoutBtn.className = "cart-checkout-btn";
-      checkoutBtn.textContent = "Zamawiam teraz";
-      checkoutBtn.addEventListener("click", scrollToCheckout);
-      cartList.appendChild(checkoutBtn);
-    }
 
   // Przeliczanie koszyka
   function renderCart() {
-    // Animacje mini‑koszyka
-    if (typeof (window as any).miniCart !== "undefined" && miniCart) {
-      animate(miniCart, "mini-cart-shake");
-      animate(miniCart, "mini-cart-pulse");
-    }
-
-    renderMiniCartList();
-    // renderCheckoutSummary(); // funkcja niezaimplementowana
+    renderCheckoutSummary();
     saveCart();
   }
 
@@ -371,6 +716,11 @@ function showToast(message: string) {
       }
 
       renderCart();
+      // Scroll do podsumowania zamówienia po dodaniu produktu
+      const checkoutSummary = document.getElementById("checkoutSummary");
+      if (checkoutSummary) {
+        checkoutSummary.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       const cartDock = document.querySelector('.cart-dock') as HTMLElement | null;
       if (cartDock) {
         const top = cartDock.getBoundingClientRect().top + window.scrollY - CART_SCROLL_OFFSET;
@@ -383,7 +733,7 @@ function showToast(message: string) {
       if (checkoutMessage && checkoutMessage.innerHTML.includes("Koszyk został wyczyszczony")) {
         setCheckoutMessage("");
       }
-      showToast(`${name} dodany do koszyka!`);
+      showToast(`${name} dodana do koszyka!`);
     });
   });
 
@@ -395,42 +745,107 @@ function showToast(message: string) {
         : "https://inpost.pl/znajdz-paczkomat";
 
       window.open(targetUrl, "_blank", "noopener,noreferrer");
+      // ...existing code...
     });
   }
 
   // ...
 
-  // Przycisk zamówienia i wyczyszczenia koszyka
+  // Przycisk zamówienia i obsługa walidacji UX
   const checkoutSubmitBtn = document.getElementById('submitOrderBtn') as HTMLButtonElement | null;
   if (checkoutSubmitBtn) {
     checkoutSubmitBtn.classList.add('cart-checkout-btn');
   }
-  const checkoutClearBtn = document.getElementById('clearCartBtn') as HTMLButtonElement | null;
-  if (checkoutClearBtn) {
-    checkoutClearBtn.addEventListener('click', clearCart);
-  }
 
-  if (paymentMethod) {
-    paymentMethod.addEventListener("change", () => {
-      // renderPaymentInstructions();
-    });
-  }
-
-  if (createOptionalAccount && optionalAccountFields && optionalAccountEmail) {
-    createOptionalAccount.addEventListener("change", () => {
-      optionalAccountFields.hidden = !createOptionalAccount.checked;
-      if (!createOptionalAccount.checked) {
-        optionalAccountEmail.value = "";
+  // Obsługa submit formularza zamówienia
+  if (checkoutFormEl) {
+    checkoutFormEl.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      // Walidacja koszyka
+      if (cart.length === 0) {
+        setCheckoutMessage("Koszyk jest pusty. Dodaj produkty przed złożeniem zamówienia.");
+        showToast("Koszyk jest pusty. Dodaj produkty przed złożeniem zamówienia.");
+        return;
+      }
+      // Walidacja telefonu
+      let phoneVal = "";
+      if (!customerPhone) {
+        setCheckoutMessage("Brak pola na numer telefonu w formularzu.");
+        showToast("Brak pola na numer telefonu w formularzu.");
+        return;
+      }
+      phoneVal = customerPhone.value.replace(/\D/g, "");
+      if (!(phoneVal.length === 9 && /^[5-8]/.test(phoneVal))) {
+        setCheckoutMessage("Podaj poprawny polski numer telefonu (9 cyfr, zaczynający się od 5, 6, 7 lub 8).");
+        showToast("Podaj poprawny polski numer telefonu (9 cyfr, zaczynający się od 5, 6, 7 lub 8).");
+        customerPhone.focus();
+        return;
+      }
+      // Walidacja kodu paczkomatu (musi być wybrany i niepusty)
+      let parcelCode = "";
+      if (parcelLockerCodeInput) {
+        parcelCode = parcelLockerCodeInput.value.trim().toUpperCase();
+        if (!parcelCode || !parcelCode.match(/^[A-Z0-9]{6,}$/)) {
+          setCheckoutMessage("Wybierz paczkomat przed złożeniem zamówienia. Kod paczkomatu jest wymagany i musi być poprawny (np. WAW01A).");
+          showToast("Wybierz paczkomat przed złożeniem zamówienia. Kod paczkomatu jest wymagany i musi być poprawny (np. WAW01A).");
+          parcelLockerCodeInput.focus();
+          return;
+        }
+      }
+      // Pobierz metodę płatności
+      let payment = paymentMethod ? paymentMethod.value : "przelew";
+      // Przygotuj dane zamówienia
+      const orderData = {
+        items: cart.map(item => ({ name: item.name, price: item.price, qty: item.qty })),
+        phone: phoneVal,
+        parcelLockerCode: parcelCode,
+        paymentMethod: payment,
+        productsTotal: getCartTotalPrice(),
+        deliveryCost: getDeliveryInfo(getCartTotalPrice()).finalCost,
+        total: getCartTotalPrice() + getDeliveryInfo(getCartTotalPrice()).finalCost,
+        notes: "", // jeśli masz pole na uwagi, wstaw tutaj
+        createOptionalAccount: false, // jeśli masz checkbox, wstaw wartość
+        optionalAccountEmail: "" // jeśli masz pole na e-mail, wstaw wartość
+      };
+      setCheckoutMessage("");
+      showToast("Wysyłanie zamówienia...");
+      try {
+        const response = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData)
+        });
+        if (response.ok) {
+          const data = await response.json();
+          // Stwórz modal potwierdzenia zamówienia
+          showOrderConfirmationModal(data);
+          cart = [];
+          saveCart();
+          renderCart();
+        } else {
+          const err = await response.text();
+          showToast("Błąd podczas wysyłania zamówienia: " + err);
+          setCheckoutMessage("Błąd podczas wysyłania zamówienia: " + err);
+        }
+      } catch (e) {
+        showToast("Błąd sieci podczas wysyłania zamówienia.");
+        setCheckoutMessage("Błąd sieci podczas wysyłania zamówienia.");
       }
     });
   }
 
-  renderMiniCartList();
+  if (paymentMethod) {
+    paymentMethod.addEventListener("change", () => {
+      renderPaymentInstructions();
+    });
+    // Wywołaj na starcie, by ustawić komunikat domyślny
+    renderPaymentInstructions();
+  }
+
+  renderCheckoutSummary();
 });
 
 // Defensywna ochrona: NIE wywołuj renderCart ani renderMiniCartList poza DOMContentLoaded!
-
 // Jeśli masz wywołania renderCart() lub renderMiniCartList() poza tym blokiem, USUŃ je lub przenieś do środka powyższego eventu.
-
 // Jeśli chcesz wywołać renderCart z innych plików, eksportuj funkcję, ale nie wywołuj jej automatycznie przed DOMContentLoaded.
 

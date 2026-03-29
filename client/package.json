@@ -1,7 +1,7 @@
 {
   "name": "galaretkarnia.pl",
   "version": "1.0.0",
-  "description": "Sklep z tradycyjną galaretką z nóżek",
+  "description": "Sklep z tradycyjną galaretką drobiową oraz wieprzową",
   "type": "module",
   "scripts": {
     "dev": "vite",

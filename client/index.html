@@ -71,17 +71,7 @@
         </div>
       </div>
     </header>
-    <section class="cart-dock" aria-label="Koszyk">
-      <div class="mini-cart" aria-label="Podsumowanie koszyka">
-        <p class="mini-cart-title">Twój koszyk</p>
-      </div>
-      <div
-        id="cartList"
-        role="region"
-        aria-label="Zawartość koszyka"
-        data-test-id="cart-list"
-      ></div>
-    </section>
+    <!-- Usunięto mini-koszyk. Cała zawartość koszyka znajduje się teraz w podsumowaniu zamówienia. -->
     <section class="about fade-in">
       <h2>O nas</h2>
       <div class="about-content">
@@ -121,7 +111,7 @@
       </div>
     </section>
 
-    <section class="product fade-in">
+    <section class="product fade-in" id="products" data-test-id="section-products">
       <h2>Oferta</h2>
 
       <div class="product-grid">
@@ -213,40 +203,30 @@
       <div id="paymentInstructions" class="payment-instructions" aria-live="polite" data-test-id="msg-payment-instructions"></div>
 
       <label for="customerPhone">Telefon do odbioru paczkomatu</label>
-      <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" placeholder="Np. 500 600 700" required data-test-id="input-customer-phone" />
+      <input id="customerPhone" name="customerPhone" type="tel" autocomplete="off" placeholder="Np. 500 600 700" required data-test-id="input-customer-phone" />
       <div class="input-error" id="phoneError" aria-live="polite" data-test-id="msg-phone-error"></div>
 
       <!-- Pola do paczkomatu tuż pod numerem telefonu -->
       <label for="parcelSearchQuery">Wyszukaj paczkomat</label>
       <div class="parcel-search-row">
-        <input id="parcelSearchQuery" name="parcelSearchQuery" type="text" placeholder="Np. Warszawa, Mokotów" data-test-id="input-parcel-search" />
+        <input id="parcelSearchQuery" name="parcelSearchQuery" type="text" autocomplete="off" placeholder="Np. Warszawa, Mokotów" data-test-id="input-parcel-search" />
       </div>
 
       <label for="parcelLockerCode">Kod paczkomatu</label>
-      <input id="parcelLockerCode" name="parcelLockerCode" type="text" placeholder="Np. WAW01A" required data-test-id="input-parcel-locker-code" />
+      <input id="parcelLockerCode" name="parcelLockerCode" type="text" autocomplete="off" placeholder="Np. WAW01A" required data-test-id="input-parcel-locker-code" />
       <div class="input-error" id="lockerError" aria-live="polite" data-test-id="msg-locker-error"></div>
 
       <div class="checkout-info-box">
         Jeśli nie znalazłeś swojego paczkomatu w naszej bazie, wybierz najbliższy dostępny, a w polu "Uwagi do zamówienia" podaj faktyczną nazwę lub kod paczkomatu, do którego mamy wysłać zamówienie. Po weryfikacji, jeśli nasza baza jest nieaktualna, wyślemy paczkę do wskazanego paczkomatu i dodamy go do naszej bazy.
       </div>
       <label for="customerNotes">Uwagi do zamówienia (opcjonalnie)</label>
-      <textarea id="customerNotes" name="customerNotes" rows="4" placeholder="Np. kod paczkomatu, którego nie znalazłeś w naszej bazie" data-test-id="input-customer-notes"></textarea>
+      <textarea id="customerNotes" name="customerNotes" rows="4" autocomplete="off" placeholder="Np. kod paczkomatu, którego nie znalazłeś w naszej bazie" data-test-id="input-customer-notes"></textarea>
 
-      <label class="optional-account-toggle" for="createOptionalAccount">
-        <input id="createOptionalAccount" name="createOptionalAccount" type="checkbox" data-test-id="input-create-optional-account" />
-        Chcę opcjonalnie założyć konto klienta (dla historii zamówień)
-      </label>
 
-      <div id="optionalAccountFields" hidden>
-        <label for="optionalAccountEmail">E-mail do konta (opcjonalnie)</label>
-        <input id="optionalAccountEmail" name="optionalAccountEmail" type="email" autocomplete="email" placeholder="Np. jan@przyklad.pl" data-test-id="input-optional-account-email" />
-        <div class="input-error" id="emailError" aria-live="polite" data-test-id="msg-email-error"></div>
-      </div>
-
-      <div class="checkout-actions-row">
-        <button type="button" id="clearCartBtn" class="secondary-clear-btn" data-test-id="btn-clear-cart">Wyczyść koszyk</button>
-        <button type="submit" id="submitOrderBtn" class="cart-checkout-btn" data-test-id="btn-submit-order">Zamawiam teraz</button>
-      </div>
+        <div class="checkout-actions-row">
+          <!-- Tylko przycisk Zamawiam teraz w formularzu -->
+          <button type="submit" id="submitOrderBtn" class="browse-products-btn" data-test-id="btn-submit-order">Zamawiam teraz</button>
+        </div>
 
       <div id="lastOrderCard" class="last-order-card" hidden>
         <p><strong>Twój ostatni numer zamówienia:</strong> <span id="lastOrderId" data-test-id="last-order-id">-</span></p>
@@ -259,9 +239,13 @@
     </form>
 
     <aside class="checkout-summary" aria-label="Podsumowanie zamówienia">
-      <h3>Podsumowanie koszyka</h3>
-      <div id="checkoutSummaryList" data-test-id="checkout-summary-list"></div>
-      <p class="checkout-total">Do zapłaty: <span id="checkoutTotal" data-test-id="checkout-total">0</span> zł</p>
+      <div class="checkout-summary-box">
+        <h3 style="margin-top:0; text-align:center; color:#b30000; letter-spacing:0.5px; font-size:1.25em;">Podsumowanie zamówienia</h3>
+        <div id="checkoutSummary" data-test-id="checkout-summary-list"></div>
+        <div class="checkout-actions-row">
+          <!-- Tylko przycisk Wyczyść koszyk w podsumowaniu -->
+        </div>
+      </div>
     </aside>
   </div>
 </section>

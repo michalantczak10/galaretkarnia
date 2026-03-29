@@ -23,24 +23,37 @@ export function setupParcelAutocomplete(parcelLockers: any[], parcelSearchInput:
     );
     if (matches.length > 0) {
       searchAutocompleteBox.style.display = "block";
-      matches.forEach((locker: any) => {
+      matches.forEach((locker: any, idx: number) => {
         const option = document.createElement("div");
         option.className = "autocomplete-option";
         option.innerHTML = `<strong>${locker.code}</strong> — ${locker.name}, ${locker.address}`;
-        option.addEventListener("click", () => {
+        option.addEventListener("mousedown", (e) => {
+          // Zapobiegaj blur na input zanim handler się wykona
+          e.preventDefault();
           parcelLockerCodeInput.value = locker.code;
           parcelSearchInput.value = `${locker.name}, ${locker.address}`;
           searchAutocompleteBox.innerHTML = "";
           searchAutocompleteBox.style.display = "none";
         });
+        // Dodaj atrybut do łatwego wyboru Enterem
+        option.setAttribute("data-idx", idx.toString());
         searchAutocompleteBox.appendChild(option);
       });
+      // Obsługa Enter: wybierz pierwszą opcję
+      parcelSearchInput.onkeydown = (e: KeyboardEvent) => {
+        if (e.key === "Enter" && matches.length > 0) {
+          e.preventDefault();
+          const first = searchAutocompleteBox.querySelector('.autocomplete-option[data-idx="0"]') as HTMLElement;
+          if (first) first.click();
+        }
+      };
     } else {
       searchAutocompleteBox.style.display = "block";
       const noResult = document.createElement("div");
       noResult.className = "autocomplete-option autocomplete-no-result";
       noResult.textContent = "Brak wyników";
       searchAutocompleteBox.appendChild(noResult);
+      parcelSearchInput.onkeydown = null;
     }
   });
   parcelSearchInput.addEventListener("blur", () => {
