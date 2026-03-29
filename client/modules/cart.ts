@@ -8,7 +8,16 @@ export function renderCartList(cart: any[], cartList: HTMLElement) {
   cart.forEach(item => {
     const div = document.createElement('div');
     div.className = 'cart-item';
-    div.innerHTML = `<strong>${item.name}</strong> x ${item.qty} = ${item.price * item.qty} zł`;
+    div.innerHTML = `
+      <span class="cart-item-name"><strong>${item.name}</strong></span>
+      <div class="cart-item-controls">
+        <button class="cart-btn cart-btn-decrease" data-action="decrease" data-id="${item.id}" aria-label="Zmniejsz ilość">-</button>
+        <span class="cart-item-qty">${item.qty}</span>
+        <button class="cart-btn cart-btn-increase" data-action="increase" data-id="${item.id}" aria-label="Zwiększ ilość">+</button>
+        <button class="cart-btn cart-btn-remove" data-action="remove" data-id="${item.id}" aria-label="Usuń z koszyka">×</button>
+        <span class="cart-item-subtotal">= ${item.price * item.qty} zł</span>
+      </div>
+    `;
     cartList.appendChild(div);
   });
 }
