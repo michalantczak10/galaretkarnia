@@ -11,7 +11,7 @@ function renderCheckoutSummary() {
   if (!summaryEl) return;
   summaryEl.innerHTML = "";
 
-  // Jeśli koszyk jest pusty, pokaż tylko komunikat i ukryj przycisk "Wyczyść koszyk"
+  // Jeśli zamówienie jest puste, pokaż tylko komunikat i ukryj przycisk "Wyczyść koszyk"
   if (cart.length === 0) {
     const emptyMsg = document.createElement("div");
     emptyMsg.className = "checkout-summary-empty";
@@ -20,11 +20,11 @@ function renderCheckoutSummary() {
     emptyMsg.style.color = "#b30000";
     emptyMsg.style.fontWeight = "bold";
     emptyMsg.style.fontSize = "1.2em";
-    // Większa ikona koszyka i zachęta
+    // Większa ikona zamówienia i zachęta
     emptyMsg.innerHTML = `
       <span style="font-size:4em;display:block;margin-bottom:12px;">🛒</span>
-      <div style="font-size:1.3em;margin-bottom:8px;">Koszyk jest pusty</div>
-      <div style="font-size:1.05em;color:#444;margin-bottom:18px;font-weight:400;">Dodaj coś pysznego do koszyka i rozpocznij zamówienie!</div>
+      <div style="font-size:1.3em;margin-bottom:8px;">Zamówienie nie zawiera wybranego produktu.</div>
+      <div style="font-size:1.05em;color:#444;margin-bottom:18px;font-weight:400;">Dodaj produkty przed złożeniem zamówienia.</div>
     `;
     // Przycisk "Przeglądaj produkty"
     const browseBtn = document.createElement("button");
@@ -38,7 +38,6 @@ function renderCheckoutSummary() {
       if (productsSection) {
         productsSection.scrollIntoView({ behavior: "smooth" });
       }
-      // Jeśli nie ma sekcji, nie przewijaj do góry
     };
     emptyMsg.appendChild(browseBtn);
     summaryEl.appendChild(emptyMsg);
@@ -258,89 +257,45 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
   // Body
   const body = document.createElement('div');
   body.className = 'order-confirm-modal-body';
+  // Wyciągnij numer zamówienia po myślniku lub cały jeśli nie ma myślnika
+  let orderNum = (data.orderRef || data.orderId || '').toString();
+  if (orderNum.includes('-')) orderNum = orderNum.split('-').pop();
+  // Oblicz faktyczną kwotę do zapłaty (łącznie z dostawą)
+  const productsTotal = getCartTotalPrice();
+  const deliveryInfo = getDeliveryInfo(productsTotal);
+  const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
   body.innerHTML = `
-    <div class="order-confirm-modal-thankyou">Zamówienie przyjęte!</div>
-    <div style="margin-bottom:10px;">Dziękujemy za zakupy w <b>Galaretkarnia.pl</b> 🎉</div>
-    <div style="margin-bottom:6px;"><b>Numer zamówienia:</b> <span class="order-confirm-modal-ref">${data.orderRef || data.orderId || ''}</span></div>
-    <div style="margin-bottom:6px;"><b>Status:</b> <span class="order-confirm-modal-status">${data.status || 'oczekuje-na-platnosc'}</span></div>
-    <div style="margin-bottom:6px;"><b>Kwota do zapłaty:</b> <span class="order-confirm-modal-total">${data.orderTotal || data.total || ''} zł</span></div>
-    <div style="margin-bottom:6px;"><b>Tytuł przelewu:</b> <span class="order-confirm-modal-transfer">${data.transferTitle || ''}</span></div>
-    <div style="margin-bottom:6px;"><b>Dane do płatności:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget || ''}</span></div>
-    <div class="order-confirm-modal-info">Zamówienie zostanie zrealizowane po zaksięgowaniu wpłaty.</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px;">
+      <span style="font-size:2.7em;line-height:1;">🎉</span>
+      <div class="order-confirm-modal-thankyou" style="margin:0;font-size:1.22em;">Zamówienie przyjęte!</div>
+      <div style="font-size:1.13em;color:#b30000;font-weight:700;">Dziękujemy za zakupy w <b>Galaretkarnia.pl</b></div>
+    </div>
+    <div class="order-confirm-modal-summary-row"><b>Numer zamówienia:</b><br><span class="order-confirm-modal-ref">${orderNum}</span></div>
+    <div class="order-confirm-modal-summary-row"><b>Do zapłaty:</b><br><span class="order-confirm-modal-total">${totalWithDelivery} zł</span></div>
+    <div class="order-confirm-modal-summary-row"><b>Tytuł przelewu:</b><br><span class="order-confirm-modal-transfer">Zamówienie ${orderNum}</span></div>
+    <div class="order-confirm-modal-summary-row"><b>Dane do płatności:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget || ''}</span></div>
+    <div class="order-confirm-modal-info" style="text-align:center;margin-top:10px;">Zamówienie zostanie zrealizowane po zaksięgowaniu wpłaty.</div>
   `;
   modal.appendChild(body);
 
   // Sekcja podsumowania zamówienia
-  const checkoutSummaryList = document.createElement('div');
-  checkoutSummaryList.className = 'order-confirm-modal-summary';
-
-  // Lista produktów bez kropek
+  // Lista produktów z ikoną jak w podsumowaniu zamówienia
   const productsList = document.createElement('div');
   productsList.className = 'checkout-summary-products checkout-summary-products-nodots';
   cart.forEach(item => {
     const row = document.createElement('div');
     row.className = 'checkout-summary-product-row';
-    // Wybierz odpowiedni opis ilości
     let qtyLabel = "sztuk";
     if (item.qty === 1) qtyLabel = "sztuka";
     else if (item.qty >= 2 && item.qty <= 4) qtyLabel = "sztuki";
-    // Dodaj ikonkę produktu jeśli jest
     let imgHtml = "";
     if (item.image) {
-      imgHtml = `<img src="https://example.com/${item.image}" alt="${item.name}" class="checkout-summary-product-img" style="width:32px;height:32px;object-fit:cover;margin-right:8px;vertical-align:middle;">`;
+      imgHtml = `<img src="${item.image}" alt="${item.name}" class="checkout-summary-product-img" style="width:32px;height:32px;object-fit:cover;margin-right:8px;vertical-align:middle;">`;
     }
     row.innerHTML = `${imgHtml}<span class="checkout-summary-product-name">${item.name}</span> — <span class="checkout-summary-product-qty">${item.qty} ${qtyLabel}</span> × <span class="checkout-summary-product-price">${item.price} zł</span>`;
     productsList.appendChild(row);
   });
-  checkoutSummaryList.appendChild(productsList);
-
-  // Linia oddzielająca
-  const hr1 = document.createElement('hr');
-  hr1.className = 'checkout-summary-hr';
-  checkoutSummaryList.appendChild(hr1);
-
-  // Suma produktów
-  const productsTotal = getCartTotalPrice();
-  const productsLine = document.createElement('div');
-  productsLine.innerHTML = `<strong>Produkty w koszyku:</strong> ${productsTotal} zł`;
-  productsLine.className = 'checkout-summary-total-line';
-  checkoutSummaryList.appendChild(productsLine);
-
-  // Dostawa (koszt)
-  const deliveryInfo = getDeliveryInfo(productsTotal);
-  const itemsCount = getTotalItemsCount();
-  const parcelInfo = deliveryInfo.numberOfParcels > 1 
-    ? `${deliveryInfo.numberOfParcels} paczki` 
-    : `1 paczka`;
-  const deliveryCostLine = document.createElement('div');
-  deliveryCostLine.className = 'checkout-summary-delivery-cost-line';
-  if (deliveryInfo.finalCost === 0) {
-    deliveryCostLine.innerHTML = `<span class="checkout-summary-gratis-label"><strong>Dostawa:</strong> <span class="checkout-summary-gratis">GRATIS!</span></span>`;
-  } else {
-    deliveryCostLine.innerHTML = `<span><strong>Dostawa:</strong> <span class="checkout-summary-delivery-cost">${deliveryInfo.finalCost} zł</span></span>`;
-  }
-  checkoutSummaryList.appendChild(deliveryCostLine);
-
-  // Szczegóły dostawy
-  const deliveryLine = document.createElement('div');
-  deliveryLine.innerHTML = `<strong>Szczegóły dostawy:</strong> ${parcelInfo}, ${itemsCount} szt.`;
-  deliveryLine.className = 'checkout-summary-delivery-line';
-  checkoutSummaryList.appendChild(deliveryLine);
-
-  // Linia oddzielająca
-  const hr2 = document.createElement('hr');
-  hr2.className = 'checkout-summary-hr';
-  checkoutSummaryList.appendChild(hr2);
-
-  // Suma do zapłaty (tylko w podsumowaniu, nie w dolnym polu)
-  const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
-  const totalLine = document.createElement('div');
-  totalLine.innerHTML = `<span class="checkout-summary-final-label">Do zapłaty:</span> <span class="checkout-summary-final">${totalWithDelivery} zł</span>`;
-  totalLine.className = 'checkout-summary-final-line';
-  checkoutSummaryList.appendChild(totalLine);
-
-  // Dodaj podsumowanie do modala
-  modal.appendChild(checkoutSummaryList);
+  modal.appendChild(productsList);
 
   // Actions (OK button)
   const actions = document.createElement('div');
@@ -348,7 +303,15 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
   const okBtn = document.createElement('button');
   okBtn.className = 'order-confirm-modal-btn';
   okBtn.textContent = 'OK';
-  okBtn.addEventListener('click', () => overlay.remove());
+  okBtn.addEventListener('click', () => {
+    overlay.remove();
+    // Wyczyść dane formularza zamówienia
+    const form = document.getElementById('checkoutForm') as HTMLFormElement | null;
+    if (form) form.reset();
+    // Wyczyść komunikaty walidacyjne, jeśli są
+    const msg = document.getElementById('checkoutMessage');
+    if (msg) msg.innerHTML = '';
+  });
   actions.appendChild(okBtn);
   modal.appendChild(actions);
 
@@ -761,10 +724,15 @@ function showToast(message: string) {
   if (checkoutFormEl) {
     checkoutFormEl.addEventListener('submit', async (event) => {
       event.preventDefault();
-      // Walidacja koszyka
+      // Walidacja zamówienia
       if (cart.length === 0) {
-        setCheckoutMessage("Koszyk jest pusty. Dodaj produkty przed złożeniem zamówienia.");
-        showToast("Koszyk jest pusty. Dodaj produkty przed złożeniem zamówienia.");
+        setCheckoutMessage("Zamówienie nie zawiera wybranego produktu. Dodaj produkty przed złożeniem zamówienia.");
+        showToast("Zamówienie nie zawiera wybranego produktu. Dodaj produkty przed złożeniem zamówienia.");
+        // Przewiń do sekcji podsumowania zamówienia
+        const summarySection = document.getElementById("checkoutSummary") || document.getElementById("checkout");
+        if (summarySection) {
+          summarySection.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
         return;
       }
       // Walidacja telefonu

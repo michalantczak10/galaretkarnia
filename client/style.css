@@ -1,3 +1,9 @@
+/* Usunięto niepotrzebne wrappery summary-bg i summary-card, całość w .order-confirm-modal */
+.order-confirm-modal-summary-row {
+  text-align: center;
+  font-size: 1.08em;
+  margin-bottom: 0;
+}
 /* Wymuś żółty gradient na Dodaj do zamówienia nawet jeśli .product-card button nadpisuje */
 .product-card .addToCartBtn {
   background: linear-gradient(90deg, #ffc131 0%, #fff12b 100%) !important;
@@ -208,22 +214,29 @@
 .order-confirm-modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.32);
-  z-index: 2000;
+  background: #ffd600;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  min-width: 100vw;
+  animation: fadeInModal 0.3s;
 }
 .order-confirm-modal {
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 32px #0002;
-  max-width: 340px;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  max-width: 420px;
   width: 95vw;
-  padding: 0;
-  overflow: hidden;
+  padding: 32px 28px 18px 28px;
+  overflow: visible;
   position: relative;
-  font-family: inherit;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 .order-confirm-modal-header {
   display: none;
@@ -1209,6 +1222,22 @@ button:active {
   outline: none !important;
   transition: opacity 0.2s, background 0.2s, box-shadow 0.2s !important;
   padding: 0 !important;
+  box-shadow: 0 4px 16px rgba(255, 208, 0, 0.18) !important;
+  border: 2px solid #fffbe6 !important;
+  user-select: none;
+}
+
+.cart-btn:focus-visible {
+  outline: 3px solid #ffd600 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px #fffbe6, 0 4px 16px rgba(255, 208, 0, 0.18) !important;
+  z-index: 2;
+}
+
+.cart-btn svg, .cart-btn span {
+  color: inherit !important;
+  font-size: 1.3em !important;
+  pointer-events: none;
 }
 
 .cart-btn:hover {
@@ -1224,6 +1253,15 @@ button:active {
 .cart-btn-remove {
   background: linear-gradient(90deg, #e74c3c 0%, #b30000 100%) !important;
   color: #fff !important;
+  border: 2px solid #fff0f0 !important;
+  box-shadow: 0 4px 16px rgba(231, 76, 60, 0.18) !important;
+}
+
+.cart-btn-remove:focus-visible {
+  outline: 3px solid #ffb3b3 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px #fff0f0, 0 4px 16px rgba(231, 76, 60, 0.18) !important;
+  z-index: 2;
 }
 
 .cart-btn-remove:hover {
@@ -1316,8 +1354,14 @@ button:active {
   }
 
   .cart-item-controls .cart-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
+    font-size: 1.3em !important;
+    border-radius: 12px !important;
   }
 }
 
