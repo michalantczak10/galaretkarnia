@@ -83,10 +83,10 @@ Wypełnij formularz:
 |------|---------|
 | **Name** | `galaretkarnia` |
 | **Region** | `Frankfurt (EU Central)` |
-| **Root Directory** | `server` |
+| **Root Directory** | `.` (root projektu) |
 | **Runtime** | `Node` |
-| **Build Command** | `npm install` |
-| **Start Command** | `node server.mjs` |
+| **Build Command** | `npm run build` |
+| **Start Command** | `npm start` |
 | **Plan** | **Free** |
 
 ### 2.4 Environment Variables
