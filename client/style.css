@@ -357,6 +357,32 @@
   color: #222;
   line-height: 1.2;
 }
+
+.checkout-summary-product-main {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkout-summary-product-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.checkout-summary-product-meta .checkout-summary-product-name,
+.checkout-summary-product-meta .checkout-summary-product-unit {
+  overflow-wrap: anywhere;
+}
+
+.checkout-summary-product-total {
+  margin-top: 4px;
+  color: #b30000;
+  font-weight: 600;
+  font-size: 1.05em;
+}
 .checkout-summary-gratis-label {
   font-weight: bold;
   color: #009900;
@@ -733,6 +759,7 @@ body {
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* ===== HERO ===== */
@@ -818,7 +845,8 @@ body {
   font-size: 1.15rem;
   font-weight: 800;
   line-height: 1.1;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
   letter-spacing: 0.3px;
   text-shadow: 0 1px 2px rgb(0 0 0 / 18%);
 }
@@ -1509,7 +1537,7 @@ button:active {
 .product,
 .checkout,
 .trust {
-  width: min(1200px, calc(100% - 80px));
+  width: min(1200px, calc(100% - 24px));
   margin-left: auto;
   margin-right: auto;
 }
@@ -1855,6 +1883,33 @@ button:active {
   }
 }
 
+@media (max-width: 767px) {
+  .legal {
+    padding: 36px 0 64px;
+  }
+
+  .legal-grid {
+    padding: 0 24px;
+    gap: 22px;
+  }
+
+  .privacy-contact {
+    margin: 28px auto;
+    padding: 22px;
+  }
+}
+
+@media (max-width: 479px) {
+  .legal-grid {
+    padding: 0 18px;
+  }
+
+  .privacy-contact {
+    margin: 24px auto;
+    padding: 18px;
+  }
+}
+
 .legal p {
   margin: 0 0 12px;
   color: var(--color-text);
@@ -1948,8 +2003,8 @@ button:active {
   left: 50%;
   bottom: 40px;
   transform: translateX(-50%) translateY(0);
-  min-width: 220px;
-  max-width: 90vw;
+  min-width: 0;
+  width: min(92vw, 560px);
   text-align: center;
   background: var(--color-primary);
   color: var(--color-white);
@@ -1959,7 +2014,8 @@ button:active {
   z-index: 1000;
   transition: transform var(--transition);
   font-weight: 500;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .toast-show {
@@ -2514,6 +2570,102 @@ button:active {
   
   h2 {
     font-size: 24px;
+  }
+}
+
+/* Very small phones (320px class) */
+@media (max-width: 360px) {
+  .about,
+  .benefits,
+  .product,
+  .checkout,
+  .trust,
+  .cart-dock {
+    width: calc(100% - 12px);
+  }
+
+  .about,
+  .benefits,
+  .product,
+  .checkout,
+  .trust {
+    padding: 16px 10px;
+  }
+
+  .checkout-layout,
+  .product-grid {
+    padding: 0 8px;
+  }
+
+  .checkout-form,
+  .checkout-summary {
+    padding: 12px;
+  }
+
+  .checkout-note,
+  .checkout-info-box,
+  .payment-instructions {
+    padding: 10px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  .checkout-summary-product-row,
+  .checkout-summary-line,
+  .checkout-summary-total-line,
+  .checkout-summary-delivery-line,
+  .checkout-summary-delivery-cost-line {
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  .checkout-summary-product-main {
+    grid-template-columns: 40px 1fr;
+    gap: 8px;
+  }
+
+  .checkout-summary-product-main .checkout-summary-product-actions {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  .checkout-summary-product-total {
+    margin-left: 48px;
+    font-size: 0.96rem;
+  }
+
+  .cart-item {
+    grid-template-columns: 44px 1fr;
+    gap: 6px 8px;
+    padding: 8px;
+  }
+
+  .cart-item img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .cart-item-controls {
+    gap: 6px;
+  }
+
+  .cart-item-controls .cart-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    font-size: 1.1em !important;
+    border-radius: 10px !important;
+  }
+
+  #submitOrderBtn,
+  .cart-clear-btn,
+  .cart-checkout-btn {
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    min-height: 44px;
   }
 }
 

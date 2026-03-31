@@ -78,17 +78,17 @@ function renderCheckoutSummary() {
         <button class="cart-btn cart-btn-remove" title="Usuń produkt" onclick="window.removeItem('${item.name.replace(/'/g, "\\'")}')" style="min-width:32px;height:40px;background:#e74c3c;color:#fff;font-size:1.2em;border-radius:8px;margin-left:8px;">×</button>
       </div>
     `;
-    // Layout jak na screenie: obrazek | info (nazwa, 1 szt. × 19 zł) | przyciski
+    // Układ 2-wierszowy: nazwa/szczegóły + akcje, a pod spodem stabilna linia "Razem"
     row.innerHTML = `
-      <div style="display:flex;align-items:center;gap:16px;">
+      <div class="checkout-summary-product-main">
         ${imgHtml}
-        <div style="flex:1;display:flex;flex-direction:column;align-items:flex-start;">
+        <div class="checkout-summary-product-meta">
           <span class="checkout-summary-product-name" style="font-weight:600;font-size:1.1em;">${item.name}</span>
-          <span style="color:#444;font-size:1em;">${item.qty} ${qtyLabel}. × ${item.price} zł</span>
+          <span class="checkout-summary-product-unit" style="color:#444;font-size:1em;">${item.qty} ${qtyLabel}. × ${item.price} zł</span>
         </div>
         ${btnsHtml}
       </div>
-      <div style="margin-left:56px;margin-top:2px;color:#b30000;font-weight:600;font-size:1.05em;">Razem: ${item.qty * item.price} zł</div>
+      <div class="checkout-summary-product-total">Razem: ${item.qty * item.price} zł</div>
     `;
     row.style.textAlign = "left";
     productsList.appendChild(row);
