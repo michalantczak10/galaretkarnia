@@ -57,6 +57,29 @@ const PAYMENT_METHODS = [
   'cash',
   'gotowka'
 ];
+const ORDER_NOTES_MAX_LENGTH = 300;
+
+function normalizeOrderNotes(notes) {
+  if (typeof notes !== 'string') return '';
+  return notes.replace(/\r\n/g, '\n').trim();
+}
+
+function isOrderNotesValid(notes) {
+  if (typeof notes !== 'string') return false;
+  if (notes.length > ORDER_NOTES_MAX_LENGTH) return false;
+  if (/[<>]/.test(notes)) return false;
+  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(notes)) return false;
+  return true;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 // Walidacja kodu paczkomatu (minimum 6 znaków, tylko duże litery i cyfry)
 function isParcelLockerCodeValid(code) {
   if (typeof code !== 'string') return false;
@@ -163,6 +186,11 @@ app.post('/api/orders', async (req, res) => {
       return res.status(400).json({ error: 'Podaj poprawny e-mail do konta lub zostaw pole puste.' });
     }
 
+    const normalizedNotes = normalizeOrderNotes(notes);
+    if (normalizedNotes && !isOrderNotesValid(normalizedNotes)) {
+      return res.status(400).json({ error: 'Uwagi do zamówienia mogą mieć maksymalnie 300 znaków i nie mogą zawierać znaków < ani >.' });
+    }
+
     const normalizedParcelLockerCode = parcelLockerCode.toUpperCase();
     const phoneSuffix = getPhoneSuffix(phone);
 
@@ -178,7 +206,7 @@ app.post('/api/orders', async (req, res) => {
       phone,
       phoneSuffix,
       parcelLockerCode: normalizedParcelLockerCode,
-      notes: notes || '',
+      notes: normalizedNotes,
       items,
       totalItemsCount,
       productsTotal: productsTotal || 0,
@@ -204,6 +232,7 @@ app.post('/api/orders', async (req, res) => {
     const orderRef = formatOrderRef(orderId);
     const transferTitle = createTransferTitle(orderRef);
     const paymentTarget = getPaymentTarget(selectedPaymentMethod);
+    const safeNotes = normalizedNotes ? escapeHtml(normalizedNotes).replace(/\n/g, '<br>') : 'Brak';
 
     
     res.json({
@@ -256,7 +285,7 @@ app.post('/api/orders', async (req, res) => {
             <div style="margin-bottom:4px;"><b>📞 Telefon:</b> ${phone}</div>
             <div style="margin-bottom:4px;"><b>📦 Paczkomat:</b> ${normalizedParcelLockerCode}</div>
             <div style="margin-bottom:4px;"><b>👤 Konto klienta (opcjonalne):</b> ${createOptionalAccount ? `TAK${optionalAccountEmail ? ` (${optionalAccountEmail})` : ''}` : 'NIE'}</div>
-            <div style="margin-bottom:4px;"><b>💬 Uwagi:</b> ${notes || 'Brak'}</div>
+            <div style="margin-bottom:4px;"><b>💬 Uwagi:</b> ${safeNotes}</div>
             <div style="color:#666;font-size:12px;margin-top:18px;">
               ⏰ Zamówienie przyjęte: ${new Date().toLocaleString('pl-PL')}<br>
               Status: <b style="color:#b30000;">OCZEKUJE NA WPŁATĘ</b>

@@ -31,6 +31,8 @@ export function setupParcelAutocomplete(parcelLockers: any[], parcelSearchInput:
           // Zapobiegaj blur na input zanim handler się wykona
           e.preventDefault();
           parcelLockerCodeInput.value = locker.code;
+          // Wywołaj walidację nasłuchującą na "input" po programowym ustawieniu kodu
+          parcelLockerCodeInput.dispatchEvent(new Event("input", { bubbles: true }));
           parcelSearchInput.value = `${locker.name}, ${locker.address}`;
           searchAutocompleteBox.innerHTML = "";
           searchAutocompleteBox.style.display = "none";

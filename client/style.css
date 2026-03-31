@@ -500,6 +500,23 @@
   margin-top: 4px;
   min-height: 18px;
 }
+
+.notes-counter {
+  color: #6b7280;
+  font-size: 0.92em;
+  margin-top: 6px;
+  text-align: right;
+  min-height: 18px;
+}
+
+.notes-counter.is-warning {
+  color: #9a6700;
+}
+
+.notes-counter.is-limit {
+  color: #b00020;
+  font-weight: 600;
+}
  
 .checkout-actions-row {
   display: flex;

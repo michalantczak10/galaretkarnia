@@ -262,9 +262,12 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
   let paymentDetailsHTML = '';
   if (data.paymentTarget) {
     if (data.paymentTarget.includes('BLIK')) {
-      paymentDetailsHTML = `<div class="order-confirm-modal-summary-row"><b>${data.paymentTarget}</b></div>`;
+      const blikPhone = data.paymentTarget.replace(/^BLIK na telefon:\s*/i, '').trim();
+      paymentDetailsHTML = `
+        <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Galaretkarnia</span></div>
+        <div class="order-confirm-modal-summary-row"><b>Numer telefonu:</b><br><span class="order-confirm-modal-payment">${blikPhone}</span></div>
+      `;
     } else if (data.paymentTarget.includes('Galaretkarnia')) {
-      // Wyciągnij numer konta z paymentTarget
       const accountNum = data.paymentTarget.replace(/ \(Galaretkarnia\)/, '').trim();
       paymentDetailsHTML = `
         <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Galaretkarnia</span></div>
@@ -315,14 +318,23 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
   okBtn.className = 'browse-products-btn clear-cart-btn';
   okBtn.textContent = 'OK';
   okBtn.style.margin = '0 auto';
-  okBtn.addEventListener('click', () => {
+  const closeModal = () => {
     overlay.remove();
+    document.removeEventListener('keydown', escHandler);
     // Wyczyść dane formularza zamówienia
     const form = document.getElementById('checkoutForm') as HTMLFormElement | null;
     if (form) form.reset();
     // Wyczyść komunikaty walidacyjne, jeśli są
     const msg = document.getElementById('checkoutMessage');
     if (msg) msg.innerHTML = '';
+  };
+  function escHandler(ev: KeyboardEvent) {
+    if (ev.key === 'Escape') {
+      closeModal();
+    }
+  }
+  okBtn.addEventListener('click', () => {
+    closeModal();
   });
   actions.appendChild(okBtn);
   modal.appendChild(actions);
@@ -330,17 +342,9 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Zamknięcie modala po kliknięciu poza modalem
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
-  // Zamknięcie ESC
-  document.addEventListener('keydown', function escHandler(ev) {
-    if (ev.key === 'Escape') {
-      overlay.remove();
-      document.removeEventListener('keydown', escHandler);
-    }
-  });
+  // Nie zamykamy modala po kliknięciu w tło, żeby użytkownik nie stracił danych płatności.
+  // Zamknięcie tylko przez OK lub ESC.
+  document.addEventListener('keydown', escHandler);
 }
 // Globalna deklaracja miniCart (tylko jedna w całym pliku!)
 var miniCart: HTMLElement | null = null;
@@ -372,17 +376,16 @@ window.addEventListener("DOMContentLoaded", () => {
       if (!paymentInstructions || !paymentMethod) return;
       if (paymentMethod.value === "blik") {
         paymentInstructions.innerHTML = `
-          <p><strong>Płatność BLIK:</strong> wykonaj przelew na telefon.</p>
-          <p><strong>Numer telefonu BLIK:</strong> ${paymentConfig.blikPhone}</p>
+          <p><strong>Odbiorca:</strong> ${paymentConfig.accountHolder}</p>
+          <p><strong>Numer telefonu:</strong> ${paymentConfig.blikPhone}</p>
           <p><small>W tytule wpisz numer zamówienia po jego utworzeniu.</small></p>
         `;
         return;
       }
       paymentInstructions.innerHTML = `
-        <p><strong>Płatność przelewem tradycyjnym:</strong></p>
         <p><strong>Odbiorca:</strong> ${paymentConfig.accountHolder}</p>
         <p><strong>Numer konta:</strong> ${paymentConfig.accountNumber}</p>
-        <p><small>Tytuł przelewu otrzymasz po złożeniu zamówienia.</small></p>
+        <p><small>W tytule wpisz numer zamówienia po jego utworzeniu.</small></p>
       `;
     }
   // Automatyczne ładowanie koszyka z localStorage
@@ -445,13 +448,17 @@ window.addEventListener("DOMContentLoaded", () => {
   const paymentInstructions = document.getElementById("paymentInstructions") as HTMLElement | null;
   const parcelSearchQuery = document.getElementById("parcelSearchQuery") as HTMLInputElement | null;
   const customerPhone = document.getElementById("customerPhone") as HTMLInputElement | null;
+  const customerNotes = document.getElementById("customerNotes") as HTMLTextAreaElement | null;
   const openParcelSearchBtn = document.getElementById("openParcelSearchBtn") as HTMLButtonElement | null;
+  let validatePhone = (_showMsg = true) => true;
+  let validateParcelLockerCode = (_showMsg = true) => true;
+  let validateOrderNotes = (_showMsg = true) => true;
   const CART_SCROLL_OFFSET = 20;
 
   // MASKA I WALIDACJA NA NUMER TELEFONU (format 000 000 000)
   if (customerPhone !== null) {
     const phoneError = document.getElementById("phoneError");
-    function validatePhone(showMsg = true) {
+    validatePhone = (showMsg = true) => {
       if (!customerPhone) return false;
       const raw = customerPhone.value.replace(/\D/g, "");
       let msg = "";
@@ -464,7 +471,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
       if (phoneError && showMsg) phoneError.textContent = msg;
       return msg === "";
-    }
+    };
     customerPhone.addEventListener("input", () => {
       if (!customerPhone) return;
       let value = customerPhone.value.replace(/\D/g, "");
@@ -482,9 +489,75 @@ window.addEventListener("DOMContentLoaded", () => {
       if (!customerPhone) return;
       validatePhone();
     });
-    customerPhone.addEventListener("focus", () => {
-      if (phoneError) phoneError.textContent = "";
+  }
+
+  // WALIDACJA KODU PACZKOMATU (na żywo, analogicznie do telefonu)
+  if (parcelLockerCodeInput) {
+    const lockerError = document.getElementById("lockerError");
+    validateParcelLockerCode = (showMsg = true) => {
+      const value = parcelLockerCodeInput.value.trim().toUpperCase();
+      let msg = "";
+      if (value.length === 0) {
+        msg = "Podaj kod paczkomatu.";
+      } else if (!/^[A-Z0-9]{6,}$/.test(value)) {
+        msg = "Kod paczkomatu musi mieć min. 6 znaków (litery i cyfry).";
+      } else if (parcelLockers.length > 0 && !parcelLockers.some(locker => locker.code === value)) {
+        msg = "Podany kod paczkomatu nie istnieje. Wybierz poprawny paczkomat z listy.";
+      }
+      if (showMsg && lockerError) lockerError.textContent = msg;
+      return msg === "";
+    };
+
+    parcelLockerCodeInput.addEventListener("input", () => {
+      parcelLockerCodeInput.value = parcelLockerCodeInput.value.toUpperCase().replace(/\s+/g, "");
+      validateParcelLockerCode();
     });
+
+    parcelLockerCodeInput.addEventListener("blur", () => {
+      validateParcelLockerCode();
+    });
+  }
+
+  // WALIDACJA UWAG DO ZAMÓWIENIA
+  if (customerNotes) {
+    const notesError = document.getElementById("notesError");
+    const notesCounter = document.getElementById("notesCounter");
+    const NOTES_MAX_LENGTH = 300;
+    const NOTES_WARNING_THRESHOLD = 260;
+    const updateNotesCounter = () => {
+      if (!notesCounter) return;
+      const currentLength = customerNotes.value.length;
+      notesCounter.textContent = `${currentLength} / ${NOTES_MAX_LENGTH}`;
+      notesCounter.classList.toggle("is-warning", currentLength >= NOTES_WARNING_THRESHOLD && currentLength < NOTES_MAX_LENGTH);
+      notesCounter.classList.toggle("is-limit", currentLength >= NOTES_MAX_LENGTH);
+    };
+    validateOrderNotes = (showMsg = true) => {
+      const value = customerNotes.value;
+      let msg = "";
+      if (value.length > NOTES_MAX_LENGTH) {
+        msg = `Uwagi mogą mieć maksymalnie ${NOTES_MAX_LENGTH} znaków.`;
+      } else if (/[<>]/.test(value)) {
+        msg = "Uwagi nie mogą zawierać znaków < ani >.";
+      } else if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(value)) {
+        msg = "Uwagi zawierają niedozwolone znaki.";
+      }
+      if (showMsg && notesError) notesError.textContent = msg;
+      return msg === "";
+    };
+
+    customerNotes.addEventListener("input", () => {
+      if (customerNotes.value.length > NOTES_MAX_LENGTH) {
+        customerNotes.value = customerNotes.value.slice(0, NOTES_MAX_LENGTH);
+      }
+      updateNotesCounter();
+      validateOrderNotes();
+    });
+
+    customerNotes.addEventListener("blur", () => {
+      validateOrderNotes();
+    });
+
+    updateNotesCounter();
   }
 
   // Przypisz miniCart po wszystkich deklaracjach (do globalnej zmiennej!)
@@ -498,6 +571,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (!parcelSearchQuery) console.warn("Brak elementu parcelSearchQuery");
   if (!openParcelSearchBtn) console.warn("Brak elementu openParcelSearchBtn");
   if (!customerPhone) console.warn("Brak elementu customerPhone");
+  if (!customerNotes) console.warn("Brak elementu customerNotes");
 
   // Obsługa przycisku "Wyczyść koszyk" tylko w podsumowaniu
   const clearCartBtn = document.querySelector(".checkout-summary .browse-products-btn.clear-cart-btn") as HTMLButtonElement | null;
@@ -545,16 +619,26 @@ function showToast(message: string) {
     }
     function decreaseQty(name: string) {
       const item = cart.find(i => i.name === name);
-      if (item && item.qty > 1) item.qty--;
+      if (item && item.qty > 1) {
+        item.qty--;
+        showToast(`Usunięto 1 szt. produktu ${name}.`);
+      }
       renderCart();
     }
     function increaseQty(name: string) {
       const item = cart.find(i => i.name === name);
-      if (item) item.qty++;
+      if (item) {
+        item.qty++;
+        showToast(`Dodano 1 szt. produktu ${name}.`);
+      }
       renderCart();
     }
     function removeItem(name: string) {
+      const before = cart.length;
       cart = cart.filter(i => i.name !== name);
+      if (cart.length < before) {
+        showToast(`Usunięto produkt ${name} z koszyka.`);
+      }
       renderCart();
     }
 
@@ -641,6 +725,7 @@ function showToast(message: string) {
       cart = [];
       renderCart();
       setCheckoutMessage("Koszyk został wyczyszczony.");
+      showToast("Koszyk został wyczyszczony.");
     }
     window.clearCart = clearCart;
     // ...existing code...
@@ -708,7 +793,7 @@ function showToast(message: string) {
       if (checkoutMessage && checkoutMessage.innerHTML.includes("Koszyk został wyczyszczony")) {
         setCheckoutMessage("");
       }
-      showToast(`${name} dodana do koszyka!`);
+      showToast(`Dodano 1 szt. produktu ${name}.`);
     });
   });
 
@@ -746,7 +831,6 @@ function showToast(message: string) {
       event.preventDefault();
       // Walidacja zamówienia
       if (cart.length === 0) {
-        setCheckoutMessage("Zamówienie nie zawiera wybranego produktu. Dodaj produkty przed złożeniem zamówienia.");
         showToast("Zamówienie nie zawiera wybranego produktu. Dodaj produkty przed złożeniem zamówienia.");
         // Przewiń do sekcji podsumowania zamówienia
         const summarySection = document.getElementById("checkoutSummary") || document.getElementById("checkout");
@@ -755,40 +839,43 @@ function showToast(message: string) {
         }
         return;
       }
-      // Walidacja telefonu
-      let phoneVal = "";
-      if (!customerPhone) {
-        setCheckoutMessage("Brak pola na numer telefonu w formularzu.");
-        showToast("Brak pola na numer telefonu w formularzu.");
-        return;
-      }
-      phoneVal = customerPhone.value.replace(/\D/g, "");
-      if (!(phoneVal.length === 9 && /^[5-8]/.test(phoneVal))) {
-        setCheckoutMessage("Podaj poprawny polski numer telefonu (9 cyfr, zaczynający się od 5, 6, 7 lub 8).");
-        showToast("Podaj poprawny polski numer telefonu (9 cyfr, zaczynający się od 5, 6, 7 lub 8).");
-        customerPhone.focus();
-        return;
-      }
-      // Walidacja kodu paczkomatu (musi być wybrany i niepusty)
-      let parcelCode = "";
-      if (parcelLockerCodeInput) {
-        parcelCode = parcelLockerCodeInput.value.trim().toUpperCase();
-        if (!parcelCode || !parcelCode.match(/^[A-Z0-9]{6,}$/)) {
-          setCheckoutMessage("Wybierz paczkomat przed złożeniem zamówienia. Kod paczkomatu jest wymagany i musi być poprawny (np. WAW01A).");
-          showToast("Wybierz paczkomat przed złożeniem zamówienia. Kod paczkomatu jest wymagany i musi być poprawny (np. WAW01A).");
-          parcelLockerCodeInput.focus();
+        if (!customerPhone) {
+          setCheckoutMessage("Brak pola na numer telefonu w formularzu.");
+          showToast("Brak pola na numer telefonu w formularzu.");
           return;
         }
-        // Sprawdź, czy kod istnieje w liście paczkomatów
-        if (!parcelLockers.some(locker => locker.code === parcelCode)) {
-          setCheckoutMessage("Podany kod paczkomatu nie istnieje. Wybierz poprawny paczkomat z listy.");
-          showToast("Podany kod paczkomatu nie istnieje. Wybierz poprawny paczkomat z listy.");
-          parcelLockerCodeInput.focus();
+
+        let firstInvalidField: HTMLElement | null = null;
+        const phoneValid = validatePhone(true);
+        if (!phoneValid) {
+          firstInvalidField = customerPhone;
+        }
+
+        let parcelCode = "";
+        if (parcelLockerCodeInput) {
+          parcelCode = parcelLockerCodeInput.value.trim().toUpperCase();
+          const parcelValid = validateParcelLockerCode(true);
+          if (!parcelValid && !firstInvalidField) {
+            firstInvalidField = parcelLockerCodeInput;
+          }
+        }
+
+        const notesValue = customerNotes?.value.trim() || "";
+        const notesValid = validateOrderNotes(true);
+        if (!notesValid && !firstInvalidField) {
+          firstInvalidField = customerNotes;
+        }
+
+        if (firstInvalidField) {
+          setCheckoutMessage("Popraw zaznaczone pola formularza.");
+          showToast("Popraw zaznaczone pola formularza.");
+          firstInvalidField.focus();
           return;
         }
-      }
+
       // Pobierz metodę płatności
       let payment = paymentMethod ? paymentMethod.value : "przelew";
+      const phoneVal = customerPhone.value.replace(/\D/g, "");
       // Przygotuj dane zamówienia
       const orderData = {
         items: cart.map(item => ({ name: item.name, price: item.price, qty: item.qty })),
@@ -798,7 +885,7 @@ function showToast(message: string) {
         productsTotal: getCartTotalPrice(),
         deliveryCost: getDeliveryInfo(getCartTotalPrice()).finalCost,
         total: getCartTotalPrice() + getDeliveryInfo(getCartTotalPrice()).finalCost,
-        notes: "", // jeśli masz pole na uwagi, wstaw tutaj
+        notes: notesValue,
         createOptionalAccount: false, // jeśli masz checkbox, wstaw wartość
         optionalAccountEmail: "" // jeśli masz pole na e-mail, wstaw wartość
       };
