@@ -258,37 +258,51 @@ app.post('/api/orders', async (req, res) => {
       from: process.env.RESEND_FROM_EMAIL || 'noreply@galaretkarnia.onresend.com',
       subject: `${isDev ? '[TEST]' : '📦'} Nowe zamówienie - ${orderRef}`,
       html: `
-        <div style="background:#fffbe9;padding:0;margin:0;font-family:'Segoe UI',Arial,sans-serif;max-width:520px;border-radius:12px;border:1.5px solid #e0cfc0;box-shadow:0 2px 12px #0001;overflow:hidden;">
-          <div style="background:#b30000;padding:18px 0;text-align:center;">
-            <img src='https://galaretkarnia.pl/img/branding/logo-galaretkarnia-z-napisem-bialy.png' alt='Galaretkarnia' style="max-width:260px;height:54px;object-fit:contain;"/>
-          </div>
-          <div style="padding:28px 28px 18px 28px;">
-            <h2 style="color:#009900;margin-top:0;margin-bottom:10px;font-size:1.35em;">${isDev ? '[TEST] 🧪 ' : ''}Nowe zamówienie</h2>
-            <div style="background:#e3f2fd;padding:10px 14px;border-radius:7px;margin-bottom:18px;">
-              <b style="color:#b30000;">ID Zamówienia:</b> ${orderId}<br>
-              <b>Numer dla klienta:</b> <span style="color:#009900;">${orderRef}</span><br>
-              <b>Tytuł przelewu:</b> <span style="color:#b30000;">${transferTitle}</span>
+        <div style="margin:0;padding:24px;background:#f6f7fb;font-family:'Segoe UI',Arial,sans-serif;color:#1f2937;">
+          <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+            <div style="background:linear-gradient(90deg,#b30000 0%,#d62828 100%);padding:18px 22px;text-align:center;">
+              <img src='https://galaretkarnia.pl/img/branding/logo-galaretkarnia-z-napisem-bialy.png' alt='Galaretkarnia' style="max-width:250px;height:52px;object-fit:contain;"/>
             </div>
-            <h3 style="color:#b30000;margin-bottom:6px;">Pozycje zamówienia:</h3>
-            <pre style="background:#fff;border-radius:6px;padding:10px 12px;font-size:1.08em;color:#222;border:1px solid #eee;">${itemsText}</pre>
-            <div style="margin:10px 0 8px 0;"><b>📊 Łączna ilość słoików:</b> ${totalItemsCount} szt.</div>
-            <hr style="border:none;border-top:1.5px solid #eee;margin:18px 0;"/>
-            <h3 style="color:#b30000;margin-bottom:6px;">Podsumowanie kosztów:</h3>
-            <div style="margin-bottom:4px;"><b>🛒 Produkty:</b> ${productsTotal || order.total} zł</div>
-            <div style="margin-bottom:4px;"><b>📦 Dostawa (${deliveryInfo.numberOfParcels > 1 ? `${deliveryInfo.numberOfParcels} paczki` : '1 paczka'}):</b> ${calculatedDeliveryCost === 0 ? '<span style=\'color:#009900;font-weight:bold\'>GRATIS!</span>' : `${calculatedDeliveryCost} zł`}</div>
-            <div style="border-top:2px solid #b30000;padding-top:8px;margin-top:8px;font-size:1.15em;"><b>📌 RAZEM DO ZAPŁATY:</b> <span style="color:#b30000;font-size:1.18em;">${order.total} zł</span></div>
-            <hr style="border:none;border-top:1.5px solid #eee;margin:18px 0;"/>
-            <div style="margin-bottom:8px;"><b>💳 Płatność:</b> ${selectedPaymentMethod === 'blik' ? 'BLIK na telefon' : 'przelew tradycyjny'} (oczekiwanie na zaksięgowanie)</div>
-            <div style="margin-bottom:8px;"><b>🏦 Dane płatności:</b> <span style="color:#222;">${paymentTarget}</span></div>
-            <hr style="border:none;border-top:1.5px solid #eee;margin:18px 0;"/>
-            <h3 style="color:#b30000;margin-bottom:6px;">Dane klienta:</h3>
-            <div style="margin-bottom:4px;"><b>📞 Telefon:</b> ${phone}</div>
-            <div style="margin-bottom:4px;"><b>📦 Paczkomat:</b> ${normalizedParcelLockerCode}</div>
-            <div style="margin-bottom:4px;"><b>👤 Konto klienta (opcjonalne):</b> ${createOptionalAccount ? `TAK${optionalAccountEmail ? ` (${optionalAccountEmail})` : ''}` : 'NIE'}</div>
-            <div style="margin-bottom:4px;"><b>💬 Uwagi:</b> ${safeNotes}</div>
-            <div style="color:#666;font-size:12px;margin-top:18px;">
-              ⏰ Zamówienie przyjęte: ${new Date().toLocaleString('pl-PL')}<br>
-              Status: <b style="color:#b30000;">OCZEKUJE NA WPŁATĘ</b>
+            <div style="padding:22px;">
+              <h2 style="margin:0 0 12px 0;color:#b30000;font-size:24px;line-height:1.2;">${isDev ? '[TEST] ' : ''}Nowe zamówienie</h2>
+
+              <div style="background:#fff4dc;border:1px solid #f1d6ab;border-radius:12px;padding:12px 14px;margin-bottom:16px;line-height:1.5;">
+                <div><strong>ID zamówienia:</strong> ${orderId}</div>
+                <div><strong>Numer dla klienta:</strong> <span style="color:#b30000;font-weight:700;">${orderRef}</span></div>
+                <div><strong>Tytuł przelewu:</strong> ${transferTitle}</div>
+              </div>
+
+              <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:14px;">
+                <h3 style="margin:0 0 8px 0;color:#b30000;font-size:17px;">Pozycje zamówienia</h3>
+                <pre style="margin:0;white-space:pre-wrap;word-break:break-word;background:#fafafa;border:1px solid #ececec;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.45;color:#111827;">${itemsText}</pre>
+                <div style="margin-top:10px;"><strong>Łączna ilość słoików:</strong> ${totalItemsCount} szt.</div>
+              </div>
+
+              <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:14px;line-height:1.6;">
+                <h3 style="margin:0 0 8px 0;color:#b30000;font-size:17px;">Podsumowanie kosztów</h3>
+                <div><strong>Produkty:</strong> ${productsTotal || order.total} zł</div>
+                <div><strong>Dostawa (${deliveryInfo.numberOfParcels > 1 ? `${deliveryInfo.numberOfParcels} paczki` : '1 paczka'}):</strong> ${calculatedDeliveryCost === 0 ? '<span style="color:#167a36;font-weight:700;">GRATIS</span>' : `${calculatedDeliveryCost} zł`}</div>
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:17px;"><strong>Razem do zapłaty:</strong> <span style="color:#b30000;font-weight:800;">${order.total} zł</span></div>
+              </div>
+
+              <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:14px;line-height:1.6;">
+                <h3 style="margin:0 0 8px 0;color:#b30000;font-size:17px;">Płatność</h3>
+                <div><strong>Metoda:</strong> ${selectedPaymentMethod === 'blik' ? 'BLIK na telefon' : 'przelew tradycyjny'} (oczekiwanie na zaksięgowanie)</div>
+                <div><strong>Dane płatności:</strong> ${paymentTarget}</div>
+              </div>
+
+              <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;line-height:1.6;">
+                <h3 style="margin:0 0 8px 0;color:#b30000;font-size:17px;">Dane klienta</h3>
+                <div><strong>Telefon:</strong> ${phone}</div>
+                <div><strong>Paczkomat:</strong> ${normalizedParcelLockerCode}</div>
+                <div><strong>Konto klienta (opcjonalne):</strong> ${createOptionalAccount ? `TAK${optionalAccountEmail ? ` (${optionalAccountEmail})` : ''}` : 'NIE'}</div>
+                <div><strong>Uwagi:</strong> ${safeNotes}</div>
+              </div>
+
+              <div style="margin-top:16px;font-size:12px;color:#6b7280;line-height:1.5;">
+                Zamówienie przyjęte: ${new Date().toLocaleString('pl-PL')}<br>
+                Status: <strong style="color:#b30000;">OCZEKUJE NA WPŁATĘ</strong>
+              </div>
             </div>
           </div>
         </div>
