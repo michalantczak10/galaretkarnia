@@ -258,6 +258,23 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
   const productsTotal = getCartTotalPrice();
   const deliveryInfo = getDeliveryInfo(productsTotal);
   const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
+  // Formatuj dane płatności w zależności od metody
+  let paymentDetailsHTML = '';
+  if (data.paymentTarget) {
+    if (data.paymentTarget.includes('BLIK')) {
+      paymentDetailsHTML = `<div class="order-confirm-modal-summary-row"><b>${data.paymentTarget}</b></div>`;
+    } else if (data.paymentTarget.includes('Galaretkarnia')) {
+      // Wyciągnij numer konta z paymentTarget
+      const accountNum = data.paymentTarget.replace(/ \(Galaretkarnia\)/, '').trim();
+      paymentDetailsHTML = `
+        <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Galaretkarnia</span></div>
+        <div class="order-confirm-modal-summary-row"><b>Numer konta:</b><br><span class="order-confirm-modal-payment">${accountNum}</span></div>
+      `;
+    } else {
+      paymentDetailsHTML = `<div class="order-confirm-modal-summary-row"><b>Dane do płatności:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget}</span></div>`;
+    }
+  }
+
   body.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px;">
       <span style="font-size:2.7em;line-height:1;">🎉</span>
@@ -267,7 +284,7 @@ function showOrderConfirmationModal(data: OrderConfirmationData) {
     <div class="order-confirm-modal-summary-row"><b>Numer zamówienia:</b><br><span class="order-confirm-modal-ref">${orderNum}</span></div>
     <div class="order-confirm-modal-summary-row"><b>Do zapłaty:</b><br><span class="order-confirm-modal-total">${totalWithDelivery} zł</span></div>
     <div class="order-confirm-modal-summary-row"><b>Tytuł przelewu:</b><br><span class="order-confirm-modal-transfer">Zamówienie ${orderNum}</span></div>
-    <div class="order-confirm-modal-summary-row"><b>Dane do płatności:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget || ''}</span></div>
+    ${paymentDetailsHTML}
     <div class="order-confirm-modal-info" style="text-align:center;margin-top:10px;">Zamówienie zostanie zrealizowane po zaksięgowaniu wpłaty.</div>
   `;
   modal.appendChild(body);
@@ -711,6 +728,14 @@ function showToast(message: string) {
 
   // Przycisk zamówienia i obsługa walidacji UX
   const checkoutSubmitBtn = document.getElementById('submitOrderBtn') as HTMLButtonElement | null;
+  const submitBtnDefaultText = checkoutSubmitBtn?.textContent || 'Zamawiam teraz';
+  const setSubmitLoading = (isLoading: boolean) => {
+    if (!checkoutSubmitBtn) return;
+    checkoutSubmitBtn.disabled = isLoading;
+    checkoutSubmitBtn.textContent = isLoading ? 'Wysyłanie zamówienia...' : submitBtnDefaultText;
+    checkoutSubmitBtn.style.opacity = isLoading ? '0.7' : '1';
+    checkoutSubmitBtn.style.cursor = isLoading ? 'wait' : 'pointer';
+  };
   if (checkoutSubmitBtn) {
     checkoutSubmitBtn.classList.add('cart-checkout-btn');
   }
@@ -777,8 +802,9 @@ function showToast(message: string) {
         createOptionalAccount: false, // jeśli masz checkbox, wstaw wartość
         optionalAccountEmail: "" // jeśli masz pole na e-mail, wstaw wartość
       };
-      setCheckoutMessage("");
-      showToast("Wysyłanie zamówienia...");
+      setSubmitLoading(true);
+      setCheckoutMessage("Wysyłanie zamówienia...");
+      const requestStart = Date.now();
       try {
         const response = await fetch("/api/orders", {
           method: "POST",
@@ -787,6 +813,13 @@ function showToast(message: string) {
         });
         if (response.ok) {
           const data = await response.json();
+          const minMessageMs = 700;
+          const elapsed = Date.now() - requestStart;
+          if (elapsed < minMessageMs) {
+            await new Promise((resolve) => setTimeout(resolve, minMessageMs - elapsed));
+          }
+          // Wyczyść komunikat wysyłania przed pokazaniem modala
+          setCheckoutMessage("");
           // Stwórz modal potwierdzenia zamówienia
           showOrderConfirmationModal(data);
           cart = [];
@@ -794,12 +827,13 @@ function showToast(message: string) {
           renderCart();
         } else {
           const err = await response.text();
-          showToast("Błąd podczas wysyłania zamówienia: " + err);
           setCheckoutMessage("Błąd podczas wysyłania zamówienia: " + err);
         }
       } catch (e) {
         showToast("Błąd sieci podczas wysyłania zamówienia.");
         setCheckoutMessage("Błąd sieci podczas wysyłania zamówienia.");
+      } finally {
+        setSubmitLoading(false);
       }
     });
   }
