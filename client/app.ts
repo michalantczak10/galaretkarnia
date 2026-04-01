@@ -166,14 +166,6 @@ window.scrollToCheckout = scrollToCheckout;
         btn.style.background = "linear-gradient(90deg,#e74c3c 0%,#b30000 100%)";
       }
     });
-    btn.addEventListener("focus", () => {
-      btn.style.boxShadow = "none";
-      btn.style.border = "none";
-    });
-    btn.addEventListener("blur", () => {
-      btn.style.boxShadow = "none";
-      btn.style.border = "none";
-    });
     btn.addEventListener("click", () => {
       if (!btn.disabled) window.clearCart();
     });
