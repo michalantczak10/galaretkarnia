@@ -117,16 +117,18 @@
       <h2>Oferta</h2>
 
       <div class="product-grid">
-        <div class="product-card">
+        <div class="product-card" data-product-id="drobiowa">
           <img
             src="img/products/galaretka_drobiowa.png"
             alt="Galaretka drobiowa"
+            data-product-image
           />
-          <h3>Galaretka drobiowa</h3>
-          <p>Z warzywami, tradycyjna receptura</p>
-          <p class="price">18 zł</p>
+          <h3 data-product-name>Galaretka drobiowa</h3>
+          <p data-product-description>Z warzywami, tradycyjna receptura</p>
+          <p class="price" data-product-price>18 zł</p>
           <button
             class="addToCartBtn"
+            data-product-id="drobiowa"
             data-product="Galaretka drobiowa"
             data-price="18"
             data-image="img/products/galaretka_drobiowa.png"
@@ -137,16 +139,18 @@
           </button>
         </div>
 
-        <div class="product-card">
+        <div class="product-card" data-product-id="wieprzowa">
           <img
             src="img/products/galaretka_wieprzowa.png"
             alt="Galaretka wieprzowa"
+            data-product-image
           />
-          <h3>Galaretka wieprzowa</h3>
-          <p>Z warzywami, tradycyjna receptura</p>
-          <p class="price">19 zł</p>
+          <h3 data-product-name>Galaretka wieprzowa</h3>
+          <p data-product-description>Z warzywami, tradycyjna receptura</p>
+          <p class="price" data-product-price>19 zł</p>
           <button
             class="addToCartBtn"
+            data-product-id="wieprzowa"
             data-product="Galaretka wieprzowa"
             data-price="19"
             data-image="img/products/galaretka_wieprzowa.png"
@@ -259,10 +263,10 @@
       <h2>Kontakt i dostawa</h2>
       <div class="trust-grid">
         <div class="trust-contact-card">
-          <p class="trust-hanging trust-contact-item">📞 Telefon: 794 535 366</p>
-          <p class="trust-hanging trust-contact-item">✉️ E-mail: <a href="mailto:kontakt@galaretkarnia.pl">kontakt@galaretkarnia.pl</a></p>
+          <p class="trust-hanging trust-contact-item">📞 Telefon: <a href="tel:+48794535366" data-store-phone>794 535 366</a></p>
+          <p class="trust-hanging trust-contact-item">✉️ E-mail: <a href="mailto:kontakt@galaretkarnia.pl" data-store-general-email>kontakt@galaretkarnia.pl</a></p>
         </div>
-        <p class="trust-hanging">🕒 Godziny realizacji zamówień: pon.-sob. 14:00-20:00. Przy wpłacie zaksięgowanej do 14:00 wysyłamy zamówienie tego samego dnia.</p>
+        <p class="trust-hanging">🕒 <span data-store-fulfillment-hours>Godziny realizacji zamówień: pon.-sob. 14:00-20:00. Przy wpłacie zaksięgowanej do 14:00 wysyłamy zamówienie tego samego dnia.</span></p>
         <p class="trust-hanging">📦 Dostawa do paczkomatu wskazanego przez klienta.</p>
         <p class="trust-hanging">✅ Realizacja zamówienia po zaksięgowaniu wpłaty na konto.</p>
       </div>
@@ -284,8 +288,8 @@
         </article>
 
         <div class="legal-home-contacts">
-          <p><strong>Kontakt ogólny i RODO:</strong> <a href="mailto:kontakt@galaretkarnia.pl">kontakt@galaretkarnia.pl</a></p>
-          <p><strong>Reklamacje:</strong> <a href="mailto:reklamacje@galaretkarnia.pl">reklamacje@galaretkarnia.pl</a></p>
+          <p><strong>Kontakt ogólny i RODO:</strong> <a href="mailto:kontakt@galaretkarnia.pl" data-store-general-email>kontakt@galaretkarnia.pl</a></p>
+          <p><strong>Reklamacje:</strong> <a href="mailto:reklamacje@galaretkarnia.pl" data-store-complaints-email>reklamacje@galaretkarnia.pl</a></p>
           <p><strong>Cookies:</strong> szczegóły znajdziesz w <a href="/privacy.html">Polityce prywatności</a>.</p>
         </div>
       </div>

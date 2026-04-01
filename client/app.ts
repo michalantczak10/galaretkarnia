@@ -2,6 +2,7 @@
 import { renderCartList, showCartError } from "./modules/cart.js";
 import { setupParcelAutocomplete } from "./modules/autocomplete.js";
 import { initCookieConsentBanner } from "./modules/cookie-consent.js";
+import { STORE_CONFIG, getProductConfig } from "./config/store.js";
 // Renderuje podsumowanie zamówienia w sekcji checkout-summary (analogicznie do modala i mini-koszyka)
 
 // Deklaracja checkoutFormEl na poziomie modułu, przed pierwszym użyciem
@@ -206,10 +207,13 @@ function getCartTotalPrice(): number {
   return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 }
 function getDeliveryInfo(totalPrice: number): any {
-  // Przyjmujemy, że do jednej paczki mieści się 4 sztuki
+  // Przyjmujemy, że do jednej paczki mieści się skonfigurowana liczba sztuk
   const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-  const numberOfParcels = Math.ceil(totalItems / 4);
-  return { finalCost: totalPrice > 100 ? 0 : 15, numberOfParcels };
+  const numberOfParcels = Math.ceil(totalItems / STORE_CONFIG.delivery.itemsPerParcel);
+  return {
+    finalCost: totalPrice > STORE_CONFIG.delivery.freeThreshold ? 0 : STORE_CONFIG.delivery.baseCost,
+    numberOfParcels,
+  };
 }
 function getTotalItemsCount(): number {
   return cart.reduce((sum, item) => sum + item.qty, 0);
@@ -360,6 +364,60 @@ declare global {
 window.addEventListener("DOMContentLoaded", () => {
   initCookieConsentBanner();
 
+    function applyPublicStoreConfig() {
+      document.querySelectorAll("[data-store-general-email]").forEach((node) => {
+        if (!(node instanceof HTMLAnchorElement)) return;
+        node.href = `mailto:${STORE_CONFIG.contact.generalEmail}`;
+        node.textContent = STORE_CONFIG.contact.generalEmail;
+      });
+
+      document.querySelectorAll("[data-store-complaints-email]").forEach((node) => {
+        if (!(node instanceof HTMLAnchorElement)) return;
+        node.href = `mailto:${STORE_CONFIG.contact.complaintsEmail}`;
+        node.textContent = STORE_CONFIG.contact.complaintsEmail;
+      });
+
+      document.querySelectorAll("[data-store-phone]").forEach((node) => {
+        if (!(node instanceof HTMLAnchorElement)) return;
+        node.href = STORE_CONFIG.contact.phoneHref;
+        node.textContent = STORE_CONFIG.contact.phoneDisplay;
+      });
+
+      document.querySelectorAll("[data-store-fulfillment-hours]").forEach((node) => {
+        node.textContent = STORE_CONFIG.contact.fulfillmentHours;
+      });
+
+      document.querySelectorAll(".product-card[data-product-id]").forEach((cardNode) => {
+        if (!(cardNode instanceof HTMLElement)) return;
+        const productId = cardNode.dataset.productId || "";
+        const product = getProductConfig(productId);
+        if (!product) return;
+
+        const imageEl = cardNode.querySelector("[data-product-image]") as HTMLImageElement | null;
+        const nameEl = cardNode.querySelector("[data-product-name]") as HTMLElement | null;
+        const descriptionEl = cardNode.querySelector("[data-product-description]") as HTMLElement | null;
+        const priceEl = cardNode.querySelector("[data-product-price]") as HTMLElement | null;
+        const buttonEl = cardNode.querySelector(".addToCartBtn") as HTMLButtonElement | null;
+
+        if (imageEl) {
+          imageEl.src = product.image;
+          imageEl.alt = product.name;
+        }
+        if (nameEl) nameEl.textContent = product.name;
+        if (descriptionEl) descriptionEl.textContent = product.description;
+        if (priceEl) priceEl.textContent = `${product.price} zł`;
+        if (buttonEl) {
+          buttonEl.dataset.productId = product.id;
+          buttonEl.dataset.product = product.name;
+          buttonEl.dataset.price = String(product.price);
+          buttonEl.dataset.image = product.image;
+          buttonEl.setAttribute("aria-label", `Dodaj ${product.name} do zamówienia`);
+        }
+      });
+    }
+
+    applyPublicStoreConfig();
+
     const legalTocLinks = document.querySelectorAll('nav[aria-label="Spis treści"] a[href^="#"]') as NodeListOf<HTMLAnchorElement>;
     const LEGAL_SCROLL_OFFSET = 24;
 
@@ -390,11 +448,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // Konfiguracja płatności (możesz rozbudować o pobieranie z backendu)
-    const paymentConfig = {
-      accountHolder: "Galaretkarnia",
-      accountNumber: "60 1140 2004 0000 3102 4831 8846",
-      blikPhone: "794 535 366" // Twój numer BLIK
-    };
+    const paymentConfig = STORE_CONFIG.payment;
 
     function renderPaymentInstructions() {
       if (!paymentInstructions || !paymentMethod) return;
@@ -716,10 +770,13 @@ function showToast(message: string) {
       return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     }
     function getDeliveryInfo(totalPrice: number): any {
-      // Przyjmujemy, że do jednej paczki mieści się 4 sztuki
+      // Przyjmujemy, że do jednej paczki mieści się skonfigurowana liczba sztuk
       const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-      const numberOfParcels = Math.ceil(totalItems / 4);
-      return { finalCost: totalPrice > 100 ? 0 : 15, numberOfParcels };
+      const numberOfParcels = Math.ceil(totalItems / STORE_CONFIG.delivery.itemsPerParcel);
+      return {
+        finalCost: totalPrice > STORE_CONFIG.delivery.freeThreshold ? 0 : STORE_CONFIG.delivery.baseCost,
+        numberOfParcels,
+      };
     }
 
     function getTotalItemsCount(): number {
