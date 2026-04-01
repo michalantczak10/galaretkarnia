@@ -1961,6 +1961,21 @@ button:active {
   color: var(--color-white) !important;
   background: linear-gradient(90deg, #e74c3c 0%, #b30000 100%);
   font-weight: 700;
+  transition: opacity 0.2s, background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.legal-home-link:hover {
+  background: linear-gradient(90deg, #b30000 0%, #e74c3c 100%);
+}
+
+.legal-home-link:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffd600;
+}
+
+.legal-home-link:active {
+  opacity: 0.92;
 }
 
 .legal-home-contacts {
@@ -2100,6 +2115,13 @@ button:active {
 .page-btn:hover {
   background: linear-gradient(90deg, #b30000 0%, #e74c3c 100%);
   opacity: 0.95;
+}
+.page-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffd600;
+}
+.page-btn:active {
+  opacity: 0.92;
 }
 
 /* Ensure CTA inside contact card has visible text (higher specificity) */
