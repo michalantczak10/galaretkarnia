@@ -1,6 +1,7 @@
 // @ts-ignore
 import { renderCartList, showCartError } from "./modules/cart.js";
 import { setupParcelAutocomplete } from "./modules/autocomplete.js";
+import { initCookieConsentBanner } from "./modules/cookie-consent.js";
 // Renderuje podsumowanie zamówienia w sekcji checkout-summary (analogicznie do modala i mini-koszyka)
 
 // Deklaracja checkoutFormEl na poziomie modułu, przed pierwszym użyciem
@@ -357,6 +358,8 @@ declare global {
 
 
 window.addEventListener("DOMContentLoaded", () => {
+  initCookieConsentBanner();
+
     const legalTocLinks = document.querySelectorAll('nav[aria-label="Spis treści"] a[href^="#"]') as NodeListOf<HTMLAnchorElement>;
     const LEGAL_SCROLL_OFFSET = 24;
 
