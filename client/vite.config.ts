@@ -1,4 +1,5 @@
 import { defineConfig, type Plugin } from 'vite';
+import path from 'path';
 
 function faviconRedirect(): Plugin {
   return {
@@ -14,6 +15,15 @@ function faviconRedirect(): Plugin {
 
 export default defineConfig({
   plugins: [faviconRedirect()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        terms: path.resolve(__dirname, 'terms.html'),
+        privacy: path.resolve(__dirname, 'privacy.html'),
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': {
