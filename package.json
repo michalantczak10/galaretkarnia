@@ -22,6 +22,8 @@
   },
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "dev:prodlike": "npm run build --prefix client && node server/server.mjs",
+    "dev:prodlike:client": "npm run build --prefix client && npm run preview --prefix client",
     "build": "npm run build --prefix client",
     "start": "node server/server.mjs",
     "prepare": "simple-git-hooks",
