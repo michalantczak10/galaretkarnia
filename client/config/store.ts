@@ -8,6 +8,11 @@ export type StoreProduct = {
   image: string;
 };
 
+const PRODUCT_IMAGES = {
+  drobiowa: new URL("../img/products/galaretka_drobiowa.png", import.meta.url).href,
+  wieprzowa: new URL("../img/products/galaretka_wieprzowa.png", import.meta.url).href,
+} as const;
+
 export const STORE_CONFIG = {
   products: [
     {
@@ -15,14 +20,14 @@ export const STORE_CONFIG = {
       name: "Galaretka drobiowa",
       description: "Z warzywami, tradycyjna receptura",
       price: 18,
-      image: "img/products/galaretka_drobiowa.png",
+      image: PRODUCT_IMAGES.drobiowa,
     },
     {
       id: "wieprzowa",
       name: "Galaretka wieprzowa",
       description: "Z warzywami, tradycyjna receptura",
       price: 19,
-      image: "img/products/galaretka_wieprzowa.png",
+      image: PRODUCT_IMAGES.wieprzowa,
     },
   ] as StoreProduct[],
   delivery: {

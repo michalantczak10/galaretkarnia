@@ -480,10 +480,14 @@ window.addEventListener("DOMContentLoaded", () => {
           .filter((item): item is { name: string; price: number; qty: number; image?: string } => {
             return !!item && typeof item.name === "string" && typeof item.price === "number" && typeof item.qty === "number";
           })
-          .map((item) => ({
-            ...item,
-            image: item.image || productImageByName.get(item.name),
-          }));
+          .map((item) => {
+            const fallbackImage = productImageByName.get(item.name);
+            const hasLegacyImagePath = typeof item.image === "string" && item.image.startsWith("img/products/");
+            return {
+              ...item,
+              image: !item.image || hasLegacyImagePath ? fallbackImage : item.image,
+            };
+          });
       } else {
         cart = [];
       }
