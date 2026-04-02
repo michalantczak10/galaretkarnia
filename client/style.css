@@ -786,8 +786,8 @@ body {
 .hero {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: var(--color-white);
-  padding: 56px 30px;
-  height: 450px;
+  padding: 84px 30px;
+  min-height: 520px;
   display: flex;
   align-items: center;
 }
@@ -802,7 +802,7 @@ body {
 }
 
 .hero-copy {
-  padding: 20px 0;
+  padding: 32px 0;
 }
 
 .hero-copy h1 {
@@ -820,6 +820,23 @@ body {
   text-wrap: balance;
   overflow-wrap: anywhere;
   color: rgb(255 255 255 / 95%);
+}
+
+.hero-meta {
+  margin: 14px 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: rgb(255 255 255 / 82%);
+}
+
+.legal-page .hero {
+  padding: 64px 30px;
+  min-height: 460px;
+}
+
+.legal-page .hero-copy {
+  padding: 24px 0;
 }
 
 .hero-tagline {
@@ -2646,7 +2663,12 @@ button:active {
   }
   
   .hero {
-    padding: 48px 25px;
+    padding: 74px 25px;
+  }
+
+  .legal-page .hero {
+    padding: 56px 25px;
+    min-height: 430px;
   }
 
   .hero-content {
@@ -2773,7 +2795,12 @@ button:active {
   }
   
   .hero {
-    padding: 40px 20px;
+    padding: 66px 20px;
+  }
+
+  .legal-page .hero {
+    padding: 50px 20px;
+    min-height: 400px;
   }
 
   .hero-copy h1 {
@@ -2912,7 +2939,12 @@ button:active {
   }
   
   .hero {
-    padding: 36px 20px;
+    padding: 58px 20px;
+  }
+
+  .legal-page .hero {
+    padding: 44px 20px;
+    min-height: 360px;
   }
 
   .hero-copy h1 {
@@ -2989,6 +3021,15 @@ button:active {
 
 /* Small mobile (below 480px) */
 @media (max-width: 479px) {
+  .hero {
+    padding: 54px 20px;
+  }
+
+  .legal-page .hero {
+    padding: 40px 20px;
+    min-height: 330px;
+  }
+
   .about,
   .benefits,
   .product,
@@ -3104,6 +3145,15 @@ button:active {
 
 /* Very small phones (320px class) */
 @media (max-width: 360px) {
+  .hero {
+    padding: 50px 14px;
+  }
+
+  .legal-page .hero {
+    padding: 36px 14px;
+    min-height: 310px;
+  }
+
   .about,
   .benefits,
   .product,
