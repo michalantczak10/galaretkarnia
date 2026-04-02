@@ -471,7 +471,22 @@ window.addEventListener("DOMContentLoaded", () => {
   const savedCart = localStorage.getItem(STORAGE_KEY);
   if (savedCart) {
     try {
-      cart = JSON.parse(savedCart);
+      const parsedCart = JSON.parse(savedCart);
+      const productImageByName = new Map(
+        STORE_CONFIG.products.map((product) => [product.name, product.image]),
+      );
+      if (Array.isArray(parsedCart)) {
+        cart = parsedCart
+          .filter((item): item is { name: string; price: number; qty: number; image?: string } => {
+            return !!item && typeof item.name === "string" && typeof item.price === "number" && typeof item.qty === "number";
+          })
+          .map((item) => ({
+            ...item,
+            image: item.image || productImageByName.get(item.name),
+          }));
+      } else {
+        cart = [];
+      }
     } catch {
       cart = [];
     }
@@ -893,6 +908,8 @@ function showToast(message: string) {
 
       if (existing) {
         existing.qty++;
+        // Uzupełnij brakujący obrazek w starszych wpisach koszyka z localStorage.
+        if (!existing.image) existing.image = image;
       } else {
         cart.push({ name, price, qty: 1, image });
       }
