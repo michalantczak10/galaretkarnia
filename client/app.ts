@@ -8,6 +8,18 @@ import { STORE_CONFIG, getProductConfig } from "./config/store.js";
 // Deklaracja checkoutFormEl na poziomie modułu, przed pierwszym użyciem
 const checkoutFormEl = document.getElementById("checkoutForm") as HTMLFormElement | null;
 
+const API_BASE_URL = (() => {
+  const host = window.location.hostname.toLowerCase();
+  if (host === "galaretkarnia.pl" || host === "www.galaretkarnia.pl") {
+    return "https://galaretkarnia.onrender.com";
+  }
+  return "";
+})();
+
+function buildApiUrl(path: string) {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
+}
+
 function renderCheckoutSummary() {
   const summaryEl = document.getElementById("checkoutSummary");
   if (!summaryEl) return;
@@ -1031,7 +1043,7 @@ function showToast(message: string) {
       setCheckoutMessage("Wysyłanie zamówienia...");
       const requestStart = Date.now();
       try {
-        const response = await fetch("/api/orders", {
+        const response = await fetch(buildApiUrl("/api/orders"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderData)
