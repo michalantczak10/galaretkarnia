@@ -133,6 +133,32 @@ connectToMongo();
 const app = express();
 app.use(express.json());
 
+// CORS middleware - allow requests from galaretkarnia.pl and localhost
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://galaretkarnia.pl',
+    'https://www.galaretkarnia.pl',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:5174'
+  ];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 // Serve built client from dist directory
 app.use(express.static(path.join(projectRoot, 'client', 'dist')));
 
