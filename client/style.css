@@ -1991,6 +1991,11 @@ button:active {
     padding: 36px 0 64px;
   }
 
+  .legal h2 {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
   .legal-grid {
     padding: 0 24px;
     gap: 22px;
@@ -2003,6 +2008,11 @@ button:active {
 }
 
 @media (max-width: 479px) {
+  .legal h2 {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
   .legal-grid {
     padding: 0 18px;
   }
@@ -2846,6 +2856,8 @@ button:active {
   .benefits h2 {
     font-size: 1.6em;
     margin-bottom: 25px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .about h2,
@@ -2854,6 +2866,8 @@ button:active {
   .trust h2 {
     font-size: 1.6em;
     margin-bottom: 22px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .benefits-grid {
@@ -2989,6 +3003,8 @@ button:active {
   .benefits h2 {
     font-size: 1.4em;
     margin-bottom: 25px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .about h2,
@@ -2997,6 +3013,8 @@ button:active {
   .trust h2 {
     font-size: 1.4em;
     margin-bottom: 22px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .benefits-grid {
@@ -3145,6 +3163,8 @@ button:active {
   
   h2 {
     font-size: 24px;
+    margin-left: 16px;
+    margin-right: 16px;
   }
 }
 
