@@ -456,6 +456,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
       if (window.location.hash) {
         setTimeout(() => scrollToLegalHash(window.location.hash), 0);
+      } else {
+        // Jeśli brak hasha, scroll do górnych strony (do hero)
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
 
