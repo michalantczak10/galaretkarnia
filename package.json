@@ -25,11 +25,15 @@
     "dev:prodlike": "npm run build --prefix client && node server/server.mjs",
     "dev:prodlike:client": "npm run build --prefix client && npm run preview --prefix client",
     "build": "npm run build --prefix client",
-    "start": "node server/server.mjs",
+    "start": "npm run build && node server/server.mjs",
     "prepare": "simple-git-hooks",
     "secrets:check:staged": "node ./scripts/secretlint-staged.mjs",
     "stop": "taskkill /F /IM node.exe || exit 0",
-    "restart": "npm run stop && npm run dev"
+    "restart": "npm run stop && npm run dev",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
+    "test:e2e:live": "playwright test tests/e2e/checkout-live.spec.ts --workers=1"
   },
   "simple-git-hooks": {
     "pre-commit": "npm run secrets:check:staged"

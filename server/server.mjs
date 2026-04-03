@@ -4,8 +4,7 @@ dotenv.config();
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
-import fs from 'fs';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { Resend } from 'resend';
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -104,7 +103,6 @@ function getPhoneSuffix(phone) {
 }
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
-dotenv.config({ path: path.join(__dirname, '.env') });
 const frontendBaseUrl = (process.env.FRONTEND_URL || process.env.CLIENT_ORIGIN || 'https://galaretkarnia.pl').replace(/\/$/, '');
 const emailLogoUrl = `${frontendBaseUrl}/branding-logo-email.png`;
 
@@ -184,8 +182,8 @@ app.post('/api/orders', async (req, res) => {
     return res.status(503).json({ error: 'Usługa chwilowo niedostępna. Baza danych nieosiągalna.' });
   }
   try {
-    console.log('--- Nowe zamówienie ---');
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('[ORDER] --- Nowe zamówienie ---');
+    console.log('[ORDER] Request body:', JSON.stringify(req.body, null, 2));
     const { phone, parcelLockerCode, notes, items, productsTotal, deliveryCost, total, paymentMethod, createOptionalAccount, optionalAccountEmail } = req.body;
 
     
@@ -341,16 +339,38 @@ app.post('/api/orders', async (req, res) => {
       resend.emails.send(mailOptions)
         .then((result) => {
           if (result?.error) {
-            console.error('⚠️ Email sending failed (but order saved to DB):', result.error);
-          } else {
-            console.log(`✅ Order email sent for ID: ${orderId}`);
+            console.error('[EMAIL] ⚠️ Email rejected by Resend (order saved to DB):', {
+              orderId,
+              orderRef,
+              to: mailOptions.to,
+              from: mailOptions.from,
+              error: result.error,
+            });
+            return;
           }
+
+          const messageId = result?.data?.id || result?.id || null;
+          console.log('[EMAIL] ✅ Email accepted by Resend:', {
+            orderId,
+            orderRef,
+            messageId,
+            to: mailOptions.to,
+            from: mailOptions.from,
+          });
         })
-        .catch(err => {
-          console.error('⚠️ Email sending failed (but order saved to DB):', err?.message || err);
+        .catch((err) => {
+          console.error('[EMAIL] ⚠️ Email send request failed (order saved to DB):', {
+            orderId,
+            orderRef,
+            to: mailOptions.to,
+            from: mailOptions.from,
+            name: err?.name,
+            message: err?.message || String(err),
+            statusCode: err?.statusCode,
+          });
         });
     } else {
-      console.warn('⚠️ Pominięto wysyłkę maila — Resend nie jest skonfigurowany');
+      console.warn('[EMAIL] ⚠️ Pominięto wysyłkę maila — Resend nie jest skonfigurowany');
     }
 
   } catch (error) {
@@ -447,7 +467,7 @@ app.get('*', (req, res) => {
 // Start server
 const server = app.listen(PORT, () => {
   console.log(`🚀 Galaretkarnia API running on port ${PORT}`);
-  console.log(`📧 Orders will be sent to: ${process.env.ORDER_EMAIL || 'kontakt@galaretkarnia.pl'}`);
+  console.log(`[EMAIL] 📧 Orders will be sent to: ${process.env.ORDER_EMAIL || 'kontakt@galaretkarnia.pl'}`);
 });
 
 // Graceful shutdown - close Mongo client and HTTP server

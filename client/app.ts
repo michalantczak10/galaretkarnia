@@ -45,7 +45,7 @@ function renderCheckoutSummary() {
     browseBtn.type = "button";
     browseBtn.textContent = "Przeglądaj produkty";
     browseBtn.className = "browse-products-btn";
-    browseBtn.setAttribute("data-test-id", "btn-browse-offer");
+    browseBtn.setAttribute("data-testid", "btn-browse-offer");
     // Scroll do sekcji z produktami (id="products" lub class="products-section")
     browseBtn.onclick = () => {
       const productsSection = document.getElementById("products") || document.querySelector(".products-section");
@@ -163,7 +163,7 @@ window.scrollToCheckout = scrollToCheckout;
     btn.type = "button";
     btn.id = "clearCartBtn";
     btn.className = "cart-checkout-btn clear-cart-btn";
-    btn.setAttribute("data-test-id", "btn-clear-cart");
+    btn.setAttribute("data-testid", "btn-clear-cart");
     btn.textContent = "Wyczyść koszyk";
     btn.addEventListener("mouseenter", () => {
       if (!btn.disabled) {
