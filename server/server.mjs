@@ -85,6 +85,11 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+// Walidacja adresu e-mail
+function isEmailValid(email) {
+  if (typeof email !== 'string') return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
 // Walidacja kodu paczkomatu (minimum 6 znaków, tylko duże litery i cyfry)
 function isParcelLockerCodeValid(code) {
   if (typeof code !== 'string') return false;
@@ -208,8 +213,9 @@ app.post('/api/orders', async (req, res) => {
   }
   try {
     console.log('[ORDER] --- Nowe zamówienie ---');
-    console.log('[ORDER] Request body:', JSON.stringify(req.body, null, 2));
-    const { phone, parcelLockerCode, notes, items, productsTotal, deliveryCost, total, paymentMethod, createOptionalAccount, optionalAccountEmail } = req.body;
+    const { phone: _logPhone, ...loggableBody } = req.body;
+    console.log('[ORDER] Request body (phone omitted):', JSON.stringify(loggableBody, null, 2));
+    const { phone, parcelLockerCode, notes, items, paymentMethod, createOptionalAccount, optionalAccountEmail } = req.body;
 
     
     if (!phone || !isPhoneValid(phone)) {
@@ -222,10 +228,6 @@ app.post('/api/orders', async (req, res) => {
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'Koszyk jest pusty.' });
-    }
-
-    if (typeof total !== 'number' || total <= 0) {
-      return res.status(400).json({ error: 'Nieprawidłowa kwota.' });
     }
 
     const selectedPaymentMethod = paymentMethod || 'bank_transfer';
@@ -249,9 +251,10 @@ app.post('/api/orders', async (req, res) => {
     
     const totalItemsCount = items.reduce((sum, item) => sum + (item.qty || 0), 0);
 
-    
+    const calculatedProductsTotal = items.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 0)), 0);
+
     const deliveryInfo = calculateDeliveryCost(totalItemsCount);
-    const calculatedDeliveryCost = productsTotal >= FREE_DELIVERY_THRESHOLD ? 0 : deliveryInfo.cost;
+    const calculatedDeliveryCost = calculatedProductsTotal >= FREE_DELIVERY_THRESHOLD ? 0 : deliveryInfo.cost;
 
     
     const order = {
@@ -261,11 +264,11 @@ app.post('/api/orders', async (req, res) => {
       notes: normalizedNotes,
       items,
       totalItemsCount,
-      productsTotal: productsTotal || 0,
+      productsTotal: calculatedProductsTotal,
       deliveryCost: calculatedDeliveryCost,
       parcelSize: deliveryInfo.parcelSize,
       parcelLabel: deliveryInfo.parcelLabel,
-      total: (productsTotal || 0) + calculatedDeliveryCost,
+      total: calculatedProductsTotal + calculatedDeliveryCost,
       paymentMethod: selectedPaymentMethod,
       paymentStatus: 'oczekiwanie-na-wplate',
       status: 'oczekuje-na-platnosc', // Status: oczekuje-na-platnosc, oplacone, w-realizacji, gotowe, anulowane
@@ -333,7 +336,7 @@ app.post('/api/orders', async (req, res) => {
 
               <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:14px;line-height:1.6;">
                 <h3 style="margin:0 0 8px 0;color:#b30000;font-size:17px;">Podsumowanie kosztów</h3>
-                <div><strong>Produkty:</strong> ${productsTotal || order.total} zł</div>
+                <div><strong>Produkty:</strong> ${order.productsTotal} zł</div>
                 <div><strong>Dostawa (${deliveryInfo.numberOfParcels > 1 ? `${deliveryInfo.numberOfParcels} paczki` : '1 paczka'}):</strong> ${calculatedDeliveryCost === 0 ? '<span style="color:#167a36;font-weight:700;">GRATIS</span>' : `${calculatedDeliveryCost} zł`}</div>
                 <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:17px;"><strong>Razem do zapłaty:</strong> <span style="color:#b30000;font-weight:800;">${order.total} zł</span></div>
               </div>

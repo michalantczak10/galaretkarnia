@@ -41,7 +41,7 @@ Zasady:
 1. Każdą zmianę przygotuj i zweryfikuj na `develop`.
 2. Na produkcję wypychaj tylko po merge do `main`.
 3. Każdy push na `main` uruchamia automatyczny smoke test produkcyjny.
-4. Monitoring health-check działa cyklicznie co 15 minut i zgłasza alert przez GitHub Issue.
+4. Monitoring health-check działa cyklicznie co 15 minut jako pasywna kontrola stanu API.
 
 ## 🛠️ Technologie
 
@@ -185,33 +185,6 @@ Konfiguracja znajduje się w:
 2. `server/server.mjs`
 3. `playwright.live.config.ts`
 
-### Generowanie favicon
-
-Skrypt `scripts/generate-favicons.cjs` konwertuje wektorowe `img/branding/logo-galaretkarnia.svg` na zestaw ikon (PNG, `favicon.ico`) i zapisuje je do katalogu `favicon/`.
-
-Wymagania: zainstalowane pakiety `sharp` i `to-ico`.
-
-Uwaga: skrypt został przeniesiony do `tools/generate-favicons/`.
-
-Uruchom lokalnie:
-```bash
-# w katalogu projektu
-npm install
-npm run generate:favicons
-# lub bezpośrednio
-node ./tools/generate-favicons/generate-favicons.cjs
-```
-
-W CI (przykład):
-```yaml
-- uses: actions/checkout@v4
-- uses: actions/setup-node@v4
-  with:
-    node-version: '18'
-- run: npm ci
-- run: npm run generate:favicons
-```
-
 ## 📂 Struktura projektu
 
 ```
@@ -227,7 +200,7 @@ galaretkarnia.pl/
 ├── tsconfig.json           # Konfiguracja TypeScript
 └── server/                 # Backend (Node.js + Express)
     ├── server.mjs          # API serwera
-  ├── test-server.mjs     # Start backendu w trybie testowym
+    ├── test-server.mjs     # Start backendu w trybie testowym
     ├── .env                # Zmienne środowiska (lokalne)
     ├── .env.example        # Szablon .env
     └── package.json        # Zależności backendu
@@ -251,10 +224,34 @@ galaretkarnia.pl/
   "deliveryCost": 15,
   "total": 51
 }
+```
+
+**GET `/api/orders`** - Pobierz wszystkie zamówienia (admin)
+
+**GET `/api/orders/id/:orderId`** - Pobierz szczegóły zamówienia
+
+**PUT `/api/orders/id/:orderId`** - Zmień status zamówienia
+```json
+{
+  "status": "w-realizacji"
+}
+```
 
 ### Health check
 
 **GET `/api/health`** - Status API i bazy danych
+```
+{
+  "status": "ok",
+  "service": "galaretkarnia-api",
+  "environment": "production",
+  "timestamp": "2026-01-01T00:00:00.000Z",
+  "uptimeSeconds": 123,
+  "database": {
+    "connected": true,
+    "collection": "orders"
+  }
+}
 ```
 
 ## 🧹 Lokalny housekeeping
@@ -269,17 +266,6 @@ Automatyczne usunięcie lokalnych gałęzi, które są już zmergowane:
 
 ```bash
 npm run ops:local:cleanup
-```
-
-**GET `/api/orders`** - Pobierz wszystkie zamówienia (admin)
-
-**GET `/api/orders/id/:orderId`** - Pobierz szczegóły zamówienia
-
-**PUT `/api/orders/id/:orderId`** - Zmień status zamówienia
-```json
-{
-  "status": "w-realizacji"  // nowe | w-realizacji | gotowe | anulowane
-}
 ```
 
 ## 💾 Schemat Zamówienia

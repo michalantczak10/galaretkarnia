@@ -28,7 +28,7 @@
 
 ## 5) Monitoring i operacje
 - [ ] Workflow `Production Health Monitor` działa cyklicznie (co 15 min)
-- [ ] Alert issue tworzy się automatycznie przy awarii health-check
+- [ ] Ostatnie uruchomienia monitoringu nie mają błędów
 - [ ] Lokalny housekeeping wykonany (`npm run ops:local:check`)
 - [ ] Niepotrzebne lokalne gałęzie usunięte (`npm run ops:local:cleanup`)
 
