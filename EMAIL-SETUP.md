@@ -1,105 +1,61 @@
-# 📧 Konfiguracja Email - Resend
+# Konfiguracja email (Resend)
 
-## Dlaczego potrzebujesz emaili?
+## Co robi backend
 
-Gdy klient złoży zamówienie, system:
-1. ✅ Zapisuje zamówienie do bazy MongoDB
-2. ✅ Wyświetla klientowi ID zamówienia
-3. 📧 **Wysyła Ci email z pełnymi danymi zamówienia**
+Po zlozeniu zamowienia backend:
 
----
+1. zapisuje zamowienie do MongoDB
+2. zwraca klientowi numer zamowienia
+3. probuje wyslac email z detalami zamowienia
 
-## ⚙️ Konfiguracja Resend
+Wysylka email nie blokuje zapisu zamowienia. Jezeli Resend ma blad, zamowienie nadal jest w bazie.
 
-1. Wejdź na: https://resend.com
-2. Załóż konto / zaloguj się
-3. Przejdź do **API Keys**
-4. Kliknij **Create API Key**
-5. Skopiuj klucz (zaczyna się od `re_...`)
+## Wymagane zmienne srodowiskowe
 
-## 🔐 Ustawienia w `.env`
+W Render ustaw:
 
-W `server/.env` ustaw:
-```env
+- RESEND_API_KEY
+- RESEND_FROM_EMAIL
+- ORDER_EMAIL
+
+Opcjonalnie dla testow live:
+
+- ORDER_EMAIL_TEST
+
+Przyklad:
+
 RESEND_API_KEY=re_twoj_klucz_api
-ORDER_EMAIL=kontakt@galaretkarnia.pl
 RESEND_FROM_EMAIL=noreply@galaretkarnia.onresend.com
-```
+ORDER_EMAIL=kontakt@galaretkarnia.pl
 
-`ORDER_EMAIL` to adres, na który przychodzą powiadomienia o nowych zamówieniach.
+## Jak przetestowac
 
----
+1. sprawdz logi backendu na Render po wyslaniu zamowienia
+2. wykonaj testowe zamowienie przez frontend
+3. potwierdz, ze email dotarl na ORDER_EMAIL
 
-## ✅ Testuj konfigurację
+W logach backendu szukaj komunikatow:
 
-1. **Zrestartuj backend**:
-   ```bash
-   # Zatrzymaj poprzedni proces (Ctrl+C w terminalu backendu)
-   cd server
-   node server.mjs
-   ```
+- EMAIL accepted by Resend
+- EMAIL rejected by Resend
+- EMAIL send request failed
 
-2. **Powinien pojawić się komunikat**:
-   ```
-   ✅ Resend API Key configured
-   ```
+## Najczestsze problemy
 
-3. **Wyślij testowe zamówienie** ze strony
+1. Brak maili
 
-4. **Sprawdź skrzynkę odbiorczą** - powinien być email z zamówieniem!
+- zly RESEND_API_KEY
+- niepoprawny RESEND_FROM_EMAIL
+- wiadomosci trafiaja do spam
 
----
+2. Mail nie wychodzi, ale zamowienie jest zapisane
 
-## ❌ Troubleshooting
+To oczekiwane zachowanie. System nie traci zamowienia przez problem z email.
 
-### Błąd: "Missing API key"
-- Sprawdź czy `RESEND_API_KEY` jest ustawione
-- Upewnij się, że klucz zaczyna się od `re_`
+3. Rozdzielenie produkcji i testow
 
-### Email nie przychodzi
-- Sprawdź folder SPAM/Junk
-- Sprawdź czy backend wyświetlił: `✅ Order email sent for ID: ...`
-- Sprawdź logi backendu czy są błędy
+Jesli uzywasz testow live, ustaw ORDER_EMAIL_TEST, aby testowe zamowienia nie trafialy na glowna skrzynke.
 
----
+## Bezpieczenstwo
 
-## 🔒 Bezpieczeństwo
-
-⚠️ **NIGDY** nie commituj pliku `.env` do GitHuba!
-
-Plik `.gitignore` powinien zawierać:
-```
-server/.env
-.env
-```
-
----
-
-## 📧 Przykładowy email zamówienia
-
-Po konfiguracji dostaniesz emaile w formacie:
-
-```
-📦 Nowe zamówienie
-
-ID Zamówienia: 69a4b0b698a4d919968eadce
-
-Pozycje:
-- Dzika Świnia: 2 słoik(ów) × 22 zł = 44 zł
-- Prosiaczek: 1 słoik(ów) × 19 zł = 19 zł
-
-📌 Do zapłaty: 63 zł
-
-Dane klienta:
-👤 Imię i nazwisko: Michał Antczak
-📞 Telefon: +48794535366
-📍 Adres dostawy: Eugeniusza Płoskiego 1/1 m. 10
-💬 Uwagi: Brak
-
-⏰ Zamówienie przyjęte: 01.03.2026, 22:33:42
-Status: NOWE (oczekuje na potwierdzenie)
-```
-
----
-
-Gotowe! Po skonfigurowaniu emaile będą przychodzić automatycznie przy każdym zamówieniu. 🎉
+Nie commituj plikow env do repo. Sekrety trzymaj tylko w Render/Vercel.
