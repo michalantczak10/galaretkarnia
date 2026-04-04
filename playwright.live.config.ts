@@ -2,7 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 30 * 1000,
+  testMatch: ['checkout-live.spec.ts'],
+  timeout: 60 * 1000,
+  workers: 1,
+  fullyParallel: false,
   retries: 0,
   reporter: 'list',
   use: {
@@ -10,7 +13,7 @@ export default defineConfig({
     headless: true,
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
-    video: 'off',
+    video: 'retain-on-failure',
   },
   webServer: {
     command: 'npm run dev:test',

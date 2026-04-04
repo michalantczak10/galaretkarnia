@@ -153,6 +153,7 @@ npm run test:e2e:smoke
 ```bash
 npm run test:e2e:live
 ```
+Konfiguracja live wymusza `workers=1` i uruchamia tylko `checkout-live.spec.ts`, aby uniknąć równoległego tworzenia wielu realnych zamówień.
 
 3. `prod smoke` - szybkie testy produkcji bez tworzenia realnych zamówień:
 ```bash
