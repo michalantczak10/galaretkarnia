@@ -37,11 +37,21 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
           ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          ORDER_EMAIL: ${{ secrets.ORDER_EMAIL }}
         run: |
           set -euo pipefail
 
+          # Use dedicated alert mailbox only when configured.
+          if [ -z "${ALERT_EMAIL_FROM:-}" ]; then
+            ALERT_EMAIL_FROM="${RESEND_FROM_EMAIL:-}"
+          fi
+          if [ -z "${ALERT_EMAIL_TO:-}" ]; then
+            ALERT_EMAIL_TO="${ORDER_EMAIL:-}"
+          fi
+
           if [ -z "${RESEND_API_KEY:-}" ] || [ -z "${ALERT_EMAIL_FROM:-}" ] || [ -z "${ALERT_EMAIL_TO:-}" ]; then
-            echo "Missing required secrets: RESEND_API_KEY, ALERT_EMAIL_FROM, ALERT_EMAIL_TO"
+            echo "Missing required secrets: RESEND_API_KEY and either ALERT_EMAIL_FROM/ALERT_EMAIL_TO or RESEND_FROM_EMAIL/ORDER_EMAIL"
             exit 1
           fi
 

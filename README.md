@@ -167,11 +167,13 @@ Automatyzacja CI:
 - Workflow `Production Health Monitor` sprawdza `GET /api/health` co 15 minut.
 - W przypadku awarii monitor wysyła powiadomienie tylko mailem (Resend).
 
-Sekrety wymagane dla alertów email:
+Sekrety dla alertów email:
 
 - `RESEND_API_KEY`
-- `ALERT_EMAIL_FROM`
-- `ALERT_EMAIL_TO`
+- `ALERT_EMAIL_FROM` (opcjonalnie, fallback: `RESEND_FROM_EMAIL`)
+- `ALERT_EMAIL_TO` (opcjonalnie, fallback: `ORDER_EMAIL`)
+
+Praktycznie: możesz zostawić jeden adres odbiorczy (np. `zamowienia@...`) i nie tworzyć osobnej skrzynki tylko do alertów.
 
 Opcjonalnie możesz wskazać inny URL:
 ```bash
