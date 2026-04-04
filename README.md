@@ -140,6 +140,21 @@ ORDER_EMAIL_TEST=testy@twoja-domena.pl
 
 **Uwaga**: Zamówienia są zapisywane w MongoDB niezależnie od konfiguracji email!
 
+## 🧩 Skrypty npm (root)
+
+Najczęściej używane skrypty w katalogu głównym:
+
+- `npm run dev` - frontend + backend lokalnie
+- `npm run dev:test` - frontend + backend w trybie testowym (`NODE_ENV=test` po stronie backendu)
+- `npm run build` - build frontendu (`client/dist`)
+- `npm run start` - build frontendu + start backendu
+- `npm run test:e2e:smoke` - szybkie testy bez efektów ubocznych
+- `npm run test:e2e:all` - pełny profil domyślnych testów E2E (bez live checkout)
+- `npm run test:e2e:live` - realny checkout E2E (tworzy prawdziwe zamówienia)
+- `npm run test:prod:smoke` - smoke test przeciwko produkcji
+- `npm run ops:local:check` - przegląd lokalnego środowiska i branchy
+- `npm run ops:local:cleanup` - usuwanie lokalnych branchy już zmergowanych
+
 ## 🧪 Testy E2E
 
 Projekt ma dwa profile testów Playwright:
