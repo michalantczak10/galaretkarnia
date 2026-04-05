@@ -8,18 +8,19 @@ Ten dokument opisuje aktualny, uproszczony deployment:
 
 ## 1. Wymagane sekrety
 
-Render (backend):
+### Render (backend)
 
-- MONGODB_URI
-- RESEND_API_KEY
-- ORDER_EMAIL
-- RESEND_FROM_EMAIL
-- FRONTEND_URL=https://galaretkarnia.pl
-- NODE_ENV=production
+Obowiązkowe:
+- **MONGODB_URI** - connection string do MongoDB Atlas
+- **RESEND_API_KEY** - API key do Resend (email service)
+- **ORDER_EMAIL** - adres e-mail na który wysyłać powiadomienia o zamówieniach
+- **RESEND_FROM_EMAIL** - adres e-mail nadawcy (musi być zweryfikowany w Resend)
+- **FRONTEND_URL** - https://galaretkarnia.pl (używane do CORS i linków w mailach)
+- **NODE_ENV** - production
 
-Vercel (frontend):
+### Vercel (frontend)
 
-- brak wymaganych sekretow dla frontendu
+- Brak wymaganych sekretów dla frontendu
 
 ## 2. Aktualny pipeline
 
@@ -36,9 +37,9 @@ Publikacja produkcji:
 
 W tym repo jest skonfigurowane:
 
-- Vercel buduje frontend bezposrednio komenda npm run build --prefix client
-- output frontendu to folder client/dist
-- rootowy folder dist nie jest juz wymagany do deployu
+- Vercel buduje frontend bezposrednio komenda `npm run build --prefix client`
+- Output frontendu to folder `client/dist`
+- **Ważne**: Rootowy folder `dist` został usunięty (backend obsługuje serwowanie statycznych plików z `client/dist`)
 
 ## 3. Szybka weryfikacja po deployu
 
@@ -60,15 +61,32 @@ Oczekiwany ksztalt odpowiedzi:
   }
 }
 
-2. Smoke frontendu na produkcji
+2. Smoke testy frontendu na produkcji
 
+```bash
 npm run test:prod:smoke
+```
+Uruchamia testy Playwright przeciwko wdrożonej aplikacji na https://galaretkarnia.pl
 
-3. Smoke lokalny
+3. Smoke testy lokalnie
 
+```bash
 npm run test:e2e:smoke
+```
+Uruchamia testy Playwright na localhost (wymaga uruchomionego dev servera)
 
-## 4. Najczestsze problemy
+## 4. Merge strategy
+
+### Aby dodać zmiany do produkcji:
+
+1. Pracuj na `develop` (daily changes)
+2. Po testach i veryfikacji na develop, stwórz PR `develop` → `main`
+3. Review i merge do `main`
+4. Automatycznie Vercel i Render robia deployment z gałęzi `main`
+
+**Ważne**: Nigdy nie pushuj bezpośrednio na `main`, zawsze przez PR.
+
+## 5. Najczestsze problemy
 
 1. Vercel: vite command not found
 
@@ -83,7 +101,35 @@ Najczesciej brak polaczenia z MongoDB. Sprawdz MONGODB_URI na Render.
 
 Sprawdz RESEND_API_KEY, RESEND_FROM_EMAIL i ORDER_EMAIL oraz logi backendu na Render.
 
-## 5. Operacyjna checklista
+## 6. Troubleshooting w trakcie development
+
+### Frontend nie buduje się lokalnie
+
+```bash
+cd client && npm install && npm run build
+```
+Upewnij się że zainstalowałeś zależności.
+
+### Backend nie działa lokalnie
+
+```bash
+cd server && npm install
+```
+Jeśli używasz lokalnego MongoDB, ustaw w `.env`:
+```
+MONGODB_URI=mongodb://localhost:27017/galaretkarnia
+NODE_ENV=development
+```
+
+### Vite dev server się sypie
+
+Cleaning cache:
+```bash
+rm -rf client/node_modules client/.vite
+npm run dev
+```
+
+## 7. Operacyjna checklista
 
 Do release i kontroli produkcji uzywaj:
 
