@@ -1,5 +1,14 @@
-// Autocomplete module
-export function setupParcelAutocomplete(parcelLockers: any[], parcelSearchInput: HTMLInputElement, parcelLockerCodeInput: HTMLInputElement, searchAutocompleteBox: HTMLElement) {
+import type { ParcelLocker } from "../types.js";
+
+/**
+ * Setup autocomplete for parcel locker search
+ */
+export function setupParcelAutocomplete(
+  parcelLockers: ParcelLocker[],
+  parcelSearchInput: HTMLInputElement,
+  parcelLockerCodeInput: HTMLInputElement,
+  searchAutocompleteBox: HTMLElement
+): void {
   parcelSearchInput.addEventListener("input", () => {
     const value = parcelSearchInput.value.trim().toLowerCase();
     searchAutocompleteBox.innerHTML = "";
@@ -16,39 +25,45 @@ export function setupParcelAutocomplete(parcelLockers: any[], parcelSearchInput:
       searchAutocompleteBox.appendChild(noResult);
       return;
     }
-    const matches = parcelLockers.filter((locker: any) =>
-      locker.name.toLowerCase().includes(value) ||
-      locker.address.toLowerCase().includes(value) ||
-      locker.code.toLowerCase().includes(value)
+    const matches = parcelLockers.filter(
+      (locker) =>
+        locker.name.toLowerCase().includes(value) ||
+        locker.address.toLowerCase().includes(value) ||
+        locker.code.toLowerCase().includes(value)
     );
     if (matches.length > 0) {
       searchAutocompleteBox.style.display = "block";
-      matches.forEach((locker: any, idx: number) => {
+      matches.forEach((locker, idx) => {
         const option = document.createElement("div");
         option.className = "autocomplete-option";
         const code = document.createElement("strong");
         code.textContent = locker.code;
         option.appendChild(code);
-        option.appendChild(document.createTextNode(` — ${locker.name}, ${locker.address}`));
+        option.appendChild(
+          document.createTextNode(
+            ` — ${locker.name}, ${locker.address}`
+          )
+        );
         option.addEventListener("mousedown", (e) => {
-          // Zapobiegaj blur na input zanim handler się wykona
           e.preventDefault();
           parcelLockerCodeInput.value = locker.code;
-          // Wywołaj walidację nasłuchującą na "input" po programowym ustawieniu kodu
-          parcelLockerCodeInput.dispatchEvent(new Event("input", { bubbles: true }));
+          parcelLockerCodeInput.dispatchEvent(
+            new Event("input", { bubbles: true })
+          );
           parcelSearchInput.value = `${locker.name}, ${locker.address}`;
           searchAutocompleteBox.innerHTML = "";
           searchAutocompleteBox.style.display = "none";
         });
-        // Dodaj atrybut do łatwego wyboru Enterem
         option.setAttribute("data-idx", idx.toString());
         searchAutocompleteBox.appendChild(option);
       });
-      // Obsługa Enter: wybierz pierwszą opcję
+      // Handle Enter key
       parcelSearchInput.onkeydown = (e: KeyboardEvent) => {
         if (e.key === "Enter" && matches.length > 0) {
           e.preventDefault();
-          const first = searchAutocompleteBox.querySelector('.autocomplete-option[data-idx="0"]') as HTMLElement;
+          const first = searchAutocompleteBox.querySelector(
+            '.autocomplete-option[data-idx="0"]'
+          ) as HTMLElement;
           if (first) first.click();
         }
       };

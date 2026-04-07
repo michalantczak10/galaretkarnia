@@ -94,6 +94,32 @@ npm run start --prefix server
 
 ## ⚙️ Konfiguracja
 
+### Frontend - API Configuration
+
+Frontend komunikuje się z backendem przy użyciu zmiennych środowiskowych. Konfiguracja API:
+
+1. **Development (localhost)**
+   ```bash
+   # Automatycznie proxy do http://localhost:3000 przez Vite
+   # (skonfigurowane w client/vite.config.ts)
+   ```
+
+2. **Production**
+   ```bash
+   # Stwórz plik client/.env.local
+   VITE_API_BASE_URL=https://twoj-backend.com
+   ```
+
+3. **Szablon konfiguracji**
+   ```bash
+   # Dostępny w:
+   cp client/.env.example client/.env.local
+   ```
+
+Jeśli `VITE_API_BASE_URL` nie jest ustawiony, frontend automatycznie:
+- Na produkcji: wykryje `galaretkarnia.pl` i użyje `https://galaretkarnia.onrender.com`
+- W dev: będzie używać Local API (proxy Vite)
+
 ### MongoDB
 
 Backend wymaga MongoDB. Masz dwie opcje:

@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'url';
 import { dirname, extname, join } from 'path';
 import { readdir, writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -8,6 +9,11 @@ const projectRoot = join(__dirname, '..');
 const imgDir = join(projectRoot, 'client', 'img');
 
 const dirs = ['products', 'team', 'hero', 'branding'];
+
+// Compression settings
+const JPEG_QUALITY = 75;
+const PNG_COMPRESSION_LEVEL = 9;
+const WEBP_QUALITY = 75;
 
 async function collectImages(dirPath) {
   const entries = await readdir(dirPath, { withFileTypes: true });
@@ -47,23 +53,32 @@ try {
       const extension = extname(filePath).toLowerCase();
       const webpPath = filePath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
 
-      if (extension === '.jpg' || extension === '.jpeg') {
-        const jpegBuffer = await sharp(filePath)
-          .jpeg({ quality: 75, mozjpeg: true })
-          .toBuffer();
-        await writeFile(filePath, jpegBuffer);
-      }
+      try {
+        // Compress original image
+        if (extension === '.jpg' || extension === '.jpeg') {
+          const jpegBuffer = await sharp(filePath)
+            .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
+            .toBuffer();
+          await writeFile(filePath, jpegBuffer);
+          compressedInDir += 1;
+        }
 
-      if (extension === '.png') {
-        const pngBuffer = await sharp(filePath)
-          .png({ quality: 75, compressionLevel: 9, palette: true })
-          .toBuffer();
-        await writeFile(filePath, pngBuffer);
-      }
+        if (extension === '.png') {
+          const pngBuffer = await sharp(filePath)
+            .png({ compressionLevel: PNG_COMPRESSION_LEVEL, palette: true })
+            .toBuffer();
+          await writeFile(filePath, pngBuffer);
+          compressedInDir += 1;
+        }
 
-      await sharp(filePath).webp({ quality: 75 }).toFile(webpPath);
-      compressedInDir += 1;
-      webpInDir += 1;
+        // Generate WebP only if it doesn't exist
+        if (!existsSync(webpPath)) {
+          await sharp(filePath).webp({ quality: WEBP_QUALITY }).toFile(webpPath);
+          webpInDir += 1;
+        }
+      } catch (fileError) {
+        console.warn(`   ⚠️  Failed to process ${filePath}: ${fileError.message}`);
+      }
     }
 
     totalCompressed += compressedInDir;
