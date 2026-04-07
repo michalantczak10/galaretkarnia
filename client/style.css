@@ -384,9 +384,25 @@
 
 .checkout-summary-product-main {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
+}
+
+.checkout-summary-product-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+  background: #fff;
+}
+
+.checkout-summary-product-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .checkout-summary-product-meta {
