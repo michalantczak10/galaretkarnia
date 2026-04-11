@@ -103,7 +103,7 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
 
   // Products total
   const productsLine = document.createElement("div");
-  productsLine.innerHTML = `<strong>Produkty w koszyku:</strong> ${productsTotal} zł`;
+    productsLine.innerHTML = `<strong>Produkty w zamówieniu:</strong> ${productsTotal} zł`;
   productsLine.className = "checkout-summary-total-line";
   summaryEl.appendChild(productsLine);
 
@@ -144,7 +144,7 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     btn.id = "clearCartBtn";
     btn.className = "browse-products-btn clear-cart-btn";
     btn.setAttribute("data-testid", "btn-clear-cart");
-    btn.textContent = "Wyczyść koszyk";
+      btn.textContent = "Wyczyść zamówienie";
 
     const actionsRow = document.createElement("div");
     actionsRow.className = "checkout-actions-row";
@@ -161,10 +161,10 @@ function updateClearButtonState(btn: HTMLButtonElement, cartLength: number) {
   if (cartLength === 0) {
     btn.disabled = true;
     btn.classList.add("btn-disabled");
-    btn.title = "Koszyk jest pusty";
+      btn.title = "Zamówienie jest puste";
   } else {
     btn.disabled = false;
     btn.classList.remove("btn-disabled");
-    btn.title = "Usuń wszystkie produkty z koszyka";
+      btn.title = "Usuń wszystkie produkty z zamówienia";
   }
 }

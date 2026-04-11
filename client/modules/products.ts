@@ -70,6 +70,17 @@ export function setupAddToCartButtons(cartManager: CartManager): void {
         checkoutSummary.scrollIntoView({ behavior: "smooth", block: "center" });
       }
 
+      // Animacja podskoku i pulsującej obwódki
+      btn.classList.remove("animated");
+      // Trigger reflow to restart animation if clicked rapidly
+      void btn.offsetWidth;
+      btn.classList.add("animated");
+      btn.addEventListener(
+        "animationend",
+        () => btn.classList.remove("animated"),
+        { once: true }
+      );
+
       showToast(`Dodano 1 szt. produktu ${name}.`);
     });
   });

@@ -64,7 +64,7 @@ export class CartManager {
     const before = this.items.length;
     this.items = this.items.filter((i) => i.name !== name);
     if (this.items.length < before) {
-      showToast(`Usunięto produkt ${name} z koszyka.`);
+      showToast(`Usunięto produkt ${name} z zamówienia.`);
     }
   }
 

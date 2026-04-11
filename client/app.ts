@@ -89,11 +89,11 @@ window.addEventListener("DOMContentLoaded", () => {
     const target = event.target as HTMLElement;
     if (target.id === "clearCartBtn" || target.closest("#clearCartBtn")) {
       void (async () => {
-        const confirmed = await showConfirmModal("Wyczyść koszyk", "Na pewno chcesz wyczyścić cały koszyk?");
+        const confirmed = await showConfirmModal("Wyczyść zamówienie", "Na pewno chcesz wyczyścić całe zamówienie?");
         if (confirmed) {
           cartManager.clear();
           renderCheckoutSummary(cartManager);
-          showToast("Koszyk został wyczyszczony.");
+          showToast("Zamówienie zostało wyczyszczone.");
         }
       })();
     }
