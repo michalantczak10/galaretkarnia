@@ -8,33 +8,21 @@ export function showOrderConfirmationModal(
   data: OrderConfirmationData,
   cartManager: CartManager
 ): void {
-  // Remove existing modal
   const existing = document.getElementById("order-confirm-modal");
   if (existing) existing.remove();
 
-  // Create overlay
   const overlay = document.createElement("div");
   overlay.id = "order-confirm-modal";
   overlay.className = "order-confirm-modal-overlay";
 
-  // Create modal
   const modal = document.createElement("div");
   modal.className = "order-confirm-modal";
 
-  // Create body
   const body = document.createElement("div");
   body.className = "order-confirm-modal-body";
 
-  // Extract order number
-  let orderNum = (data.orderRef || data.orderId || "").toString();
-  if (orderNum.includes("-")) orderNum = orderNum.split("-").pop() || orderNum;
+  const orderNum = (data.orderRef || data.orderId || "").toString();
 
-  // Calculate delivery
-  const productsTotal = cartManager.getTotalPrice();
-  const deliveryInfo = cartManager.getDeliveryInfo();
-  const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
-
-  // Format payment details
   let paymentDetailsHTML = "";
   if (data.paymentTarget) {
     if (data.paymentTarget.includes("BLIK")) {
@@ -42,19 +30,14 @@ export function showOrderConfirmationModal(
         .replace(/^BLIK na telefon:\s*/i, "")
         .trim();
       paymentDetailsHTML = `
-        <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Galaretkarnia</span></div>
+        <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Szkolne gazetki</span></div>
         <div class="order-confirm-modal-summary-row"><b>Numer telefonu:</b><br><span class="order-confirm-modal-payment">${blikPhone}</span></div>
       `;
-    } else if (data.paymentTarget.includes("Galaretkarnia")) {
-      const accountNum = data.paymentTarget
-        .replace(/ \(Galaretkarnia\)/, "")
-        .trim();
-      paymentDetailsHTML = `
-        <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Galaretkarnia</span></div>
-        <div class="order-confirm-modal-summary-row"><b>Numer konta:</b><br><span class="order-confirm-modal-payment">${accountNum}</span></div>
-      `;
     } else {
-      paymentDetailsHTML = `<div class="order-confirm-modal-summary-row"><b>Dane do płatności:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget}</span></div>`;
+      paymentDetailsHTML = `
+        <div class="order-confirm-modal-summary-row"><b>Odbiorca:</b><br><span class="order-confirm-modal-payment">Szkolne gazetki</span></div>
+        <div class="order-confirm-modal-summary-row"><b>Numer konta:</b><br><span class="order-confirm-modal-payment">${data.paymentTarget}</span></div>
+      `;
     }
   }
 
@@ -62,17 +45,16 @@ export function showOrderConfirmationModal(
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px;">
       <span style="font-size:2.7em;line-height:1;">🎉</span>
       <div class="order-confirm-modal-thankyou">Zamówienie przyjęte!</div>
-      <div style="font-size:1.13em;color:#b30000;font-weight:700;">Dziękujemy za zakupy w <b>Galaretkarnia.pl</b></div>
+      <div style="font-size:1.13em;color:#1d4ed8;font-weight:700;">Dziękujemy za zakup grafik do gazetki szkolnej.</div>
     </div>
     <div class="order-confirm-modal-summary-row"><b>Numer zamówienia:</b><br><span class="order-confirm-modal-ref">${orderNum}</span></div>
-    <div class="order-confirm-modal-summary-row"><b>Do zapłaty:</b><br><span class="order-confirm-modal-total">${totalWithDelivery} zł</span></div>
-    <div class="order-confirm-modal-summary-row"><b>Tytuł przelewu:</b><br><span class="order-confirm-modal-transfer">Zamówienie ${orderNum}</span></div>
+    <div class="order-confirm-modal-summary-row"><b>Do zapłaty:</b><br><span class="order-confirm-modal-total">${data.total || 0} zł</span></div>
+    <div class="order-confirm-modal-summary-row"><b>Tytuł przelewu:</b><br><span class="order-confirm-modal-transfer">${data.transferTitle || `Zamówienie ${orderNum}`}</span></div>
     ${paymentDetailsHTML}
-    <div class="order-confirm-modal-info">Zamówienie zostanie zrealizowane po zaksięgowaniu wpłaty.</div>
+    <div class="order-confirm-modal-info">Link do pobrania produktu wyślemy ręcznie po zaksięgowaniu płatności.</div>
   `;
   modal.appendChild(body);
 
-  // Add products list
   const productsList = document.createElement("div");
   productsList.className = "checkout-summary-products";
   cartManager.getAll().forEach((item: CartItem) => {
@@ -90,7 +72,6 @@ export function showOrderConfirmationModal(
   });
   modal.appendChild(productsList);
 
-  // Add actions
   const actions = document.createElement("div");
   actions.className = "order-confirm-modal-actions";
   const okBtn = document.createElement("button");
@@ -100,12 +81,8 @@ export function showOrderConfirmationModal(
   const closeModal = () => {
     overlay.remove();
     document.removeEventListener("keydown", escHandler);
-
-    // Reset form
     const form = document.getElementById("checkoutForm") as HTMLFormElement | null;
     if (form) form.reset();
-
-    // Clear messages
     const msg = document.getElementById("checkoutMessage");
     if (msg) msg.innerHTML = "";
   };

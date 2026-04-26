@@ -32,7 +32,17 @@
       href="/favicon/apple-touch-icon.png?v=4"
     />
     <link rel="manifest" href="/favicon/site.webmanifest?v=4" />
-    <title>Galaretkarnia - Tradycyjna Galaretka z Nóżek</title>
+    <title>Szkolne gazetki – Grafiki PDF do gazetki szkolnej</title>
+    <meta
+      name="description"
+      content="Szkolne gazetki – cyfrowe szablony PDF do gazetki szkolnej. Gotowe projekty dla nauczycieli i redakcji gazetek."
+    />
+    <meta
+      name="keywords"
+      content="szkolne gazetki, gazetka szkolna, pdf, grafiki dla nauczycieli, szablony gazetki"
+    />
+    <meta name="theme-color" content="#1d4ed8" />
+    <meta name="author" content="Szkolne gazetki" />
     <link rel="stylesheet" href="style.css?v=4" />
   </head>
   <body>
@@ -45,23 +55,22 @@
     <header class="hero">
       <div class="hero-content">
         <div class="hero-copy">
-          <a href="/" class="hero-brand" aria-label="Przejdź do strony głównej Galaretkarnia">
+          <a href="/" class="hero-brand" aria-label="Przejdź do strony głównej Szkolne gazetki">
             <img
               src="img/branding/logo-galaretkarnia.svg?v=4"
-              alt="Logo Galaretkarnia"
+              alt="Logo Szkolne gazetki"
               class="hero-logo"
             />
-            <span class="hero-brand-text">Galaretkarnia</span>
+            <span class="hero-brand-text">Szkolne gazetki</span>
           </a>
-          <h1>Tradycyjna galaretka z domowej manufaktury</h1>
+          <h1>Gotowe grafiki PDF do gazetki szkolnej</h1>
           <p>
-            Smak jak dawniej: tradycyjna receptura, klasyczne składniki i
-            przygotowanie z sercem — zawsze bez konserwantów.
+            Pomagamy nauczycielom i redakcjom tworzyć profesjonalne gazetki szkolne w postaci gotowych plików PDF.
           </p>
           <ul class="hero-tagline" aria-label="Najważniejsze cechy produktu">
-            <li>Świeża produkcja</li>
-            <li>Klasyczny smak</li>
-            <li>Bez konserwantów</li>
+            <li>Gotowe pliki PDF</li>
+            <li>Szablony dla nauczycieli</li>
+            <li>Ręczny link po opłaceniu</li>
           </ul>
         </div>
         <div class="hero-visual" aria-hidden="true">
@@ -80,47 +89,41 @@
     </header>
     <!-- Usunięto mini-koszyk. Cała zawartość koszyka znajduje się teraz w podsumowaniu zamówienia. -->
     <section class="about fade-in">
-      <h2>O nas</h2>
+      <h2>O ofercie</h2>
       <div class="about-content">
         <div class="about-story">
           <p>
-            Galaretkarnia to świeży projekt, który otworzyliśmy niedawno z
-            miłości do klasycznej kuchni. Tworzymy ją jako zgrane, kochające się
-            małżeństwo — po prostu ludzie, których do działania popchnęła pasja
-            do gotowania i jedzenia.
+            Szkolne gazetki to kolekcja gotowych materiałów do gazetki szkolnej stworzona z myślą o nauczycielach i redakcjach.
           </p>
           <p>
-            Uwielbiamy tradycyjne smaki i trzymamy się sprawdzonych receptur.
-            Stawiamy na prosty skład, gotowanie z sercem i jakość, do której
-            chce się wracać. Największą satysfakcję daje nam to, gdy klienci
-            wracają po kolejny słoik.
+            Po złożeniu zamówienia otrzymasz ręcznie wysłany link do pobrania zakupionych plików.
           </p>
         </div>
 
-        <div class="about-photos" aria-label="Założyciele Galaretkarni">
+        <div class="about-photos" aria-label="Przykładowe projekty gazetki szkolnej">
           <figure class="about-photo-card">
             <picture>
               <source srcset="img/team/zespol-michal.webp" type="image/webp" />
               <img
                 src="img/team/zespol-michal.jpg"
-                alt="Michał, współzałożyciel Galaretkarni"
+                alt="Przykładowa grafika szkolna"
                 loading="lazy"
                 decoding="async"
               />
             </picture>
-            <figcaption>Michał</figcaption>
+            <figcaption>Projekt edukacyjny</figcaption>
           </figure>
           <figure class="about-photo-card">
             <picture>
               <source srcset="img/team/zespol-justyna.webp" type="image/webp" />
               <img
                 src="img/team/zespol-justyna.jpg"
-                alt="Justynka, współzałożycielka Galaretkarni"
+                alt="Przykładowa strona gazetki szkolnej"
                 loading="lazy"
                 decoding="async"
               />
             </picture>
-            <figcaption>Justynka</figcaption>
+            <figcaption>Gotowy szablon</figcaption>
           </figure>
         </div>
       </div>
@@ -128,56 +131,55 @@
 
     <section class="product fade-in" id="products" data-testid="section-products">
       <h2>Oferta</h2>
-
       <div class="product-grid">
-        <div class="product-card" data-product-id="drobiowa">
+        <div class="product-card" data-product-id="poster">
           <picture>
             <source srcset="img/products/galaretka_drobiowa.webp" type="image/webp" />
             <img
               src="img/products/galaretka_drobiowa.png"
-              alt="Galaretka drobiowa"
+              alt="Pakiet plakatów edukacyjnych"
               loading="lazy"
               decoding="async"
               data-product-image
             />
           </picture>
-          <h3 data-product-name>Galaretka drobiowa</h3>
-          <p data-product-description>Z warzywami, tradycyjna receptura</p>
-          <p class="price" data-product-price>18 zł</p>
+          <h3 data-product-name>Pakiet plakatów edukacyjnych</h3>
+          <p data-product-description>Gotowe grafiki PDF do szkolnej gazetki oraz plakaty do druku.</p>
+          <p class="price" data-product-price>45 zł</p>
           <button
             class="addToCartBtn"
-            data-product-id="drobiowa"
-            data-product="Galaretka drobiowa"
-            data-price="18"
+            data-product-id="poster"
+            data-product="Pakiet plakatów edukacyjnych"
+            data-price="45"
             data-image="img/products/galaretka_drobiowa.png"
-            aria-label="Dodaj Galaretka drobiowa do zamówienia"
+            aria-label="Dodaj pakiet plakatów edukacyjnych do zamówienia"
             data-testid="btn-add-to-cart"
           >
             Dodaj do zamówienia
           </button>
         </div>
 
-        <div class="product-card" data-product-id="wieprzowa">
+        <div class="product-card" data-product-id="newsletter">
           <picture>
             <source srcset="img/products/galaretka_wieprzowa.webp" type="image/webp" />
             <img
               src="img/products/galaretka_wieprzowa.png"
-              alt="Galaretka wieprzowa"
+              alt="Szablony gazetki szkolnej"
               loading="lazy"
               decoding="async"
               data-product-image
             />
           </picture>
-          <h3 data-product-name>Galaretka wieprzowa</h3>
-          <p data-product-description>Z warzywami, tradycyjna receptura</p>
-          <p class="price" data-product-price>19 zł</p>
+          <h3 data-product-name>Szablony gazetki szkolnej</h3>
+          <p data-product-description>Profesjonalne layouty i ilustracje w formacie PDF.</p>
+          <p class="price" data-product-price>52 zł</p>
           <button
             class="addToCartBtn"
-            data-product-id="wieprzowa"
-            data-product="Galaretka wieprzowa"
-            data-price="19"
+            data-product-id="newsletter"
+            data-product="Szablony gazetki szkolnej"
+            data-price="52"
             data-image="img/products/galaretka_wieprzowa.png"
-            aria-label="Dodaj Galaretka wieprzowa do zamówienia"
+            aria-label="Dodaj szablony gazetki szkolnej do zamówienia"
             data-testid="btn-add-to-cart"
           >
             Dodaj do zamówienia
@@ -217,158 +219,53 @@
       </div>
     </section>
 
-    <section class="account-section fade-in" id="accountSection">
-      <div class="account-section-inner">
-        <h2>Moje konto</h2>
-        <p id="accountStatus" class="account-status" aria-live="polite">Sprawdzanie statusu logowania...</p>
 
-        <div id="accountGuestView" class="account-guest-view" hidden>
-          <div class="account-forms-grid">
-            <form id="loginForm" class="account-form" novalidate>
-              <h3>Logowanie</h3>
-              <label for="loginEmail">E-mail</label>
-              <input id="loginEmail" name="loginEmail" type="email" autocomplete="email" required placeholder="twoj@email.pl" />
+    <section class="checkout fade-in" id="checkout">
+      <h2>Zamówienie</h2>
+      <div class="checkout-layout">
+        <form id="checkoutForm" class="checkout-form" novalidate data-testid="order-form">
+          <p class="checkout-note">Zamawiasz cyfrowe produkty PDF. Po zaksięgowaniu płatności wyślemy Ci ręcznie link do pobrania.</p>
 
-              <label for="loginPassword">Hasło</label>
-              <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" required placeholder="Twoje hasło" />
+          <label for="customerName">Imię lub nazwa organizacji</label>
+          <input id="customerName" name="customerName" type="text" autocomplete="name" required placeholder="Np. Szkoła Podstawowa nr 10" data-testid="input-customer-name" />
+          <div class="input-error" id="nameError" aria-live="polite"></div>
 
-              <button type="submit" class="account-action-btn">Zaloguj</button>
-            </form>
+          <label for="customerEmail">E-mail</label>
+          <input id="customerEmail" name="customerEmail" type="email" autocomplete="email" required placeholder="twoj@email.pl" data-testid="input-customer-email" />
+          <div class="input-error" id="emailError" aria-live="polite"></div>
 
-            <form id="registerForm" class="account-form" novalidate>
-              <h3>Rejestracja</h3>
-              <label for="registerEmail">E-mail</label>
-              <input id="registerEmail" name="registerEmail" type="email" autocomplete="email" required placeholder="twoj@email.pl" />
+          <label for="customerPhone">Numer telefonu (opcjonalnie)</label>
+          <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" placeholder="Np. 500 600 700" data-testid="input-customer-phone" />
+          <div class="input-error" id="phoneError" aria-live="polite"></div>
 
-              <label for="registerPassword">Hasło (8-72 znaki)</label>
-              <input id="registerPassword" name="registerPassword" type="password" autocomplete="new-password" required minlength="8" maxlength="72" placeholder="Ustaw hasło" />
+          <label for="customerNotes">Uwagi do zamówienia (opcjonalnie)</label>
+          <textarea id="customerNotes" name="customerNotes" rows="4" maxlength="300" autocomplete="off" placeholder="Np. dodatkowe informacje do zamówienia" data-testid="input-customer-notes"></textarea>
+          <div class="notes-counter" id="notesCounter" aria-live="polite" data-testid="msg-notes-counter">0 / 300</div>
+          <div class="input-error" id="notesError" aria-live="polite"></div>
 
-              <button type="submit" class="account-action-btn">Utwórz konto</button>
-            </form>
-
-            <form id="requestResetForm" class="account-form" novalidate>
-              <h3>Reset hasła</h3>
-              <p class="account-form-note">Podaj e-mail, a wyślemy link do ustawienia nowego hasła.</p>
-              <label for="resetEmail">E-mail</label>
-              <input id="resetEmail" name="resetEmail" type="email" autocomplete="email" required placeholder="twoj@email.pl" />
-              <button type="submit" class="account-action-btn secondary">Wyślij link resetu</button>
-            </form>
-
-            <form id="confirmResetForm" class="account-form" novalidate>
-              <h3>Ustaw nowe hasło</h3>
-              <label for="resetToken">Token resetu</label>
-              <input id="resetToken" name="resetToken" type="text" autocomplete="off" required placeholder="Wklej token z linku" />
-
-              <label for="resetNewPassword">Nowe hasło (8-72 znaki)</label>
-              <input id="resetNewPassword" name="resetNewPassword" type="password" autocomplete="new-password" required minlength="8" maxlength="72" placeholder="Nowe hasło" />
-
-              <button type="submit" class="account-action-btn secondary">Zmień hasło</button>
-            </form>
+          <div class="checkout-actions-row">
+            <button type="submit" id="submitOrderBtn" class="browse-products-btn clear-cart-btn" data-testid="btn-submit-order">Zamawiam teraz</button>
           </div>
-        </div>
+        </form>
 
-        <div id="accountLoggedInView" class="account-logged-in-view" hidden>
-          <p class="account-email-row">
-            Zalogowano jako: <strong id="accountEmail">-</strong>
-          </p>
-          <div class="account-actions-row">
-            <button id="refreshOrdersBtn" type="button" class="account-action-btn">Odśwież zamówienia</button>
-            <button id="logoutBtn" type="button" class="account-action-btn secondary">Wyloguj</button>
+        <aside class="checkout-summary" aria-label="Podsumowanie zamówienia">
+          <div class="checkout-summary-box">
+            <h3 style="margin-top:0; text-align:center; color:#1d4ed8; letter-spacing:0.5px; font-size:1.25em;">Podsumowanie zamówienia</h3>
+            <div id="checkoutSummary" data-testid="checkout-summary-list"></div>
           </div>
-          <div id="accountOrdersList" class="account-orders-list"></div>
-        </div>
+        </aside>
       </div>
     </section>
 
-    <section class="checkout fade-in" id="checkout">
-  <h2>Zamówienie</h2>
-  <div class="checkout-layout">
-    <form id="checkoutForm" class="checkout-form" novalidate data-testid="order-form">
-      <p class="checkout-note">Realizujemy zamówienia opłacone z góry i dostarczamy je do paczkomatu wskazanego przez klienta. Zbieramy tylko dane niezbędne do realizacji wysyłki.</p>
-
-      <label for="paymentMethod">Metoda płatności</label>
-      <select id="paymentMethod" name="paymentMethod" data-testid="select-payment-method">
-        <option value="bank_transfer" selected>Przelew tradycyjny</option>
-        <option value="blik">BLIK na telefon</option>
-      </select>
-
-      <div id="paymentInstructions" class="payment-instructions" aria-live="polite" data-testid="msg-payment-instructions"></div>
-
-      <label for="customerPhone">Numer telefonu do odbioru paczki w paczkomacie</label>
-      <input id="customerPhone" name="customerPhone" type="tel" autocomplete="off" placeholder="Np. 500 600 700" required data-testid="input-customer-phone" />
-      <div class="input-error" id="phoneError" aria-live="polite" data-testid="msg-phone-error"></div>
-      <p class="input-hint">Przyjmujemy tylko polskie numery telefonów (połączenia, wiadomości SMS, odbiór paczki z paczkomatu oraz płatności BLIK).</p>
-
-      <!-- Pola do paczkomatu tuż pod numerem telefonu -->
-      <label for="parcelSearchQuery">Wyszukaj paczkomat</label>
-      <div class="parcel-search-row">
-        <input id="parcelSearchQuery" name="parcelSearchQuery" type="text" autocomplete="off" placeholder="Np. Warszawa, Mokotów" data-testid="input-parcel-search" />
-      </div>
-
-      <label for="parcelLockerCode">Kod paczkomatu</label>
-      <input id="parcelLockerCode" name="parcelLockerCode" type="text" autocomplete="off" placeholder="Np. WAW01A" required data-testid="input-parcel-locker-code" />
-      <div class="input-error" id="lockerError" aria-live="polite" data-testid="msg-locker-error"></div>
-
-      <div class="checkout-info-box">
-        Jeśli nie znalazłeś swojego paczkomatu w naszej bazie, wybierz najbliższy dostępny, a w polu "Uwagi do zamówienia" podaj faktyczną nazwę lub kod paczkomatu, do którego mamy wysłać zamówienie. Po weryfikacji, jeśli nasza baza jest nieaktualna, wyślemy paczkę do wskazanego paczkomatu i dodamy go do naszej bazy.
-      </div>
-      <label for="customerNotes">Uwagi do zamówienia (opcjonalnie)</label>
-      <textarea id="customerNotes" name="customerNotes" rows="4" maxlength="300" autocomplete="off" placeholder="Np. kod paczkomatu, którego nie znalazłeś w naszej bazie" data-testid="input-customer-notes"></textarea>
-      <div class="notes-counter" id="notesCounter" aria-live="polite" data-testid="msg-notes-counter">0 / 300</div>
-      <div class="input-error" id="notesError" aria-live="polite" data-testid="msg-notes-error"></div>
-
-      <label class="optional-account-toggle" for="createOptionalAccount">
-        <input id="createOptionalAccount" name="createOptionalAccount" type="checkbox" />
-        Chcę założyć konto podczas składania zamówienia
-      </label>
-      <div id="optionalAccountFields" hidden>
-        <label for="optionalAccountEmail">E-mail do konta</label>
-        <input id="optionalAccountEmail" name="optionalAccountEmail" type="email" autocomplete="email" placeholder="twoj@email.pl" />
-        <div class="input-error" id="optionalAccountEmailError" aria-live="polite"></div>
-
-        <label for="optionalAccountPassword">Hasło do konta (8-72 znaki)</label>
-        <input id="optionalAccountPassword" name="optionalAccountPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="Ustaw hasło" />
-        <div class="input-error" id="optionalAccountPasswordError" aria-live="polite"></div>
-      </div>
-
-
-        <div class="checkout-actions-row">
-          <!-- Tylko przycisk Zamawiam teraz w formularzu -->
-          <button type="submit" id="submitOrderBtn" class="browse-products-btn clear-cart-btn" data-testid="btn-submit-order">Zamawiam teraz</button>
-        </div>
-
-      <div id="lastOrderCard" class="last-order-card" hidden>
-        <p><strong>Twój ostatni numer zamówienia:</strong> <span id="lastOrderId" data-testid="last-order-id">-</span></p>
-        <p><strong>Metoda płatności:</strong> <span id="lastOrderPaymentMethod" data-testid="last-order-payment-method">-</span></p>
-        <p><strong>Tytuł płatności:</strong> <span id="lastOrderTransferTitle" data-testid="last-order-transfer-title">-</span></p>
-        <p><strong id="lastOrderPaymentTargetLabel">Dane płatności:</strong> <span id="lastOrderPaymentTarget" data-testid="last-order-payment-target">-</span></p>
-        <p><strong>Paczkomat:</strong> <span id="lastOrderLocker" data-testid="last-order-locker">-</span> • <strong>Telefon (końcówka):</strong> <span id="lastOrderPhoneSuffix" data-testid="last-order-phone-suffix">-</span></p>
-        <button type="button" id="copyTransferTitleBtn" data-testid="btn-copy-transfer-title">Kopiuj tytuł płatności</button>
-      </div>
-    </form>
-
-    <aside class="checkout-summary" aria-label="Podsumowanie zamówienia">
-      <div class="checkout-summary-box">
-        <h3 style="margin-top:0; text-align:center; color:#b30000; letter-spacing:0.5px; font-size:1.25em;">Podsumowanie zamówienia</h3>
-        <div id="checkoutSummary" data-testid="checkout-summary-list"></div>
-        <div class="checkout-actions-row">
-          <!-- Tylko przycisk Wyczyść koszyk w podsumowaniu -->
-        </div>
-      </div>
-    </aside>
-  </div>
-</section>
-
     <section class="trust fade-in">
-      <h2>Kontakt i dostawa</h2>
+      <h2>Kontakt i obsługa</h2>
       <div class="trust-grid">
         <div class="trust-contact-card">
           <p class="trust-hanging trust-contact-item">📞 Telefon: <a href="tel:+48794535366" data-store-phone>794 535 366</a></p>
-          <p class="trust-hanging trust-contact-item">✉️ E-mail: <a href="mailto:kontakt@galaretkarnia.pl" data-store-general-email>kontakt@galaretkarnia.pl</a></p>
+          <p class="trust-hanging trust-contact-item">✉️ E-mail: <a href="mailto:kontakt@szkolne-gazetki.pl" data-store-general-email>kontakt@szkolne-gazetki.pl</a></p>
         </div>
-        <p class="trust-hanging">🕒 <span data-store-fulfillment-hours>Godziny realizacji zamówień: pon.-sob. 14:00-20:00. Przy wpłacie zaksięgowanej do 14:00 wysyłamy zamówienie tego samego dnia.</span></p>
-        <p class="trust-hanging">📦 Dostawa do paczkomatu wskazanego przez klienta.</p>
-        <p class="trust-hanging">✅ Realizacja zamówienia po zaksięgowaniu wpłaty na konto.</p>
+        <p class="trust-hanging">🕒 Obsługa zamówień: pon.-pt. 09:00-18:00.</p>
+        <p class="trust-hanging">✅ Link do pobrania wyślemy ręcznie po zaksięgowaniu płatności.</p>
       </div>
     </section>
 

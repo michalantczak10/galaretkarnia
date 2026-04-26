@@ -1,7 +1,7 @@
 import { CartManager } from "./cart-manager.js";
 
 /**
- * Render checkout summary including product list, totals, and delivery info
+ * Render checkout summary including product list and totals
  */
 export function renderCheckoutSummary(cartManager: CartManager): void {
   const summaryEl = document.getElementById("checkoutSummary");
@@ -16,13 +16,13 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     emptyMsg.className = "checkout-summary-empty";
     emptyMsg.innerHTML = `
       <div class="emoji">🛒</div>
-      <div class="message">Zamówienie nie zawiera wybranego produktu.</div>
-      <div class="submessage">Dodaj produkty przed złożeniem zamówienia.</div>
+      <div class="message">Koszyk jest pusty.</div>
+      <div class="submessage">Dodaj grafikę do zamówienia, aby kontynuować.</div>
     `;
 
     const browseBtn = document.createElement("button");
     browseBtn.type = "button";
-    browseBtn.textContent = "Przeglądaj produkty";
+    browseBtn.textContent = "Przeglądaj ofertę";
     browseBtn.className = "browse-products-btn";
     browseBtn.setAttribute("data-testid", "btn-browse-offer");
     browseBtn.addEventListener("click", () => {
@@ -36,7 +36,6 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     emptyMsg.appendChild(browseBtn);
     summaryEl.appendChild(emptyMsg);
 
-    // Hide clear cart button
     const clearBtn = document.getElementById("clearCartBtn") as
       | HTMLButtonElement
       | null;
@@ -44,17 +43,9 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     return;
   }
 
-  // Non-empty cart
   const productsTotal = cartManager.getTotalPrice();
-  const deliveryInfo = cartManager.getDeliveryInfo();
-  const totalWithDelivery = productsTotal + deliveryInfo.finalCost;
   const itemsCount = cartManager.getTotalItemsCount();
-  const parcelInfo =
-    deliveryInfo.numberOfParcels > 1
-      ? `${deliveryInfo.numberOfParcels} paczki`
-      : "1 paczka";
 
-  // Product list
   const productsList = document.createElement("div");
   productsList.className = "checkout-summary-products";
   cart.forEach((item) => {
@@ -90,51 +81,34 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
   });
   summaryEl.appendChild(productsList);
 
-  // Show clear cart button
   const clearBtnShow = document.getElementById("clearCartBtn") as
     | HTMLButtonElement
     | null;
   if (clearBtnShow) clearBtnShow.style.display = "";
 
-  // Separator
   const hr1 = document.createElement("hr");
   hr1.className = "checkout-summary-hr";
   summaryEl.appendChild(hr1);
 
-  // Products total
   const productsLine = document.createElement("div");
-    productsLine.innerHTML = `<strong>Produkty w zamówieniu:</strong> ${productsTotal} zł`;
+  productsLine.innerHTML = `<strong>Produkty w koszyku:</strong> ${productsTotal} zł`;
   productsLine.className = "checkout-summary-total-line";
   summaryEl.appendChild(productsLine);
 
-  // Delivery cost
-  const deliveryCostLine = document.createElement("div");
-  deliveryCostLine.className = "checkout-summary-delivery-cost-line";
-  if (deliveryInfo.finalCost === 0) {
-    deliveryCostLine.innerHTML = `<strong>Dostawa:</strong> <span class="checkout-summary-gratis">GRATIS!</span>`;
-  } else {
-    deliveryCostLine.innerHTML = `<strong>Dostawa:</strong> ${deliveryInfo.finalCost} zł`;
-  }
-  summaryEl.appendChild(deliveryCostLine);
+  const itemsLine = document.createElement("div");
+  itemsLine.className = "checkout-summary-delivery-line";
+  itemsLine.innerHTML = `<strong>Liczba pozycji:</strong> ${itemsCount}`;
+  summaryEl.appendChild(itemsLine);
 
-  // Delivery details
-  const deliveryLine = document.createElement("div");
-  deliveryLine.innerHTML = `<strong>Szczegóły dostawy:</strong> ${parcelInfo}, ${itemsCount} szt.`;
-  deliveryLine.className = "checkout-summary-delivery-line";
-  summaryEl.appendChild(deliveryLine);
-
-  // Separator
   const hr2 = document.createElement("hr");
   hr2.className = "checkout-summary-hr";
   summaryEl.appendChild(hr2);
 
-  // Final total
   const totalLine = document.createElement("div");
-  totalLine.innerHTML = `<span class="checkout-summary-final-label">Do zapłaty:</span> <span class="checkout-summary-final">${totalWithDelivery} zł</span>`;
+  totalLine.innerHTML = `<span class="checkout-summary-final-label">Do zapłaty:</span> <span class="checkout-summary-final">${productsTotal} zł</span>`;
   totalLine.className = "checkout-summary-final-line";
   summaryEl.appendChild(totalLine);
 
-  // Clear cart button
   const clearBtnEl = document.getElementById("clearCartBtn") as
     | HTMLButtonElement
     | null;
@@ -144,7 +118,7 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     btn.id = "clearCartBtn";
     btn.className = "browse-products-btn clear-cart-btn";
     btn.setAttribute("data-testid", "btn-clear-cart");
-      btn.textContent = "Wyczyść zamówienie";
+    btn.textContent = "Wyczyść koszyk";
 
     const actionsRow = document.createElement("div");
     actionsRow.className = "checkout-actions-row";
@@ -161,10 +135,10 @@ function updateClearButtonState(btn: HTMLButtonElement, cartLength: number) {
   if (cartLength === 0) {
     btn.disabled = true;
     btn.classList.add("btn-disabled");
-      btn.title = "Zamówienie jest puste";
+    btn.title = "Koszyk jest pusty";
   } else {
     btn.disabled = false;
     btn.classList.remove("btn-disabled");
-      btn.title = "Usuń wszystkie produkty z zamówienia";
+    btn.title = "Usuń wszystkie produkty z zamówienia";
   }
 }

@@ -1,11 +1,15 @@
 {
   "private": true,
   "type": "module",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "mongodb": "^7.1.0",
+    "resend": "^6.9.3"
+  },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@secretlint/secretlint-rule-preset-recommend": "^11.2.4",
     "@types/jest": "^30.0.0",
-    "concurrently": "^9.2.1",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "playwright": "^1.58.2",
@@ -15,10 +19,9 @@
     "ts-jest": "^29.4.6"
   },
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
-    "dev:test": "concurrently \"npm run dev --prefix client\" \"npm run dev:test --prefix server\"",
+    "dev": "npm run dev --prefix client",
     "build": "npm run build --prefix client",
-    "start": "npm run build && node server/server.mjs",
+    "start": "npm run build --prefix client",
     "prepare": "simple-git-hooks",
     "secrets:check:staged": "node ./scripts/secretlint-staged.mjs",
     "test:e2e": "npm run test:e2e:smoke",

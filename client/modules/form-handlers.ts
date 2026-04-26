@@ -9,12 +9,10 @@ export interface FormElements {
   checkoutMessage: HTMLElement | null;
   paymentMethod: HTMLSelectElement | null;
   paymentInstructions: HTMLElement | null;
+  customerName: HTMLInputElement | null;
+  customerEmail: HTMLInputElement | null;
   customerPhone: HTMLInputElement | null;
-  parcelLockerCode: HTMLInputElement | null;
   customerNotes: HTMLTextAreaElement | null;
-  createOptionalAccount: HTMLInputElement | null;
-  optionalAccountEmail: HTMLInputElement | null;
-  optionalAccountPassword: HTMLInputElement | null;
 }
 
 /**
@@ -27,12 +25,10 @@ export function getFormElements(): FormElements {
     checkoutMessage: document.getElementById("checkoutMessage") as HTMLElement | null,
     paymentMethod: document.getElementById("paymentMethod") as HTMLSelectElement | null,
     paymentInstructions: document.getElementById("paymentInstructions") as HTMLElement | null,
+    customerName: document.getElementById("customerName") as HTMLInputElement | null,
+    customerEmail: document.getElementById("customerEmail") as HTMLInputElement | null,
     customerPhone: document.getElementById("customerPhone") as HTMLInputElement | null,
-    parcelLockerCode: document.getElementById("parcelLockerCode") as HTMLInputElement | null,
     customerNotes: document.getElementById("customerNotes") as HTMLTextAreaElement | null,
-    createOptionalAccount: document.getElementById("createOptionalAccount") as HTMLInputElement | null,
-    optionalAccountEmail: document.getElementById("optionalAccountEmail") as HTMLInputElement | null,
-    optionalAccountPassword: document.getElementById("optionalAccountPassword") as HTMLInputElement | null,
   };
 }
 
@@ -41,13 +37,11 @@ export function getFormElements(): FormElements {
  */
 export function buildOrderData(
   cartManager: CartManager,
-  phone: string,
-  parcelCode: string,
+  customerName: string,
+  customerEmail: string,
+  customerPhone: string,
   paymentMethod: string,
-  notes: string,
-  createOptionalAccount: boolean,
-  optionalAccountEmail: string,
-  optionalAccountPassword: string
+  notes: string
 ): OrderData {
   return {
     items: cartManager.getAll().map((item) => ({
@@ -55,18 +49,13 @@ export function buildOrderData(
       price: item.price,
       qty: item.qty,
     })),
-    phone: phone.replace(/\D/g, ""),
-    parcelLockerCode: parcelCode,
+    customerName,
+    customerEmail,
+    customerPhone: customerPhone.replace(/\D/g, ""),
     paymentMethod,
     productsTotal: cartManager.getTotalPrice(),
-    deliveryCost: cartManager.getDeliveryInfo().finalCost,
-    total:
-      cartManager.getTotalPrice() +
-      cartManager.getDeliveryInfo().finalCost,
+    total: cartManager.getTotalPrice(),
     notes,
-    createOptionalAccount,
-    optionalAccountEmail,
-    optionalAccountPassword,
   };
 }
 
@@ -77,14 +66,12 @@ export async function submitOrder(
   orderData: OrderData
 ): Promise<OrderConfirmationData | null> {
   try {
-    const authToken = localStorage.getItem("galaretkarnia_auth_token");
     const result = await apiFetch<OrderConfirmationData>(
       "/api/orders",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify(orderData),
       },

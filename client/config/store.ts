@@ -1,4 +1,4 @@
-export type ProductId = "drobiowa" | "wieprzowa";
+﻿export type ProductId = "poster" | "newsletter";
 
 export type StoreProduct = {
   id: ProductId;
@@ -9,42 +9,37 @@ export type StoreProduct = {
 };
 
 const PRODUCT_IMAGES = {
-  drobiowa: new URL("../img/products/galaretka_drobiowa.png", import.meta.url).href,
-  wieprzowa: new URL("../img/products/galaretka_wieprzowa.png", import.meta.url).href,
+  poster: new URL("../img/products/galaretka_drobiowa.png", import.meta.url).href,
+  newsletter: new URL("../img/products/galaretka_wieprzowa.png", import.meta.url).href,
 } as const;
 
 export const STORE_CONFIG = {
   products: [
     {
-      id: "drobiowa",
-      name: "Galaretka drobiowa",
-      description: "Z warzywami, tradycyjna receptura",
-      price: 16,
-      image: PRODUCT_IMAGES.drobiowa,
+      id: "poster",
+      name: "Pakiet plakatów edukacyjnych",
+      description: "Gotowe grafiki PDF do gazetki szkolnej dla nauczycieli.",
+      price: 45,
+      image: PRODUCT_IMAGES.poster,
     },
     {
-      id: "wieprzowa",
-      name: "Galaretka wieprzowa",
-      description: "Z warzywami, tradycyjna receptura",
-      price: 15,
-      image: PRODUCT_IMAGES.wieprzowa,
+      id: "newsletter",
+      name: "Szablony gazetki szkolnej",
+      description: "Zestaw szablonów PDF do szybkiego przygotowania gazetki.",
+      price: 52,
+      image: PRODUCT_IMAGES.newsletter,
     },
   ] as StoreProduct[],
-  delivery: {
-    freeThreshold: 100,
-    baseCost: 15,
-    itemsPerParcel: 4,
-  },
   contact: {
     phoneDisplay: "794 535 366",
     phoneHref: "tel:+48794535366",
-    generalEmail: "kontakt@galaretkarnia.pl",
-    complaintsEmail: "reklamacje@galaretkarnia.pl",
+    generalEmail: "kontakt@szkolne-gazetki.pl",
+    complaintsEmail: "reklamacje@szkolne-gazetki.pl",
     fulfillmentHours:
-      "Godziny realizacji zamówień: pon.-sob. 14:00-20:00. Przy wpłacie zaksięgowanej do 14:00 wysyłamy zamówienie tego samego dnia.",
+      "Obsługa zamówień od poniedziałku do piątku: 09:00-18:00.",
   },
   payment: {
-    accountHolder: "Galaretkarnia",
+    accountHolder: "Szkolne gazetki",
     accountNumber: "60 1140 2004 0000 3102 4831 8846",
     blikPhone: "794 535 366",
   },

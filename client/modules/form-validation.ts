@@ -2,21 +2,55 @@
  * Form validation functions
  */
 
-export interface ValidationRules {
-  phone?: HTMLInputElement;
-  parcelLockerCode?: HTMLInputElement;
-  notes?: HTMLTextAreaElement;
-  parcelLockers?: Array<{ code: string }>;
-}
-
-export interface ValidationErrors {
-  phone?: string;
-  parcelLockerCode?: string;
-  notes?: string;
-}
-
 const NOTES_MAX_LENGTH = 300;
 const NOTES_WARNING_THRESHOLD = 260;
+
+export function validateName(
+  input: HTMLInputElement | null,
+  showError: boolean = true
+): boolean {
+  if (!input) return false;
+
+  const value = input.value.trim();
+  let msg = "";
+
+  if (value.length === 0) {
+    msg = "Podaj swoje imię lub nazwę organizacji.";
+  } else if (value.length > 80) {
+    msg = "Imię/nazwa może mieć maksymalnie 80 znaków.";
+  }
+
+  if (showError) {
+    const nameError = document.getElementById("nameError");
+    if (nameError) nameError.textContent = msg;
+  }
+
+  return msg === "";
+}
+
+export function validateEmail(
+  input: HTMLInputElement | null,
+  showError: boolean = true
+): boolean {
+  if (!input) return false;
+
+  const value = input.value.trim();
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  let msg = "";
+
+  if (value.length === 0) {
+    msg = "Podaj adres e-mail.";
+  } else if (!isValid) {
+    msg = "Podaj poprawny adres e-mail.";
+  }
+
+  if (showError) {
+    const emailError = document.getElementById("emailError");
+    if (emailError) emailError.textContent = msg;
+  }
+
+  return msg === "";
+}
 
 /**
  * Validate phone number (9 digits, starts with 5-8)
@@ -30,12 +64,8 @@ export function validatePhone(
   const raw = input.value.replace(/\D/g, "");
   let msg = "";
 
-  if (raw.length === 0) {
-    msg = "Podaj numer telefonu.";
-  } else if (raw.length < 9) {
-    msg = "Numer telefonu musi mieć 9 cyfr.";
-  } else if (!/^[5-8]/.test(raw)) {
-    msg = "Numer powinien zaczynać się od 5, 6, 7 lub 8.";
+  if (raw.length > 0 && raw.length < 9) {
+    msg = "Numer telefonu musi mieć min. 9 cyfr.";
   }
 
   if (showError) {
@@ -64,45 +94,6 @@ export function formatPhoneInput(event: Event): void {
   validatePhone(input, true);
 }
 
-/**
- * Validate parcel locker code
- */
-export function validateParcelLockerCode(
-  input: HTMLInputElement | null,
-  parcelLockers: Array<{ code: string }>,
-  showError: boolean = true
-): boolean {
-  if (!input) return false;
-
-  const value = input.value.trim().toUpperCase();
-  let msg = "";
-
-  if (value.length === 0) {
-    msg = "Podaj kod paczkomatu.";
-  } else if (!/^[A-Z0-9]{6,}$/.test(value)) {
-    msg = "Kod paczkomatu musi mieć min. 6 znaków (litery i cyfry).";
-  } else if (
-    parcelLockers.length > 0 &&
-    !parcelLockers.some((l) => l.code === value)
-  ) {
-    msg = "Podany kod paczkomatu nie istnieje. Wybierz poprawny paczkomat z listy.";
-  }
-
-  if (showError) {
-    const lockerError = document.getElementById("lockerError");
-    if (lockerError) lockerError.textContent = msg;
-  }
-
-  return msg === "";
-}
-
-/**
- * Format parcel locker code input (uppercase, no spaces)
- */
-export function formatParcelLockerCodeInput(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  input.value = input.value.toUpperCase().replace(/\s+/g, "");
-}
 
 /**
  * Validate order notes

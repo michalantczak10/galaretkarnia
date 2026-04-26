@@ -1,10 +1,10 @@
-# Galaretkarnia 🍮
+# Szkolne gazetki
 
-Strona internetowa sklepu z tradycyjną galaretką z nóżek.
+Sklep z gotowymi grafikami PDF do gazetki szkolnej dla nauczycieli.
 
 ## 📋 Opis
 
-Galaretkarnia to prosta, responsywna strona e-commerce oferująca tradycyjną galaretkę z nóżek. Projekt wykorzystuje TypeScript dla typowania i bezpieczeństwa kodu.
+Szkolne gazetki to prosta, responsywna strona e-commerce oferująca gotowe szablony i grafiki PDF do gazetki szkolnej. Projekt wykorzystuje TypeScript dla typowania i bezpieczeństwa kodu.
 
 ## 🚀 Funkcjonalności
 
@@ -24,9 +24,9 @@ Chcesz od razu wdrożyć aplikację na produkcję?
 
 **📘 [Kompletny przewodnik wdrożenia →](DEPLOYMENT-GUIDE.md)**
 
-- Backend → Render.com (darmowy)
+- Backend/API → Vercel Functions
 - Frontend → Vercel (darmowy)
-- Baza danych → MongoDB Atlas (darmowy)
+- Baza danych → MongoDB Atlas lub inny klaster MongoDB
 
 Czas konfiguracji: **~15 minut**
 
@@ -127,7 +127,7 @@ Frontend komunikuje się z backendem przy użyciu zmiennych środowiskowych. Kon
    ```
 
 Jeśli `VITE_API_BASE_URL` nie jest ustawiony, frontend automatycznie:
-- Na produkcji: wykryje `galaretkarnia.pl` i użyje `https://galaretkarnia.onrender.com`
+- Na produkcji: będzie używać ścieżki API z tej samej domeny Vercel, np. `/api/orders`
 - W dev: będzie używać Local API (proxy Vite)
 
 ### MongoDB

@@ -1,29 +1,10 @@
 /**
- * API Configuration with environment variable support
+ * API Configuration with environment variable support.
+ * On Vercel the API is served from the same origin.
  */
 
-const getApiBaseUrl = (): string => {
-  // Try to get from environment variable (set in .env or Vite config)
-  const envUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
-  if (envUrl) {
-    return envUrl;
-  }
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
-  // Fallback to hostname-based detection
-  const host = window.location.hostname.toLowerCase();
-  if (host === "galaretkarnia.pl" || host === "www.galaretkarnia.pl") {
-    return "https://galaretkarnia.onrender.com";
-  }
-
-  // For localhost/dev, use relative paths (API proxied in vite.config.ts)
-  return "";
-};
-
-export const API_BASE_URL = getApiBaseUrl();
-
-/**
- * Build full API URL with base URL and path
- */
 export function buildApiUrl(path: string): string {
   return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 }
