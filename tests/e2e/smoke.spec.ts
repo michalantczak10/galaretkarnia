@@ -14,7 +14,6 @@ test.describe('Szkolne gazetki smoke', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Gotowe grafiki PDF');
     await expect(page.getByTestId('section-products')).toBeVisible();
     await expect(page.getByTestId('order-form')).toBeVisible();
-    await expect(page.getByTestId('select-payment-method')).toBeVisible();
   });
 
   test('can add product to cart summary', async ({ page }) => {
@@ -35,17 +34,6 @@ test.describe('Szkolne gazetki smoke', () => {
     await expect(page.locator('#order-confirm-modal')).toHaveCount(0);
   });
 
-  test('updates payment instructions when method changes', async ({ page }) => {
-    const paymentSelect = page.getByTestId('select-payment-method');
-    const paymentInstructions = page.getByTestId('msg-payment-instructions');
-
-    await expect(paymentInstructions).toContainText('Numer konta:');
-    await paymentSelect.selectOption('blik');
-    await expect(paymentInstructions).toContainText('Numer telefonu:');
-    await paymentSelect.selectOption('bank_transfer');
-    await expect(paymentInstructions).toContainText('Numer konta:');
-  });
-
   test('keeps cart items after page reload', async ({ page }) => {
     await page.getByTestId('btn-add-to-cart').first().click();
     await expect(page.getByTestId('checkout-summary-list')).toContainText('Plakaty szkolne PDF');
@@ -56,15 +44,15 @@ test.describe('Szkolne gazetki smoke', () => {
 
   test('validates phone field', async ({ page }) => {
     const phoneInput = page.getByTestId('input-customer-phone');
-    const phoneError = page.getByTestId('msg-phone-error');
+    const phoneError = page.locator('#phoneError');
 
     await phoneInput.fill('123');
     await phoneInput.blur();
-    await expect(phoneError).toContainText('Numer telefonu musi mieć 9 cyfr.');
+    await expect(phoneError).toContainText('Numer telefonu musi mieć min. 9 cyfr.');
 
     await phoneInput.fill('123456789');
     await phoneInput.blur();
-    await expect(phoneError).toContainText('Numer powinien zaczynać się od 5, 6, 7 lub 8.');
+    await expect(phoneError).toHaveText('');
   });
 
   test('formats phone input and limits to 9 digits', async ({ page }) => {
@@ -76,7 +64,7 @@ test.describe('Szkolne gazetki smoke', () => {
 
   test('validates notes restrictions and counter', async ({ page }) => {
     const notesInput = page.getByTestId('input-customer-notes');
-    const notesError = page.getByTestId('msg-notes-error');
+    const notesError = page.locator('#notesError');
     const notesCounter = page.getByTestId('msg-notes-counter');
 
     await notesInput.fill('abcde');

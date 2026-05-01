@@ -126,10 +126,11 @@ Backend wysyła powiadomienia o nowych zamówieniach na adres ustawiony w `ORDER
 ## 🧩 Skrypty npm (root)
 
 - `npm run dev` - uruchamia frontend w trybie developerskim
+- `npm run dev:test` - uruchamia frontend pod testy Playwright
 - `npm run build` - buduje frontend do `dist`
 - `npm run test:e2e:smoke` - szybkie testy E2E
 - `npm run test:e2e:all` - pełny zestaw testów E2E
-- `npm run test:e2e:live` - checkout live testy E2E
+- `npm run test:e2e:live` - checkout live testy E2E (wymagane `ENABLE_LIVE_E2E=true`)
 - `npm run test:prod:smoke` - smoke test produkcji
 - `npm run ops:local:check` - lokalny przegląd repozytorium
 - `npm run ops:local:cleanup` - usuwanie lokalnie scalonych gałęzi
@@ -147,9 +148,9 @@ npm run test:e2e:smoke
 
 2. `live` - testy realnego checkoutu (tworzą prawdziwe zamówienia):
 ```bash
-npm run test:e2e:live
+$env:ENABLE_LIVE_E2E='true'; npm run test:e2e:live
 ```
-Konfiguracja live wymusza `workers=1` i uruchamia tylko `checkout-live.spec.ts`, aby uniknąć równoległego tworzenia wielu realnych zamówień.
+Konfiguracja live wymusza `workers=1` i uruchamia tylko `checkout-live.spec.ts`, aby uniknąć równoległego tworzenia wielu realnych zamówień. Bez flagi `ENABLE_LIVE_E2E=true` testy live są pomijane.
 
 3. `prod smoke` - szybkie testy produkcji bez tworzenia realnych zamówień:
 ```bash
@@ -158,8 +159,7 @@ npm run test:prod:smoke
 
 Automatyzacja CI:
 
-- Workflow `Production Smoke` uruchamia `npm run test:prod:smoke` po każdym pushu na `main`.
-- Workflow `Production Health Monitor` sprawdza `GET /api/health` co 15 minut.
+- Workflow `CI` uruchamia `npm run build` oraz `npm run test:e2e:smoke` na `develop`, `main` i PR.
 
 Opcjonalnie możesz wskazać inny URL:
 ```bash
@@ -198,9 +198,9 @@ szkolnegazetki.pl/
 ├── config/
 ├── public/
 ├── types.ts
-├── utils.css
 ├── vite.config.ts
 ├── vite-env.d.ts
+├── .github/workflows/
 ├── package.json            # Rootowa konfiguracja npm
 ├── tsconfig.json           # Konfiguracja TypeScript
 └── vercel.json             # Ustawienia Vercel
@@ -219,7 +219,7 @@ szkolnegazetki.pl/
   "paymentMethod": "bank_transfer",
   "notes": "Proszę o szybką realizację",
   "items": [
-    {"name": "Pakiet plakatów edukacyjnych", "price": 45, "qty": 2}
+    {"name": "Plakaty szkolne PDF", "price": 45, "qty": 2}
   ]
 }
 ```
@@ -276,8 +276,8 @@ Każde zamówienie w MongoDB zawiera:
 
 ## 🎨 Produkty
 
-1. **Pakiet plakatów edukacyjnych** - gotowe materiały do gazetki szkolnej (45 zł)
-2. **Szablony gazetki szkolnej** - profesjonalne layouty w formacie PDF (52 zł)
+1. **Plakaty szkolne PDF** - gotowe materiały do gazetki szkolnej (45 zł)
+2. **Szablony gazetki PDF** - profesjonalne layouty w formacie PDF (52 zł)
 
 ## 🔧 Konfiguracja
 

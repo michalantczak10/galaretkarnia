@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Szkolne gazetki checkout live', () => {
+  test.skip(
+    process.env.ENABLE_LIVE_E2E !== 'true',
+    'Set ENABLE_LIVE_E2E=true to run live checkout tests that create real orders.'
+  );
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
 
@@ -12,6 +17,8 @@ test.describe('Szkolne gazetki checkout live', () => {
 
   test('submits real order end-to-end without mocks', async ({ page }) => {
     await page.getByTestId('btn-add-to-cart').first().click();
+    await page.getByTestId('input-customer-name').fill('E2E Test Szkoła');
+    await page.getByTestId('input-customer-email').fill('e2e+live@szkolnegazetki.pl');
     await page.getByTestId('input-customer-phone').fill('512345678');
     await page.getByTestId('input-customer-notes').fill(`E2E real order ${Date.now()}`);
 
@@ -25,6 +32,8 @@ test.describe('Szkolne gazetki checkout live', () => {
 
   test('resets form and cart after closing order confirmation modal', async ({ page }) => {
     await page.getByTestId('btn-add-to-cart').first().click();
+    await page.getByTestId('input-customer-name').fill('E2E Test Reset');
+    await page.getByTestId('input-customer-email').fill('e2e+reset@szkolnegazetki.pl');
     await page.getByTestId('input-customer-phone').fill('512345678');
     await page.getByTestId('input-customer-notes').fill(`E2E reset check ${Date.now()}`);
     await page.getByTestId('btn-submit-order').click();
