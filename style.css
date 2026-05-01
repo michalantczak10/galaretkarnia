@@ -1089,7 +1089,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr 1.4fr;
   gap: 28px;
   align-items: center;
 }
@@ -1237,7 +1237,7 @@ body {
 }
 
 .hero-image {
-  width: min(520px, 100%);
+  width: min(720px, 100%);
   aspect-ratio: 16 / 10;
   height: auto;
   display: block;
@@ -1295,6 +1295,14 @@ body {
 
 .checkout {
   margin-bottom: 80px;
+}
+
+.checkout-summary-title {
+  margin-top: 0;
+  text-align: center;
+  color: var(--color-primary);
+  letter-spacing: 0.5px;
+  font-size: 1.25em;
 }
 
 .about h2,

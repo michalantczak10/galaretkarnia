@@ -23,7 +23,7 @@
       name="keywords"
       content="szkolne gazetki, gazetka szkolna, plakaty szkolne PDF, szablony gazetki PDF, grafiki dla nauczycieli, plakaty edukacyjne"
     />
-    <meta name="theme-color" content="#1d4ed8" />
+    <meta name="theme-color" content="#b30000" />
     <meta name="author" content="Szkolne gazetki" />
     <link rel="stylesheet" href="style.css?v=4" />
   </head>
@@ -51,17 +51,15 @@
             <li>Szybki dostęp do pobrania po płatności</li>
           </ul>
         </div>
-        <div class="hero-visual" aria-hidden="true">
-          <picture>
-            <source srcset="img/branding/logo-szkolne-gazetki-z-napisem-bialy.webp" type="image/webp" />
-            <img
-              src="img/branding/logo-szkolne-gazetki-z-napisem-bialy.png"
-              alt="Logo Szkolne gazetki"
-              class="hero-image"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
+        <div class="hero-visual">
+          <img
+            src="img/hero/hero-gazetka.svg"
+            alt="Ilustracja gazetki szkolnej w formacie PDF"
+            class="hero-image"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
         </div>
       </div>
     </header>
@@ -224,7 +222,7 @@
 
         <aside class="checkout-summary" aria-label="Podsumowanie zamówienia">
           <div class="checkout-summary-box">
-            <h3 style="margin-top:0; text-align:center; color:#1d4ed8; letter-spacing:0.5px; font-size:1.25em;">Podsumowanie zamówienia</h3>
+            <h3 class="checkout-summary-title">Podsumowanie zamówienia</h3>
             <div id="checkoutSummary" data-testid="checkout-summary-list"></div>
           </div>
         </aside>
@@ -255,13 +253,13 @@
         <article class="legal-home-card">
           <h3>🔒 Polityka prywatności (RODO)</h3>
           <p>Jakie dane zbieramy, w jakim celu je przetwarzamy i jak długo je przechowujemy.</p>
-          <a href="/privacy.html" class="legal-home-link">Polityka prywatności</a>
+          <a href="privacy.html" class="legal-home-link">Polityka prywatności</a>
         </article>
 
         <div class="legal-home-contacts">
           <p><strong>Kontakt ogólny i RODO:</strong> <a href="mailto:kontakt@szkolnegazetki.pl" data-store-general-email>kontakt@szkolnegazetki.pl</a></p>
           <p><strong>Reklamacje:</strong> <a href="mailto:reklamacje@szkolnegazetki.pl" data-store-complaints-email>reklamacje@szkolnegazetki.pl</a></p>
-          <p><strong>Cookies:</strong> szczegóły znajdziesz w <a href="/privacy.html">Polityce prywatności</a>.</p>
+          <p><strong>Cookies:</strong> szczegóły znajdziesz w <a href="privacy.html">Polityce prywatności</a>.</p>
         </div>
       </div>
     </section>
