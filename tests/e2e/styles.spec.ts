@@ -183,4 +183,41 @@ test.describe('CSS Styles and Layout', () => {
       }
     }
   });
+
+  test('product cards have feature list with items', async ({ page }) => {
+    const featureLists = page.locator('.product-features');
+    const count = await featureLists.count();
+    expect(count).toBe(2);
+
+    for (let i = 0; i < count; i++) {
+      const items = featureLists.nth(i).locator('li');
+      await expect(items).toHaveCount(4);
+    }
+  });
+
+  test('featured product card has bestseller badge', async ({ page }) => {
+    const badge = page.locator('.product-badge');
+    await expect(badge).toBeVisible();
+    await expect(badge).toContainText('Bestseller');
+  });
+
+  test('hero CTA button links to products section', async ({ page }) => {
+    const cta = page.locator('a.hero-cta');
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveAttribute('href', '#products');
+    await expect(cta).toContainText('Sprawdź ofertę');
+  });
+
+  test('product cards have price and add to cart button in footer', async ({ page }) => {
+    const cards = page.locator('.product-card');
+    const count = await cards.count();
+    expect(count).toBe(2);
+
+    for (let i = 0; i < count; i++) {
+      const footer = cards.nth(i).locator('.product-card-footer');
+      await expect(footer).toBeVisible();
+      await expect(footer.locator('.price')).toBeVisible();
+      await expect(footer.locator('.addToCartBtn')).toBeVisible();
+    }
+  });
 });

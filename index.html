@@ -22,6 +22,76 @@
     />
     <meta name="theme-color" content="#b30000" />
     <meta name="author" content="Szkolne gazetki" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://szkolnegazetki.pl/" />
+    <meta property="og:title" content="Szkolne gazetki – Gotowe grafiki PDF do gazetki szkolnej" />
+    <meta property="og:description" content="Gotowe plakaty szkolne PDF i szablony gazetki PDF dla nauczycieli i redakcji szkolnych. Pobierz i drukuj od razu." />
+    <meta property="og:image" content="https://szkolnegazetki.pl/img/products/product-posters.png" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content="Szkolne gazetki" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Szkolne gazetki – Gotowe grafiki PDF do gazetki szkolnej" />
+    <meta name="twitter:description" content="Gotowe plakaty szkolne PDF i szablony gazetki PDF dla nauczycieli i redakcji szkolnych." />
+    <meta name="twitter:image" content="https://szkolnegazetki.pl/img/products/product-posters.png" />
+
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Szkolne gazetki",
+      "url": "https://szkolnegazetki.pl",
+      "logo": "https://szkolnegazetki.pl/favicon.svg",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+48794535366",
+        "contactType": "customer service",
+        "availableLanguage": "Polish"
+      },
+      "email": "kontakt@szkolnegazetki.pl"
+    }
+    </script>
+
+    <!-- JSON-LD: Products -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Product",
+          "name": "Plakaty szkolne PDF",
+          "description": "Gotowe plakaty edukacyjne PDF do wydruku i dekoracji gazetki szkolnej. Zestaw plakatów A3 i A4 w wysokiej rozdzielczości.",
+          "image": "https://szkolnegazetki.pl/img/products/product-posters.png",
+          "brand": { "@type": "Brand", "name": "Szkolne gazetki" },
+          "offers": {
+            "@type": "Offer",
+            "price": "45.00",
+            "priceCurrency": "PLN",
+            "availability": "https://schema.org/InStock",
+            "seller": { "@type": "Organization", "name": "Szkolne gazetki" }
+          }
+        },
+        {
+          "@type": "Product",
+          "name": "Szablony gazetki PDF",
+          "description": "Profesjonalne szablony gazetki szkolnej PDF gotowe do druku. Wiele układów stron, formaty A3 i A4.",
+          "image": "https://szkolnegazetki.pl/img/products/product-templates.png",
+          "brand": { "@type": "Brand", "name": "Szkolne gazetki" },
+          "offers": {
+            "@type": "Offer",
+            "price": "52.00",
+            "priceCurrency": "PLN",
+            "availability": "https://schema.org/InStock",
+            "seller": { "@type": "Organization", "name": "Szkolne gazetki" }
+          }
+        }
+      ]
+    }
+    </script>
     <link rel="stylesheet" href="styles.css?v=4" />
     <!-- Preload krytycznych zasobów -->
     <link rel="preload" href="img/hero/hero-gazetka.svg" as="image" type="image/svg+xml" />
@@ -51,6 +121,7 @@
             <li>Praktyczne szablony szkolne</li>
             <li>Szybki dostęp do pobrania po płatności</li>
           </ul>
+          <a href="#products" class="hero-cta" aria-label="Przejdź do oferty produktów">Sprawdź ofertę</a>
         </div>
         <div class="hero-visual">
           <img
@@ -104,7 +175,8 @@
     </section>
 
     <section class="product fade-in" id="products" data-testid="section-products" aria-labelledby="products-heading">
-      <h2 id="products-heading">O ofercie</h2>
+      <h2 id="products-heading">Nasze produkty</h2>
+      <p class="product-section-subtitle">Wybierz zestaw idealny dla Twojej szkolnej redakcji</p>
       <div class="product-grid">
         <div class="product-card" data-product-id="poster">
           <picture>
@@ -117,23 +189,34 @@
               data-product-image
             />
           </picture>
-          <h3 data-product-name>Plakaty szkolne PDF</h3>
-          <p data-product-description>Zestaw plakatow edukacyjnych PDF do gazetki szkolnej.</p>
-          <p class="price" data-product-price>45 zł</p>
-          <button
-            class="addToCartBtn"
-            data-product-id="poster"
-            data-product="Plakaty szkolne PDF"
-            data-price="45"
-            data-image="img/products/product-posters.png"
-            aria-label="Dodaj plakaty szkolne PDF do zamowienia"
-            data-testid="btn-add-to-cart"
-          >
-            Dodaj do zamówienia
-          </button>
+          <div class="product-card-body">
+            <h3 data-product-name>Plakaty szkolne PDF</h3>
+            <p class="product-card-desc" data-product-description>Gotowe plakaty edukacyjne PDF do wydruku i dekoracji gazetki szkolnej.</p>
+            <ul class="product-features" aria-label="Co zawiera produkt">
+              <li>Zestaw gotowych plakatów A3 i A4</li>
+              <li>Wysoka rozdzielczość do druku (300 DPI)</li>
+              <li>Estetyczne ilustracje szkolne</li>
+              <li>Gotowy plik PDF – bez edycji</li>
+            </ul>
+            <div class="product-card-footer">
+              <p class="price" data-product-price>45 zł</p>
+              <button
+                class="addToCartBtn"
+                data-product-id="poster"
+                data-product="Plakaty szkolne PDF"
+                data-price="45"
+                data-image="img/products/product-posters.png"
+                aria-label="Dodaj plakaty szkolne PDF do zamówienia"
+                data-testid="btn-add-to-cart"
+              >
+                Dodaj do zamówienia
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="product-card" data-product-id="newsletter">
+        <div class="product-card product-card--featured" data-product-id="newsletter">
+          <span class="product-badge">Bestseller</span>
           <picture>
             <source srcset="img/products/product-templates.webp" type="image/webp" />
             <img
@@ -144,20 +227,30 @@
               data-product-image
             />
           </picture>
-          <h3 data-product-name>Szablony gazetki PDF</h3>
-          <p data-product-description>Gotowe szablony gazetki szkolnej PDF do szybkiego druku.</p>
-          <p class="price" data-product-price>52 zł</p>
-          <button
-            class="addToCartBtn"
-            data-product-id="newsletter"
-            data-product="Szablony gazetki PDF"
-            data-price="52"
-            data-image="img/products/product-templates.png"
-            aria-label="Dodaj szablony gazetki PDF do zamowienia"
-            data-testid="btn-add-to-cart"
-          >
-            Dodaj do zamówienia
-          </button>
+          <div class="product-card-body">
+            <h3 data-product-name>Szablony gazetki PDF</h3>
+            <p class="product-card-desc" data-product-description>Profesjonalne szablony gotowe do druku – idealne dla każdej szkolnej redakcji.</p>
+            <ul class="product-features" aria-label="Co zawiera produkt">
+              <li>Wiele układów stron do wyboru</li>
+              <li>Formaty A3 i A4</li>
+              <li>Profesjonalna typografia i kolory</li>
+              <li>Gotowy plik PDF – bez edycji</li>
+            </ul>
+            <div class="product-card-footer">
+              <p class="price" data-product-price>52 zł</p>
+              <button
+                class="addToCartBtn"
+                data-product-id="newsletter"
+                data-product="Szablony gazetki PDF"
+                data-price="52"
+                data-image="img/products/product-templates.png"
+                aria-label="Dodaj szablony gazetki PDF do zamówienia"
+                data-testid="btn-add-to-cart"
+              >
+                Dodaj do zamówienia
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -166,27 +259,33 @@
       <h2 id="benefits-heading">Dlaczego my?</h2>
       <div class="benefits-grid">
         <div class="benefit-card">
-          <div class="benefit-icon">🏡</div>
+          <div class="benefit-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <p class="benefit-stat">100%</p>
           <h3>Gotowe do druku</h3>
           <p>
-            Oferujemy starannie przygotowane pliki PDF, które możesz od razu
-            wydrukować lub udostępnić szkolnej redakcji.
+            Pliki PDF w wysokiej rozdzielczości, które możesz od razu wydrukować lub udostępnić szkolnej redakcji bez żadnej edycji.
           </p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">⭐</div>
-          <h3>Profesjonalny design</h3>
+          <div class="benefit-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="benefit-stat">200+</p>
+          <h3>Zadowolonych klientów</h3>
           <p>
-            Każdy projekt ma czytelny layout i estetyczne ilustracje dostosowane do
-            szkolnych gazetek i materiałów edukacyjnych.
+            Nauczyciele i redakcje szkolne z całej Polski korzystają z naszych materiałów każdego roku szkolnego.
           </p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">⚡</div>
+          <div class="benefit-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <p class="benefit-stat">24h</p>
           <h3>Szybka obsługa</h3>
           <p>
-            Po zaksięgowaniu płatności wysyłamy link do pobrania plików ręcznie i
-            potwierdzamy realizację w krótkim czasie.
+            Po zaksięgowaniu płatności wysyłamy link do pobrania plików ręcznie — zazwyczaj tego samego dnia roboczego.
           </p>
         </div>
       </div>
