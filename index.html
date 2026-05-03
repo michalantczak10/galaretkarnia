@@ -3,17 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Nowe favicony: pełna kartka A4 z grafiką -->
-    <link rel="icon" type="image/svg+xml" href="/favicon/newspaper-a4-filled.svg?v=2" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-16x16.png?v=2" sizes="16x16" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-32x32.png?v=2" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-48x48.png?v=2" sizes="48x48" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png?v=2" sizes="96x96" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-192x192.png?v=2" sizes="192x192" />
-    <link rel="icon" type="image/png" href="/favicon/favicon-512x512.png?v=2" sizes="512x512" />
-    <link rel="shortcut icon" href="/favicon/favicon.ico?v=2" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/favicon-180x180.png?v=2" />
-    <link rel="manifest" href="/favicon/site.webmanifest?v=2" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="icon" type="image/png" href="/favicon-16x16.png?v=2" sizes="16x16" />
+    <link rel="icon" type="image/png" href="/favicon-32x32.png?v=2" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon-192x192.png?v=2" sizes="192x192" />
+    <link rel="icon" type="image/png" href="/favicon-512x512.png?v=2" sizes="512x512" />
+    <link rel="shortcut icon" href="/favicon.ico?v=2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
+    <link rel="manifest" href="/site.webmanifest?v=2" />
     <title>Szkolne gazetki – Grafiki PDF do gazetki szkolnej</title>
     <meta
       name="description"
@@ -25,7 +22,7 @@
     />
     <meta name="theme-color" content="#b30000" />
     <meta name="author" content="Szkolne gazetki" />
-    <link rel="stylesheet" href="style.css?v=4" />
+    <link rel="stylesheet" href="styles.css?v=4" />
     <!-- Preload krytycznych zasobów -->
     <link rel="preload" href="img/hero/hero-gazetka.svg" as="image" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +36,7 @@
         <div class="hero-copy">
           <a href="/" class="hero-brand" aria-label="Przejdź do strony głównej Szkolne gazetki">
             <img
-              src="/favicon/newspaper-a4-filled.svg?v=2"
+              src="/favicon.svg?v=2"
               alt="Logo Szkolne gazetki"
               class="hero-logo"
             />
@@ -80,9 +77,9 @@
         <div class="about-photos" aria-label="Przykładowe projekty gazetki szkolnej">
           <figure class="about-photo-card">
             <picture>
-              <source srcset="img/team/zespol-michal.webp" type="image/webp" />
+              <source srcset="img/team/team-michal.webp" type="image/webp" />
               <img
-                src="img/team/zespol-michal.jpg"
+                src="img/team/team-michal.jpg"
                 alt="Przykładowa grafika szkolna"
                 loading="lazy"
                 decoding="async"
@@ -92,9 +89,9 @@
           </figure>
           <figure class="about-photo-card">
             <picture>
-              <source srcset="img/team/zespol-justyna.webp" type="image/webp" />
+              <source srcset="img/team/team-justyna.webp" type="image/webp" />
               <img
-                src="img/team/zespol-justyna.jpg"
+                src="img/team/team-justyna.jpg"
                 alt="Przykładowa strona gazetki szkolnej"
                 loading="lazy"
                 decoding="async"
@@ -111,9 +108,9 @@
       <div class="product-grid">
         <div class="product-card" data-product-id="poster">
           <picture>
-            <source srcset="img/products/produkt-plakaty-edukacyjne.webp" type="image/webp" />
+            <source srcset="img/products/product-posters.webp" type="image/webp" />
             <img
-              src="img/products/produkt-plakaty-edukacyjne.png"
+              src="img/products/product-posters.png"
               alt="Plakaty szkolne PDF"
               loading="lazy"
               decoding="async"
@@ -128,7 +125,7 @@
             data-product-id="poster"
             data-product="Plakaty szkolne PDF"
             data-price="45"
-            data-image="img/products/produkt-plakaty-edukacyjne.png"
+            data-image="img/products/product-posters.png"
             aria-label="Dodaj plakaty szkolne PDF do zamowienia"
             data-testid="btn-add-to-cart"
           >
@@ -138,9 +135,9 @@
 
         <div class="product-card" data-product-id="newsletter">
           <picture>
-            <source srcset="img/products/produkt-szablony-gazetki.webp" type="image/webp" />
+            <source srcset="img/products/product-templates.webp" type="image/webp" />
             <img
-              src="img/products/produkt-szablony-gazetki.png"
+              src="img/products/product-templates.png"
               alt="Szablony gazetki PDF"
               loading="lazy"
               decoding="async"
@@ -155,7 +152,7 @@
             data-product-id="newsletter"
             data-product="Szablony gazetki PDF"
             data-price="52"
-            data-image="img/products/produkt-szablony-gazetki.png"
+            data-image="img/products/product-templates.png"
             aria-label="Dodaj szablony gazetki PDF do zamowienia"
             data-testid="btn-add-to-cart"
           >

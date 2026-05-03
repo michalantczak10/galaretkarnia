@@ -9,8 +9,8 @@ export type StoreProduct = {
 };
 
 const PRODUCT_IMAGES = {
-  poster: new URL("../img/products/produkt-plakaty-edukacyjne.png", import.meta.url).href,
-  newsletter: new URL("../img/products/produkt-szablony-gazetki.png", import.meta.url).href,
+  poster: new URL("../img/products/product-posters.png", import.meta.url).href,
+  newsletter: new URL("../img/products/product-templates.png", import.meta.url).href,
 } as const;
 
 export const STORE_CONFIG = {

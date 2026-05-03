@@ -1,24 +1,35 @@
 import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
 import { Resend } from 'resend';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME;
-const ORDERS_COLLECTION = process.env.ORDERS_COLLECTION || 'orders';
-const ORDER_EMAIL = process.env.ORDER_EMAIL;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@szkolnegazetki.onresend.com';
+declare global {
+  // eslint-disable-next-line no-var
+  var __mongoClient: MongoClient | undefined;
+}
+
+const MONGODB_URI = process.env['MONGODB_URI'];
+const MONGODB_DB_NAME = process.env['MONGODB_DB_NAME'];
+const ORDERS_COLLECTION = process.env['ORDERS_COLLECTION'] ?? 'orders';
+const ORDER_EMAIL = process.env['ORDER_EMAIL'];
+const RESEND_API_KEY = process.env['RESEND_API_KEY'];
+const RESEND_FROM_EMAIL =
+  process.env['RESEND_FROM_EMAIL'] ?? 'noreply@szkolnegazetki.onresend.com';
 
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
-/** Simple in-memory rate limiter: max 5 requests per IP per 60 seconds */
-const rateLimitMap = new Map();
+interface RateLimitEntry {
+  start: number;
+  count: number;
+}
+
+const rateLimitMap = new Map<string, RateLimitEntry>();
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 
-function isRateLimited(ip) {
+function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
   if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
@@ -32,35 +43,34 @@ function isRateLimited(ip) {
   return false;
 }
 
-/** @type {import('mongodb').MongoClient | null} */
-let cachedClient = globalThis.__mongoClient || null;
+let cachedClient: MongoClient | null = globalThis.__mongoClient ?? null;
 
-function normalizeEmail(email) {
+function normalizeEmail(email: unknown): string {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
 }
 
-function isEmailValid(email) {
+function isEmailValid(email: string): boolean {
   return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function isPhoneValid(phone) {
+function isPhoneValid(phone: unknown): boolean {
   if (typeof phone !== 'string') return false;
   const cleaned = phone.replace(/\D/g, '');
   return cleaned.length >= 9 && cleaned.length <= 15;
 }
 
-function formatOrderRef(orderId) {
+function formatOrderRef(orderId: string): string {
   return `SZG-${orderId.slice(-6).toUpperCase()}`;
 }
 
-function getPaymentTarget(paymentMethod) {
+function getPaymentTarget(paymentMethod: string): string {
   if (paymentMethod === 'blik') {
     return 'BLIK na telefon: 794 535 366';
   }
   return '60 1140 2004 0000 3102 4831 8846 (Szkolne gazetki)';
 }
 
-function escapeHtml(value) {
+function escapeHtml(value: unknown): string {
   return String(value)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -69,7 +79,7 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-async function getMongoClient() {
+async function getMongoClient(): Promise<MongoClient> {
   if (cachedClient) {
     return cachedClient;
   }
@@ -85,7 +95,33 @@ async function getMongoClient() {
   return client;
 }
 
-async function sendOrderNotification(order) {
+interface OrderItem {
+  name: string;
+  price: number;
+  qty: number;
+}
+
+interface OrderRecord {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  paymentMethod: string;
+  notes: string;
+  items: OrderItem[];
+  productsTotal: number;
+  total: number;
+  status: string;
+  paymentStatus: string;
+  transferTitle: string;
+  createdAt: Date;
+  updatedAt: Date;
+  environment: string;
+  orderId?: string;
+  orderRef?: string;
+  paymentTarget?: string;
+}
+
+async function sendOrderNotification(order: OrderRecord): Promise<void> {
   if (!resend || !ORDER_EMAIL) {
     return;
   }
@@ -116,38 +152,38 @@ async function sendOrderNotification(order) {
   await resend.emails.send({
     to: ORDER_EMAIL,
     from: RESEND_FROM_EMAIL,
-    subject: `Nowe zamówienie ${order.orderRef}`,
+    subject: `Nowe zamówienie ${order.orderRef ?? ''}`,
     html,
   });
 }
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
-  const clientIp =
-    req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-    req.socket?.remoteAddress ||
+  const clientIp: string =
+    (typeof req.headers['x-forwarded-for'] === 'string'
+      ? req.headers['x-forwarded-for'].split(',')[0]?.trim()
+      : undefined) ??
+    req.socket?.remoteAddress ??
     'unknown';
 
   if (isRateLimited(clientIp)) {
-    return res.status(429).json({ error: 'Zbyt wiele żądań. Spróbuj ponownie za chwilę.' });
+    res.status(429).json({ error: 'Zbyt wiele żądań. Spróbuj ponownie za chwilę.' });
+    return;
   }
 
   if (!MONGODB_URI) {
-    return res.status(500).json({ error: 'MONGODB_URI is not configured' });
+    res.status(500).json({ error: 'MONGODB_URI is not configured' });
+    return;
   }
 
-  const {
-    customerName,
-    customerEmail,
-    customerPhone,
-    paymentMethod,
-    notes,
-    items,
-  } = req.body || {};
+  const body = req.body as Record<string, unknown> | undefined ?? {};
+
+  const { customerName, customerEmail, customerPhone, paymentMethod, notes, items } = body;
 
   const normalizedEmail = normalizeEmail(customerEmail);
   const trimmedName = typeof customerName === 'string' ? customerName.trim() : '';
@@ -155,48 +191,54 @@ export default async function handler(req, res) {
   const selectedPaymentMethod = paymentMethod === 'blik' ? 'blik' : 'bank_transfer';
 
   if (!trimmedName) {
-    return res.status(400).json({ error: 'Podaj swoje imię lub nazwę organizacji.' });
+    res.status(400).json({ error: 'Podaj swoje imię lub nazwę organizacji.' });
+    return;
   }
 
   if (!isEmailValid(normalizedEmail)) {
-    return res.status(400).json({ error: 'Podaj poprawny adres e-mail.' });
+    res.status(400).json({ error: 'Podaj poprawny adres e-mail.' });
+    return;
   }
 
   if (customerPhone && !isPhoneValid(customerPhone)) {
-    return res.status(400).json({ error: 'Podaj poprawny numer telefonu.' });
+    res.status(400).json({ error: 'Podaj poprawny numer telefonu.' });
+    return;
   }
 
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: 'Koszyk jest pusty.' });
+    res.status(400).json({ error: 'Koszyk jest pusty.' });
+    return;
   }
 
-  const normalizedItems = [];
-  for (const item of items) {
+  const normalizedItems: OrderItem[] = [];
+  for (const item of items as unknown[]) {
     if (
       !item ||
-      typeof item.name !== 'string' ||
-      item.name.trim().length === 0 ||
-      typeof item.price !== 'number' ||
-      !Number.isFinite(item.price) ||
-      item.price <= 0 ||
-      typeof item.qty !== 'number' ||
-      !Number.isInteger(item.qty) ||
-      item.qty <= 0
+      typeof item !== 'object' ||
+      typeof (item as Record<string, unknown>)['name'] !== 'string' ||
+      ((item as Record<string, unknown>)['name'] as string).trim().length === 0 ||
+      typeof (item as Record<string, unknown>)['price'] !== 'number' ||
+      !Number.isFinite((item as Record<string, unknown>)['price'] as number) ||
+      ((item as Record<string, unknown>)['price'] as number) <= 0 ||
+      typeof (item as Record<string, unknown>)['qty'] !== 'number' ||
+      !Number.isInteger((item as Record<string, unknown>)['qty'] as number) ||
+      ((item as Record<string, unknown>)['qty'] as number) <= 0
     ) {
-      return res.status(400).json({ error: 'Nieprawidłowe pozycje w koszyku.' });
+      res.status(400).json({ error: 'Nieprawidłowe pozycje w koszyku.' });
+      return;
     }
 
     normalizedItems.push({
-      name: item.name.trim(),
-      price: item.price,
-      qty: item.qty,
+      name: ((item as Record<string, unknown>)['name'] as string).trim(),
+      price: (item as Record<string, unknown>)['price'] as number,
+      qty: (item as Record<string, unknown>)['qty'] as number,
     });
   }
 
   const productsTotal = normalizedItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = productsTotal;
 
-  const order = {
+  const order: OrderRecord = {
     customerName: trimmedName,
     customerEmail: normalizedEmail,
     customerPhone: typeof customerPhone === 'string' ? customerPhone.replace(/\D/g, '') : '',
@@ -210,7 +252,7 @@ export default async function handler(req, res) {
     transferTitle: `Zamówienie ${formatOrderRef('XXXXXX')}`,
     createdAt: new Date(),
     updatedAt: new Date(),
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env['NODE_ENV'] ?? 'development',
   };
 
   try {
@@ -228,7 +270,7 @@ export default async function handler(req, res) {
       { $set: { orderRef, transferTitle, paymentTarget, updatedAt: new Date() } },
     );
 
-    const orderRecord = {
+    const orderRecord: OrderRecord = {
       ...order,
       orderId,
       orderRef,
@@ -239,10 +281,10 @@ export default async function handler(req, res) {
     try {
       await sendOrderNotification(orderRecord);
     } catch (error) {
-      console.error('Order notification failed:', error?.message || error);
+      console.error('Order notification failed:', (error as Error)?.message ?? error);
     }
 
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
       orderId,
       orderRef,
@@ -254,7 +296,7 @@ export default async function handler(req, res) {
       status: 'pending_payment',
     });
   } catch (error) {
-    console.error('Order save failed:', error?.message || error);
-    return res.status(500).json({ error: 'Błąd zapisu zamówienia. Spróbuj ponownie.' });
+    console.error('Order save failed:', (error as Error)?.message ?? error);
+    res.status(500).json({ error: 'Błąd zapisu zamówienia. Spróbuj ponownie.' });
   }
 }

@@ -9,6 +9,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@secretlint/secretlint-rule-preset-recommend": "^11.2.4",
+    "@vercel/node": "^5.7.15",
     "playwright": "^1.58.2",
     "secretlint": "^11.2.4",
     "sharp": "^0.33.5",
