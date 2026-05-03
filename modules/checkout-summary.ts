@@ -72,7 +72,7 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
           <button class="cart-btn cart-btn-decrease" data-product-name="${item.name}" title="Zmniejsz ilość">-</button>
           <span class="checkout-summary-product-qty">${item.qty}</span>
           <button class="cart-btn cart-btn-increase" data-product-name="${item.name}" title="Zwiększ ilość">+</button>
-          <button class="cart-btn cart-btn-remove" data-product-name="${item.name}" title="Usuń produkt">×</button>
+          <button class="cart-btn cart-btn-remove" data-product-name="${item.name}" data-testid="btn-remove-from-cart" title="Usuń produkt">×</button>
         </div>
       </div>
       <div class="checkout-summary-product-total">Razem: ${item.qty * item.price} zł</div>

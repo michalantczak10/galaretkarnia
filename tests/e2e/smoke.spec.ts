@@ -82,4 +82,70 @@ test.describe('Szkolne gazetki smoke', () => {
     await page.goto('/privacy.html');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Polityka prywatności');
   });
+
+  test('can add both products to cart', async ({ page }) => {
+    const btns = page.getByTestId('btn-add-to-cart');
+    await btns.nth(0).click();
+    await btns.nth(1).click();
+
+    const summary = page.getByTestId('checkout-summary-list');
+    await expect(summary).toContainText('Plakaty szkolne PDF');
+    await expect(summary).toContainText('Szablony gazetki PDF');
+  });
+
+  test('can remove product from cart', async ({ page }) => {
+    await page.getByTestId('btn-add-to-cart').first().click();
+    const summary = page.getByTestId('checkout-summary-list');
+    await expect(summary).toContainText('Plakaty szkolne PDF');
+
+    await page.getByTestId('btn-remove-from-cart').first().click();
+    await expect(summary).not.toContainText('Plakaty szkolne PDF');
+  });
+
+  test('can clear cart', async ({ page }) => {
+    await page.getByTestId('btn-add-to-cart').first().click();
+    const summary = page.getByTestId('checkout-summary-list');
+    await expect(summary).toContainText('Plakaty szkolne PDF');
+
+    await page.getByTestId('btn-clear-cart').click();
+    await page.getByRole('button', { name: 'Tak, wyczyść' }).click();
+    await expect(summary).not.toContainText('Plakaty szkolne PDF');
+  });
+
+  test('validates name field - required', async ({ page }) => {
+    const nameInput = page.getByTestId('input-customer-name');
+    const nameError = page.locator('#nameError');
+
+    // Empty name should trigger error
+    await nameInput.focus();
+    await nameInput.blur();
+    await expect(nameError).not.toHaveText('');
+
+    // Valid name should clear error
+    await nameInput.fill('Jan Kowalski');
+    await nameInput.blur();
+    await expect(nameError).toHaveText('');
+  });
+
+  test('validates email field', async ({ page }) => {
+    const emailInput = page.getByTestId('input-customer-email');
+    const emailError = page.locator('#emailError');
+
+    await emailInput.fill('niepoprawny');
+    await emailInput.blur();
+    await expect(emailError).not.toHaveText('');
+
+    await emailInput.fill('test@example.com');
+    await emailInput.blur();
+    await expect(emailError).toHaveText('');
+  });
+
+  test('submit with empty fields shows validation errors', async ({ page }) => {
+    await page.getByTestId('btn-add-to-cart').first().click();
+    await page.getByTestId('btn-submit-order').click();
+
+    // Name error should appear
+    const nameError = page.locator('#nameError');
+    await expect(nameError).not.toHaveText('');
+  });
 });
