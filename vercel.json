@@ -2,6 +2,14 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/preview-img.ts": {
+      "includeFiles": "img/previews/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/img/previews/(.*)", "destination": "/api/not-found" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

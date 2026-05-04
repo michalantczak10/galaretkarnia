@@ -9,11 +9,31 @@ type ProductPreview = {
   id: string;
   title: string;
   caption: string;
-  imageWebp: string;
-  imageJpg: string;
+  fileWebp: string;
+  fileJpg: string;
 };
 
-const PREVIEW_MANIFEST_BASE = "/img/previews";
+type PreviewToken = { token: string; exp: number };
+
+let _cachedToken: PreviewToken | null = null;
+
+async function ensurePreviewToken(): Promise<PreviewToken> {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (_cachedToken && _cachedToken.exp > nowSeconds + 30) return _cachedToken;
+  try {
+    const res = await fetch("/api/preview-token");
+    if (!res.ok) throw new Error("token fetch failed");
+    const data = (await res.json()) as PreviewToken;
+    _cachedToken = data;
+    return data;
+  } catch {
+    return { token: "dev", exp: nowSeconds + 300 };
+  }
+}
+
+function previewApiUrl(file: string, tok: PreviewToken): string {
+  return `/api/preview-img?file=${encodeURIComponent(file)}&token=${tok.token}&exp=${tok.exp}`;
+}
 
 function buildEnhancedDescription(product: StoreProduct): string {
   const base = product.description.replace(/\.$/, "");
@@ -25,11 +45,51 @@ function buildEnhancedDescription(product: StoreProduct): string {
 function createProductPreviews(product: StoreProduct): ProductPreview[] {
   return [0, 1, 2].map((variantIndex) => ({
     id: `${product.id}-v${variantIndex + 1}`,
-    title: `${product.name} - Wersja ${variantIndex + 1}`,
-    caption: `Wariant ${variantIndex + 1} podgladu`,
-    imageWebp: `${PREVIEW_MANIFEST_BASE}/${product.id}-v${variantIndex + 1}.webp`,
-    imageJpg: `${PREVIEW_MANIFEST_BASE}/${product.id}-v${variantIndex + 1}.jpg`,
+    title: `${product.name} – Wersja ${variantIndex + 1}`,
+    caption: `Wariant ${variantIndex + 1} podglądu`,
+    fileWebp: `${product.id}-v${variantIndex + 1}.webp`,
+    fileJpg: `${product.id}-v${variantIndex + 1}.jpg`,
   }));
+}
+
+async function applyCanvasWatermark(src: string): Promise<string> {
+  const emailEl = document.getElementById("customerEmail") as HTMLInputElement | null;
+  const email = emailEl?.value?.trim() ?? "";
+  const label = email || "szkolnegazetki.pl";
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(src); return; }
+
+      ctx.drawImage(img, 0, 0);
+
+      const fontSize = Math.max(14, Math.round(canvas.width * 0.042));
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 6);
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const lineH = fontSize * 2.6;
+      for (let y = -canvas.height * 1.2; y < canvas.height * 1.2; y += lineH * 2) {
+        ctx.fillText(label, 0, y);
+        ctx.fillText("PODGLĄD – szkolnegazetki.pl", 0, y + lineH);
+      }
+      ctx.restore();
+
+      resolve(canvas.toDataURL("image/jpeg", 0.88));
+    };
+    img.onerror = () => resolve(src);
+    img.src = src;
+  });
 }
 
 function ensurePreviewModal(): HTMLElement {
@@ -73,31 +133,29 @@ function ensurePreviewModal(): HTMLElement {
   if (image) {
     image.draggable = false;
     image.addEventListener("contextmenu", (event) => event.preventDefault());
-    image.addEventListener("error", () => {
-      const fallback = image.dataset.fallback;
-      if (fallback && image.src !== fallback) {
-        image.src = fallback;
-      }
-    });
   }
 
   document.body.appendChild(modal);
   return modal;
 }
 
-function openPreviewModal(preview: ProductPreview): void {
+async function openPreviewModal(preview: ProductPreview, tok: PreviewToken): Promise<void> {
   const modal = ensurePreviewModal();
   const title = modal.querySelector(".preview-modal-title") as HTMLElement | null;
   const image = modal.querySelector(".preview-modal-image") as HTMLImageElement | null;
   if (!title || !image) return;
 
   title.textContent = preview.title;
-  image.dataset.fallback = preview.imageJpg;
-  image.src = preview.imageWebp;
-  image.alt = preview.title;
-  modal.classList.add("open");
+  image.src = "";
+  modal.classList.add("open", "preview-loading");
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("preview-modal-open");
+
+  const rawUrl = previewApiUrl(preview.fileWebp, tok);
+  const watermarked = await applyCanvasWatermark(rawUrl);
+  image.src = watermarked;
+  image.alt = preview.title;
+  modal.classList.remove("preview-loading");
 }
 
 /**
@@ -174,14 +232,16 @@ export function applyCategoryConfiguration(): void {
 /**
  * Render product items inside a category panel
  */
-function renderCategoryProducts(
+async function renderCategoryProducts(
   container: Element,
   products: readonly StoreProduct[],
   cartManager: CartManager
-): void {
+): Promise<void> {
   container.innerHTML = "";
   const list = document.createElement("ul");
   list.className = "category-products-list";
+
+  const tok = await ensurePreviewToken();
 
   products.forEach((product) => {
     const previews = createProductPreviews(product);
@@ -213,19 +273,12 @@ function renderCategoryProducts(
       thumbButton.setAttribute("aria-label", `Powieksz ${preview.title}`);
 
       const thumbImage = document.createElement("img");
-      thumbImage.src = preview.imageWebp;
+      thumbImage.src = previewApiUrl(preview.fileWebp, tok);
       thumbImage.alt = preview.title;
       thumbImage.loading = "lazy";
       thumbImage.decoding = "async";
-      thumbImage.dataset.fallback = preview.imageJpg;
       thumbImage.draggable = false;
       thumbImage.addEventListener("contextmenu", (event) => event.preventDefault());
-      thumbImage.addEventListener("error", () => {
-        const fallback = thumbImage.dataset.fallback;
-        if (fallback && thumbImage.src !== fallback) {
-          thumbImage.src = fallback;
-        }
-      });
 
       const thumbLabel = document.createElement("span");
       thumbLabel.className = "category-preview-label";
@@ -233,7 +286,7 @@ function renderCategoryProducts(
 
       thumbButton.appendChild(thumbImage);
       thumbButton.appendChild(thumbLabel);
-      thumbButton.addEventListener("click", () => openPreviewModal(preview));
+      thumbButton.addEventListener("click", () => { void openPreviewModal(preview, tok); });
       previewGallery.appendChild(thumbButton);
     });
 
@@ -320,6 +373,7 @@ export function setupCategoryCardToggles(cartManager: CartManager): void {
     if (!expandBtn || !panel || !category) return;
 
     expandBtn.addEventListener("click", () => {
+      void (async () => {
       const isOpen = expandBtn.getAttribute("aria-expanded") === "true";
 
       // Close all other panels
@@ -334,13 +388,14 @@ export function setupCategoryCardToggles(cartManager: CartManager): void {
       if (isOpen) {
         closePanel(panel, cardNode, expandBtn, true);
       } else {
-        const inner = panel.querySelector(".category-products-panel-inner");
-        if (inner) renderCategoryProducts(inner, category.products, cartManager);
         expandBtn.setAttribute("aria-expanded", "true");
         panel.setAttribute("aria-hidden", "false");
         panel.classList.add("open");
         cardNode.classList.add("expanded");
+        const inner = panel.querySelector(".category-products-panel-inner");
+        if (inner) await renderCategoryProducts(inner, category.products, cartManager);
       }
+      })();
     });
   });
 }

@@ -1430,7 +1430,7 @@ button:active {
   padding: 6px;
   background: #fffdf7;
   cursor: zoom-in;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, filter 0.22s ease, opacity 0.22s ease;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -1459,6 +1459,17 @@ button:active {
   font-weight: 700;
   color: #7c4f12;
   text-align: center;
+}
+
+/* Blur non-hovered thumbnails in the same gallery */
+.category-preview-gallery:has(.category-preview-thumb:hover) .category-preview-thumb:not(:hover) {
+  filter: blur(2px);
+  opacity: 0.65;
+}
+
+.category-preview-gallery:has(.category-preview-thumb:focus-visible) .category-preview-thumb:not(:focus-visible) {
+  filter: blur(2px);
+  opacity: 0.65;
 }
 
 .preview-modal {
@@ -1520,6 +1531,29 @@ button:active {
   border: 1px solid #ddd;
   user-select: none;
   -webkit-user-drag: none;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes preview-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.preview-modal.preview-loading .preview-modal-image {
+  opacity: 0;
+}
+
+.preview-modal.preview-loading .preview-modal-dialog::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  border: 4px solid var(--color-accent);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: preview-spin 0.7s linear infinite;
+  pointer-events: none;
 }
 
 body.preview-modal-open {
