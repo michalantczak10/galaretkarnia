@@ -100,6 +100,7 @@ function ensurePreviewModal(): HTMLElement {
   modal.id = "preview-modal";
   modal.className = "preview-modal";
   modal.setAttribute("aria-hidden", "true");
+  modal.setAttribute("data-testid", "preview-modal");
   modal.innerHTML = `
     <div class="preview-modal-backdrop" data-preview-close="true"></div>
     <div class="preview-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
@@ -214,6 +215,8 @@ export function applyCategoryConfiguration(): void {
     const heading = document.createElement("h3");
     heading.className = "category-group-heading";
     heading.textContent = group.label;
+    heading.dataset.testid = "category-group-heading";
+    heading.dataset.groupId = group.id;
 
     const grid = document.createElement("div");
     grid.className = "product-grid";
@@ -271,6 +274,7 @@ async function renderCategoryProducts(
       thumbButton.className = "category-preview-thumb";
       thumbButton.type = "button";
       thumbButton.setAttribute("aria-label", `Powieksz ${preview.title}`);
+      thumbButton.setAttribute("data-testid", "btn-preview-thumb");
 
       const thumbImage = document.createElement("img");
       thumbImage.src = previewApiUrl(preview.fileWebp, tok);
