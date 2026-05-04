@@ -1,30 +1,60 @@
 import { CartManager } from "./cart-manager.js";
 import { renderCheckoutSummary } from "./checkout-summary.js";
 import { showToast } from "./utils.js";
-import { STORE_CONFIG, getCategoryConfig, type CategoryId, type StoreProduct } from "../config/store.js";
+import { STORE_CONFIG, getCategoryConfig, type CategoryId, type StoreProduct, type StoreCategory } from "../config/store.js";
+
+const CHEVRON_SVG = `<svg class="expand-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><polyline points="6 9 12 15 18 9"/></svg>`;
 
 /**
- * Apply category configuration to category cards in DOM
+ * Create a category card element from config
+ */
+function createCategoryCard(category: StoreCategory): HTMLElement {
+  const panelId = `category-panel-${category.id}`;
+  const card = document.createElement("div");
+  card.className = "product-card";
+  card.dataset.categoryId = category.id;
+
+  const featuresHtml = category.features
+    .map((f) => `<li>${f}</li>`)
+    .join("");
+
+  card.innerHTML = `
+    <picture>
+      <source srcset="${category.imageWebp}" type="image/webp" />
+      <img src="${category.image}" alt="${category.imageAlt}" loading="lazy" decoding="async" data-category-image />
+    </picture>
+    <div class="product-card-body">
+      <h3 data-category-name>${category.name}</h3>
+      <p class="product-card-desc" data-category-description>${category.description}</p>
+      <ul class="product-features" aria-label="Co zawiera kategorię" data-category-features>
+        ${featuresHtml}
+      </ul>
+      <div class="product-card-footer">
+        <button class="category-expand-btn" aria-expanded="false" aria-controls="${panelId}" data-testid="btn-expand-category">
+          Wybierz produkt
+          ${CHEVRON_SVG}
+        </button>
+      </div>
+    </div>
+    <div class="category-products-panel" id="${panelId}" aria-hidden="true">
+      <div class="category-products-panel-inner"></div>
+    </div>
+  `;
+
+  return card;
+}
+
+/**
+ * Generate and insert all category cards into #product-grid
  */
 export function applyCategoryConfiguration(): void {
-  document.querySelectorAll(".product-card[data-category-id]").forEach((cardNode) => {
-    if (!(cardNode instanceof HTMLElement)) return;
+  const grid = document.getElementById("product-grid");
+  if (!grid) return;
 
-    const categoryId = cardNode.dataset.categoryId as CategoryId;
-    const category = getCategoryConfig(categoryId);
-    if (!category) return;
-
-    const imageEl = cardNode.querySelector("[data-category-image]") as HTMLImageElement | null;
-    const nameEl = cardNode.querySelector("[data-category-name]") as HTMLElement | null;
-    const descriptionEl = cardNode.querySelector("[data-category-description]") as HTMLElement | null;
-
-    if (imageEl) {
-      imageEl.src = category.image;
-      imageEl.alt = category.imageAlt;
-    }
-    if (nameEl) nameEl.textContent = category.name;
-    if (descriptionEl) descriptionEl.textContent = category.description;
-  });
+  grid.innerHTML = "";
+  for (const category of STORE_CONFIG.categories) {
+    grid.appendChild(createCategoryCard(category));
+  }
 }
 
 /**
