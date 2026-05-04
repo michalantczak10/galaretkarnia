@@ -101,6 +101,26 @@ function renderCategoryProducts(
   container.appendChild(list);
 }
 
+function closePanel(panel: HTMLElement, card: HTMLElement, btn: HTMLButtonElement, animated = false): void {
+  btn.setAttribute("aria-expanded", "false");
+  panel.setAttribute("aria-hidden", "true");
+  panel.classList.remove("open");
+  card.classList.remove("expanded");
+  if (animated) {
+    panel.addEventListener(
+      "transitionend",
+      () => {
+        const inner = panel.querySelector(".category-products-panel-inner");
+        if (inner) inner.innerHTML = "";
+      },
+      { once: true }
+    );
+  } else {
+    const inner = panel.querySelector(".category-products-panel-inner");
+    if (inner) inner.innerHTML = "";
+  }
+}
+
 /**
  * Setup category card expand/collapse toggles
  */
@@ -127,23 +147,11 @@ export function setupCategoryCardToggles(cartManager: CartManager): void {
         const otherBtn = otherCard.querySelector(".category-expand-btn") as HTMLButtonElement | null;
         const otherPanelId = otherBtn?.getAttribute("aria-controls");
         const otherPanel = otherPanelId ? document.getElementById(otherPanelId) : null;
-        if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
-        if (otherPanel) {
-          otherPanel.setAttribute("aria-hidden", "true");
-          otherPanel.classList.remove("open");
-          const otherInner = otherPanel.querySelector(".category-products-panel-inner");
-          if (otherInner) otherInner.innerHTML = "";
-        }
-        otherCard.classList.remove("expanded");
+        if (otherBtn && otherPanel) closePanel(otherPanel, otherCard, otherBtn, false);
       });
 
       if (isOpen) {
-        expandBtn.setAttribute("aria-expanded", "false");
-        panel.setAttribute("aria-hidden", "true");
-        panel.classList.remove("open");
-        const inner = panel.querySelector(".category-products-panel-inner");
-        if (inner) inner.innerHTML = "";
-        cardNode.classList.remove("expanded");
+        closePanel(panel, cardNode, expandBtn, true);
       } else {
         const inner = panel.querySelector(".category-products-panel-inner");
         if (inner) renderCategoryProducts(inner, category.products, cartManager);
