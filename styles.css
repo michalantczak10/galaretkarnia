@@ -1254,13 +1254,13 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 
 .product-card-footer .addToCartBtn {
   flex: 1;
-  min-width: 160px;
+  min-width: 0;
 }
 
 .price {
@@ -2933,6 +2933,33 @@ button:active {
     padding: 0 25px;
   }
 
+  .product-card-body {
+    padding: 16px 18px 20px;
+  }
+
+  .product-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .product-card-desc {
+    font-size: 0.9rem;
+  }
+
+  .product-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .product-card-footer .addToCartBtn {
+    width: 100%;
+  }
+
+  .price {
+    font-size: 1.4rem;
+    text-align: left;
+  }
+
   .cart-dock {
     width: min(1200px, calc(100% - 50px));
   }
@@ -2958,26 +2985,30 @@ button:active {
     gap: 15px;
     padding: 0 20px;
   }
-  
-  .product-card {
-    padding: 12px;
+
+  .product-card-body {
+    padding: 14px 16px 18px;
   }
   
   .product-card h3 {
-    font-size: 18px;
+    font-size: 1rem;
   }
   
-  .product-card p {
-    font-size: 14px;
+  .product-card-desc {
+    font-size: 0.85rem;
   }
-  
+
+  .product-features {
+    display: none;
+  }
+
   .price {
-    font-size: 18px;
+    font-size: 1.3rem;
   }
   
   .product-card button {
     padding: 10px 14px;
-    font-size: 14px;
+    font-size: 0.9rem;
     min-height: 44px;
   }
   
@@ -3129,7 +3160,24 @@ button:active {
   .product-card {
     max-width: 100%;
   }
-  
+
+  .product-card-body {
+    padding: 16px 20px 20px;
+  }
+
+  .product-features {
+    display: flex;
+  }
+
+  .product-card-footer {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .product-card-footer .addToCartBtn {
+    width: auto;
+  }
+
   .hero {
     padding: 58px 20px;
   }
@@ -3237,16 +3285,16 @@ button:active {
     margin-bottom: 8px;
   }
 
-  .product-card {
-    padding: 12px;
+  .product-card-body {
+    padding: 12px 14px 16px;
   }
-  
+
   .product-card img {
-    margin-bottom: 10px;
+    margin-bottom: 0;
   }
   
   .product-grid {
-    padding: 0 20px;
+    padding: 0 10px;
   }
   
   .mini-cart {
