@@ -1261,6 +1261,7 @@ button:active {
 .product-card-footer .addToCartBtn {
   flex: 1;
   min-width: 0;
+  text-align: center;
 }
 
 .price {
@@ -1269,6 +1270,7 @@ button:active {
   color: var(--color-primary);
   margin: 0;
   white-space: nowrap;
+  text-align: center;
 }
 
 /* Badge */
