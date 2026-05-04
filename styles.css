@@ -1252,15 +1252,13 @@ button:active {
 .product-card-footer {
   margin-top: auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
-  flex-wrap: nowrap;
 }
 
 .product-card-footer .addToCartBtn {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   text-align: center;
 }
 
@@ -1269,7 +1267,6 @@ button:active {
   font-weight: 800;
   color: var(--color-primary);
   margin: 0;
-  white-space: nowrap;
   text-align: center;
 }
 
@@ -2947,19 +2944,8 @@ button:active {
     font-size: 0.9rem;
   }
 
-  .product-card-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .product-card-footer .addToCartBtn {
-    width: 100%;
-  }
-
   .price {
     font-size: 1.4rem;
-    text-align: left;
   }
 
   .cart-dock {
@@ -3172,12 +3158,7 @@ button:active {
   }
 
   .product-card-footer {
-    flex-direction: row;
     align-items: center;
-  }
-
-  .product-card-footer .addToCartBtn {
-    width: auto;
   }
 
   .hero {
