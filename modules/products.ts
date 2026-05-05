@@ -50,8 +50,8 @@ function variantSvgUrl(productId: string, v: number): string {
 function createProductPreviews(product: StoreProduct): ProductPreview[] {
   return [0, 1, 2, 3, 4, 5].map((variantIndex) => ({
     id: `${product.id}-v${variantIndex + 1}`,
-    title: `${product.name} – Strona ${variantIndex + 1}`,
-    caption: `Podgląd strony ${variantIndex + 1}`,
+    title: `${product.name} – Grafika ${variantIndex + 1}`,
+    caption: `Grafika ${variantIndex + 1}`,
     fileWebp: `${product.id}-v${variantIndex + 1}.webp`,
     fileJpg: `${product.id}-v${variantIndex + 1}.jpg`,
     svgThumb: variantSvgUrl(product.id, variantIndex + 1),
