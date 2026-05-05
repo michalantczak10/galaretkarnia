@@ -1454,7 +1454,8 @@ button:active {
 .category-preview-thumb img {
   width: 100%;
   aspect-ratio: 3 / 4;
-  object-fit: cover;
+  object-fit: contain;
+  background: #fff;
   border-radius: 7px;
   user-select: none;
   -webkit-user-drag: none;

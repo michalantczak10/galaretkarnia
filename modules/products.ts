@@ -47,14 +47,50 @@ function variantSvgUrl(productId: string, v: number): string {
   return new URL(`../img/products/prod-${productId}-v${v}.svg`, import.meta.url).href;
 }
 
-function createProductPreviews(product: StoreProduct): ProductPreview[] {
-  return [0, 1, 2, 3, 4, 5].map((variantIndex) => ({
-    id: `${product.id}-v${variantIndex + 1}`,
-    title: `${product.name} – Grafika ${variantIndex + 1}`,
-    caption: `Grafika ${variantIndex + 1}`,
-    fileWebp: `${product.id}-v${variantIndex + 1}.webp`,
-    fileJpg: `${product.id}-v${variantIndex + 1}.jpg`,
-    svgThumb: variantSvgUrl(product.id, variantIndex + 1),
+// ─── Dynamic preview map built from previews/ folder structure ───────────────
+// Glob discovers all SVGs at build time: previews/{catId}/wariant-{N}/grafika-{M}.svg
+const RAW_PREVIEWS = import.meta.glob(
+  "../previews/**/*.svg",
+  { query: "?url", import: "default", eager: true }
+) as Record<string, string>;
+
+// Map: catId → variantIdx(0-based) → sorted URL[]
+const PREVIEW_MAP = new Map<string, Map<number, string[]>>();
+for (const [rawPath, url] of Object.entries(RAW_PREVIEWS)) {
+  // rawPath like: "../previews/poster/wariant-1/grafika-1.svg"
+  const segments = rawPath.split("/");
+  const catId      = segments[2];
+  const variantDir = segments[3]; // "wariant-1", "wariant-2", ...
+  const variantNum = parseInt(variantDir?.replace("wariant-", "") ?? "", 10);
+  if (!Number.isFinite(variantNum) || Number.isNaN(variantNum)) continue;
+  const variantIdx = variantNum - 1;
+  if (!PREVIEW_MAP.has(catId)) PREVIEW_MAP.set(catId, new Map());
+  const catMap = PREVIEW_MAP.get(catId)!;
+  if (!catMap.has(variantIdx)) catMap.set(variantIdx, []);
+  catMap.get(variantIdx)!.push(url);
+}
+// Sort URLs within each variant so grafika-1, grafika-2, ... are in order
+for (const catMap of PREVIEW_MAP.values()) {
+  for (const [idx, urls] of catMap) catMap.set(idx, [...urls].sort());
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+function createProductPreviews(
+  product: StoreProduct,
+  catId: string,
+  variantIdx: number
+): ProductPreview[] {
+  const urls = PREVIEW_MAP.get(catId)?.get(variantIdx) ?? [];
+  const sources = urls.length > 0
+    ? urls
+    : [0, 1, 2, 3, 4, 5].map((i) => variantSvgUrl(product.id, i + 1));
+  return sources.map((url, i) => ({
+    id: `${product.id}-v${i + 1}`,
+    title: `${product.name} – Grafika ${i + 1}`,
+    caption: `Grafika ${i + 1}`,
+    fileWebp: `${product.id}-v${i + 1}.webp`,
+    fileJpg: `${product.id}-v${i + 1}.jpg`,
+    svgThumb: url,
   }));
 }
 
@@ -243,6 +279,7 @@ export function applyCategoryConfiguration(): void {
  */
 async function renderCategoryProducts(
   container: Element,
+  categoryId: string,
   products: readonly StoreProduct[],
   cartManager: CartManager
 ): Promise<void> {
@@ -252,8 +289,15 @@ async function renderCategoryProducts(
 
   const tok = await ensurePreviewToken();
 
-  products.forEach((product) => {
-    const previews = createProductPreviews(product);
+  // Determine how many variants to show: filesystem variant count takes precedence
+  const catPreviewMap = PREVIEW_MAP.get(categoryId);
+  const effectiveCount = catPreviewMap && catPreviewMap.size > 0
+    ? Math.min(catPreviewMap.size, products.length)
+    : products.length;
+  const visibleProducts = products.slice(0, effectiveCount);
+
+  visibleProducts.forEach((product, variantIdx) => {
+    const previews = createProductPreviews(product, categoryId, variantIdx);
     const li = document.createElement("li");
     li.className = "category-product-item";
 
@@ -412,7 +456,7 @@ export function setupCategoryCardToggles(cartManager: CartManager): void {
         panel.classList.add("open");
         cardNode.classList.add("expanded");
         const inner = panel.querySelector(".category-products-panel-inner");
-        if (inner) await renderCategoryProducts(inner, category.products, cartManager);
+        if (inner) await renderCategoryProducts(inner, categoryId, category.products, cartManager);
       }
       })();
     });
