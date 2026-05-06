@@ -129,7 +129,7 @@ async function sendOrderNotification(order: OrderRecord): Promise<void> {
   const itemsHtml = order.items
     .map(
       (item) =>
-        `<li><strong>${escapeHtml(item.name)}</strong> — ${item.qty} szt. × ${item.price} zł = ${item.qty * item.price} zł</li>`,
+        `<li><strong>${escapeHtml(item.name)}</strong> — ${item.qty} lic. × ${item.price} zł = ${item.qty * item.price} zł</li>`,
     )
     .join('');
 
@@ -137,7 +137,7 @@ async function sendOrderNotification(order: OrderRecord): Promise<void> {
     <div style="font-family:Segoe UI,Arial,sans-serif;line-height:1.6;color:#111827;padding:20px;">
       <h2 style="color:#1d4ed8;">Nowe zamówienie</h2>
       <p>Numer zamówienia: <strong>${escapeHtml(order.orderRef)}</strong></p>
-      <p>Klient: <strong>${escapeHtml(order.customerName)}</strong></p>
+      <p>Nauczyciel: <strong>${escapeHtml(order.customerName)}</strong></p>
       <p>E-mail: <strong>${escapeHtml(order.customerEmail)}</strong></p>
       <p>Telefon: <strong>${escapeHtml(order.customerPhone || 'brak')}</strong></p>
       <p>Metoda płatności: <strong>${escapeHtml(order.paymentMethod)}</strong></p>
@@ -191,7 +191,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   const selectedPaymentMethod = paymentMethod === 'blik' ? 'blik' : 'bank_transfer';
 
   if (!trimmedName) {
-    res.status(400).json({ error: 'Podaj swoje imię lub nazwę organizacji.' });
+    res.status(400).json({ error: 'Podaj imię i nazwisko nauczyciela.' });
     return;
   }
 
@@ -292,7 +292,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       paymentTarget,
       total,
       message:
-        'Dziękujemy! Twoje zamówienie zostało zapisane. Link do zakupionego produktu wyślemy ręcznie po zaksięgowaniu płatności.',
+        'Dziękujemy! Zamówienie nauczyciela zostało zapisane. Link do zakupionych materiałów wyślemy ręcznie po zaksięgowaniu płatności.',
       status: 'pending_payment',
     });
   } catch (error) {

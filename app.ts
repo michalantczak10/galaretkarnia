@@ -65,7 +65,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (confirmed) {
           cartManager.clear();
           renderCheckoutSummary(cartManager);
-          showToast("Zamówienie zostało wyczyszczone.");
+          showToast("Podsumowanie licencji zostało wyczyszczone.");
         }
       })();
     }
@@ -83,7 +83,7 @@ window.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     if (cartManager.isEmpty()) {
-      showToast("Zamówienie nie zawiera wybranego produktu. Dodaj produkty przed złożeniem zamówienia.");
+      showToast("Podsumowanie nie zawiera wybranego produktu. Dodaj licencje przed złożeniem zamówienia.");
       document.getElementById("checkoutSummary")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
@@ -104,7 +104,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     setSubmitButtonLoading(submitButton, true);
-    setCheckoutMessage(checkoutMessage, "Wysyłanie zamówienia...");
+    setCheckoutMessage(checkoutMessage, "Wysyłanie zamówienia nauczyciela...");
 
     const response = await submitOrder(
       buildOrderData(
@@ -126,7 +126,7 @@ window.addEventListener("DOMContentLoaded", () => {
       renderCheckoutSummary(cartManager);
       checkoutForm.reset();
     } else {
-      setCheckoutMessage(checkoutMessage, "Błąd podczas wysyłania zamówienia.");
+      setCheckoutMessage(checkoutMessage, "Błąd podczas wysyłania zamówienia nauczyciela.");
     }
   });
 });

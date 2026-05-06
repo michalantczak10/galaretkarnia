@@ -205,7 +205,7 @@ test.describe('CSS Styles and Layout', () => {
     const cta = page.locator('a.hero-cta');
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', '#products');
-    await expect(cta).toContainText('Sprawdź ofertę');
+    await expect(cta).toContainText('Wybierz materiały dla swojej klasy');
   });
 
   test('product cards have expand button in footer', async ({ page }) => {

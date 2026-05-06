@@ -15,9 +15,9 @@ export function validateName(
   let msg = "";
 
   if (value.length === 0) {
-    msg = "Podaj swoje imię lub nazwę organizacji.";
+    msg = "Podaj imię i nazwisko nauczyciela.";
   } else if (value.length > 80) {
-    msg = "Imię/nazwa może mieć maksymalnie 80 znaków.";
+    msg = "Imię i nazwisko nauczyciela może mieć maksymalnie 80 znaków.";
   }
 
   if (showError) {

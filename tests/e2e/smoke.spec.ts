@@ -11,7 +11,7 @@ test.describe('Szkolne gazetki smoke', () => {
   });
 
   test('home page loads with key sections', async ({ page }) => {
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Gotowe grafiki PDF');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Gotowe gazetki szkolne PDF');
     await expect(page.getByTestId('section-products')).toBeVisible();
     await expect(page.getByTestId('order-form')).toBeVisible();
   });
@@ -31,7 +31,7 @@ test.describe('Szkolne gazetki smoke', () => {
 
     const toast = page.locator('#toastMessage');
     await expect(toast).toBeVisible();
-    await expect(toast).toContainText('Zamówienie nie zawiera wybranego produktu.');
+    await expect(toast).toContainText('Podsumowanie nie zawiera wybranego produktu.');
     await expect(page.locator('#order-confirm-modal')).toHaveCount(0);
   });
 

@@ -9,32 +9,8 @@ type ProductPreview = {
   id: string;
   title: string;
   caption: string;
-  fileWebp: string;
-  fileJpg: string;
   svgThumb: string;
 };
-
-type PreviewToken = { token: string; exp: number };
-
-let _cachedToken: PreviewToken | null = null;
-
-async function ensurePreviewToken(): Promise<PreviewToken> {
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (_cachedToken && _cachedToken.exp > nowSeconds + 30) return _cachedToken;
-  try {
-    const res = await fetch("/api/preview-token");
-    if (!res.ok) throw new Error("token fetch failed");
-    const data = (await res.json()) as PreviewToken;
-    _cachedToken = data;
-    return data;
-  } catch {
-    return { token: "dev", exp: nowSeconds + 300 };
-  }
-}
-
-function previewApiUrl(file: string, tok: PreviewToken): string {
-  return `/api/preview-img?file=${encodeURIComponent(file)}&token=${tok.token}&exp=${tok.exp}`;
-}
 
 function buildEnhancedDescription(product: StoreProduct): string {
   const base = product.description.replace(/\.$/, "");
@@ -88,8 +64,6 @@ function createProductPreviews(
     id: `${product.id}-v${i + 1}`,
     title: `${product.name} – Grafika ${i + 1}`,
     caption: `Grafika ${i + 1}`,
-    fileWebp: `${product.id}-v${i + 1}.webp`,
-    fileJpg: `${product.id}-v${i + 1}.jpg`,
     svgThumb: url,
   }));
 }
@@ -182,7 +156,7 @@ function ensurePreviewModal(): HTMLElement {
   return modal;
 }
 
-async function openPreviewModal(preview: ProductPreview, tok: PreviewToken): Promise<void> {
+async function openPreviewModal(preview: ProductPreview): Promise<void> {
   const modal = ensurePreviewModal();
   const title = modal.querySelector(".preview-modal-title") as HTMLElement | null;
   const image = modal.querySelector(".preview-modal-image") as HTMLImageElement | null;
@@ -194,8 +168,7 @@ async function openPreviewModal(preview: ProductPreview, tok: PreviewToken): Pro
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("preview-modal-open");
 
-  const rawUrl = previewApiUrl(preview.fileWebp, tok);
-  const watermarked = await applyCanvasWatermark(rawUrl);
+  const watermarked = await applyCanvasWatermark(preview.svgThumb);
   image.src = watermarked;
   image.alt = preview.title;
   modal.classList.remove("preview-loading");
@@ -287,8 +260,6 @@ async function renderCategoryProducts(
   const list = document.createElement("ul");
   list.className = "category-products-list";
 
-  const tok = await ensurePreviewToken();
-
   // Determine how many variants to show: filesystem variant count takes precedence
   const catPreviewMap = PREVIEW_MAP.get(categoryId);
   const effectiveCount = catPreviewMap && catPreviewMap.size > 0
@@ -349,7 +320,7 @@ async function renderCategoryProducts(
 
       thumbButton.appendChild(thumbImage);
       thumbButton.appendChild(thumbLabel);
-      thumbButton.addEventListener("click", () => { void openPreviewModal(preview, tok); });
+      thumbButton.addEventListener("click", () => { void openPreviewModal(preview); });
       previewGallery.appendChild(thumbButton);
     });
 

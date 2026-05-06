@@ -17,7 +17,7 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     emptyMsg.innerHTML = `
       <div class="emoji">🛒</div>
       <div class="message">Koszyk jest pusty.</div>
-      <div class="submessage">Dodaj grafikę do zamówienia, aby kontynuować.</div>
+      <div class="submessage">Dodaj grafikę i ustaw liczbę licencji dla szkół, aby kontynuować.</div>
     `;
 
     const browseBtn = document.createElement("button");
@@ -52,9 +52,8 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
     const row = document.createElement("div");
     row.className = "checkout-summary-product-row";
 
-    let qtyLabel = "sztuk";
-    if (item.qty === 1) qtyLabel = "sztuka";
-    else if (item.qty >= 2 && item.qty <= 4) qtyLabel = "sztuki";
+    let qtyLabel = "licencji";
+    if (item.qty === 1) qtyLabel = "licencja";
 
     let imgHtml = "";
     if (item.image) {
@@ -66,7 +65,7 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
         ${imgHtml}
         <div class="checkout-summary-product-meta">
           <span class="checkout-summary-product-name">${item.name}</span>
-          <span class="checkout-summary-product-unit">${item.qty} ${qtyLabel}. × ${item.price} zł</span>
+          <span class="checkout-summary-product-unit">${item.qty} ${qtyLabel} × ${item.price} zł</span>
         </div>
         <div class="checkout-summary-product-actions">
           <button class="cart-btn cart-btn-decrease" data-product-key="${item.key}" title="Zmniejsz ilość">-</button>
@@ -91,13 +90,13 @@ export function renderCheckoutSummary(cartManager: CartManager): void {
   summaryEl.appendChild(hr1);
 
   const productsLine = document.createElement("div");
-  productsLine.innerHTML = `<strong>Produkty w koszyku:</strong> ${productsTotal} zł`;
+  productsLine.innerHTML = `<strong>Licencje w koszyku:</strong> ${productsTotal} zł`;
   productsLine.className = "checkout-summary-total-line";
   summaryEl.appendChild(productsLine);
 
   const itemsLine = document.createElement("div");
   itemsLine.className = "checkout-summary-delivery-line";
-  itemsLine.innerHTML = `<strong>Liczba pozycji:</strong> ${itemsCount}`;
+  itemsLine.innerHTML = `<strong>Łączna liczba licencji:</strong> ${itemsCount}`;
   summaryEl.appendChild(itemsLine);
 
   const hr2 = document.createElement("hr");

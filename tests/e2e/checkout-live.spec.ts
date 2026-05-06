@@ -45,6 +45,6 @@ test.describe('Szkolne gazetki checkout live', () => {
 
     await expect(page.getByTestId('input-customer-phone')).toHaveValue('');
     await expect(page.getByTestId('input-customer-notes')).toHaveValue('');
-    await expect(page.getByTestId('checkout-summary-list')).toContainText('Zamówienie nie zawiera wybranego produktu.');
+    await expect(page.getByTestId('checkout-summary-list')).toContainText('Koszyk jest pusty.');
   });
 });

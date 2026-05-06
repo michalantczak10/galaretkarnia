@@ -12,8 +12,8 @@ test.describe('Category cards and seasonal groups', () => {
     await expect(headings).toHaveCount(5);
 
     const labels = ['Całoroczne', 'Jesień', 'Zima', 'Wiosna', 'Lato'];
-    for (let i = 0; i < labels.length; i++) {
-      await expect(headings.nth(i)).toContainText(labels[i]);
+    for (const [i, label] of labels.entries()) {
+      await expect(headings.nth(i)).toContainText(label);
     }
   });
 
@@ -87,14 +87,14 @@ test.describe('Preview thumbnails and modal', () => {
     await page.getByTestId('btn-expand-category').first().click();
   });
 
-  test('shows 3 preview thumbnails per product', async ({ page }) => {
+  test('shows 6 preview thumbnails per product', async ({ page }) => {
     const gallery = page.locator('.category-preview-gallery').first();
     await expect(gallery).toBeVisible();
     const thumbs = gallery.locator('[data-testid="btn-preview-thumb"]');
-    await expect(thumbs).toHaveCount(3);
+    await expect(thumbs).toHaveCount(6);
   });
 
-  test('thumbnail images load from API URL', async ({ page }) => {
+  test('thumbnail images load from preview assets', async ({ page }) => {
     const thumbImg = page
       .locator('.category-preview-gallery')
       .first()
@@ -103,10 +103,8 @@ test.describe('Preview thumbnails and modal', () => {
 
     await expect(thumbImg).toBeVisible();
     const src = await thumbImg.getAttribute('src');
-    expect(src).toContain('/api/preview-img');
-    expect(src).toContain('file=');
-    expect(src).toContain('token=');
-    expect(src).toContain('exp=');
+    expect(src).toBeTruthy();
+    expect(src).toMatch(/(previews\/|previews%2F|\.svg$|data:image\/)/i);
   });
 
   test('clicking thumbnail opens preview modal', async ({ page }) => {

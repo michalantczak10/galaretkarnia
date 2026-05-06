@@ -5,7 +5,7 @@
 Funkcja serverless `api/orders.js`:
 
 1. zapisuje zamówienie do MongoDB
-2. zwraca klientowi numer zamówienia
+2. zwraca numer zamówienia nauczycielowi
 3. próbuje wysłać email z powiadomieniem o zamówieniu
 
 Wysyłka email nie blokuje zapisu zamówienia. Jeśli Resend zgłosi błąd, zamówienie i tak zostanie zapisane.
@@ -68,6 +68,10 @@ W logach szukaj:
 2. Mail nie wychodzi, ale zamówienie jest zapisane
 
 To wciąż oczekiwane zachowanie. System nie traci zamówienia przez problem z email.
+
+## Uwaga o licencjach
+
+W danych zamówienia pole `items[].qty` oznacza liczbę licencji nauczyciela (np. do kilku klas/projektów), a nie liczbę fizycznych sztuk.
 
 3. Rozdzielenie produkcji i testów
 

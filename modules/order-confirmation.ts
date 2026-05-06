@@ -44,8 +44,8 @@ export function showOrderConfirmationModal(
   body.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px;">
       <span style="font-size:2.7em;line-height:1;">🎉</span>
-      <div class="order-confirm-modal-thankyou">Zamówienie przyjęte!</div>
-      <div style="font-size:1.13em;color:#1d4ed8;font-weight:700;">Dziękujemy za zakup grafik do gazetki szkolnej.</div>
+      <div class="order-confirm-modal-thankyou">Dziękujemy. Twoje zamówienie nauczyciela zostało przyjęte.</div>
+      <div style="font-size:1.13em;color:#1d4ed8;font-weight:700;">Dziękujemy za zakup materiałów do gazetki szkolnej.</div>
     </div>
     <div class="order-confirm-modal-summary-row"><b>Numer zamówienia:</b><br><span class="order-confirm-modal-ref">${orderNum}</span></div>
     <div class="order-confirm-modal-summary-row"><b>Do zapłaty:</b><br><span class="order-confirm-modal-total">${data.total || 0} zł</span></div>
@@ -60,9 +60,8 @@ export function showOrderConfirmationModal(
   cartManager.getAll().forEach((item: CartItem) => {
     const row = document.createElement("div");
     row.className = "checkout-summary-product-row";
-    let qtyLabel = "sztuk";
-    if (item.qty === 1) qtyLabel = "sztuka";
-    else if (item.qty >= 2 && item.qty <= 4) qtyLabel = "sztuki";
+    let qtyLabel = "licencji";
+    if (item.qty === 1) qtyLabel = "licencja";
     let imgHtml = "";
     if (item.image) {
       imgHtml = `<img src="${item.image}" alt="${item.name}" class="checkout-summary-product-img">`;

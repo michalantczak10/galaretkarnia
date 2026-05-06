@@ -4,11 +4,11 @@ Sklep z gotowymi grafikami PDF do gazetki szkolnej dla nauczycieli.
 
 ## 📋 Opis
 
-Szkolne gazetki to prosta, responsywna strona e-commerce oferująca gotowe szablony i grafiki PDF do gazetki szkolnej. Projekt wykorzystuje TypeScript dla typowania i bezpieczeństwa kodu.
+Szkolne gazetki to prosta, responsywna strona e-commerce oferująca gotowe szablony i grafiki PDF do gazetki szkolnej dla nauczycieli. Projekt wykorzystuje TypeScript dla typowania i bezpieczeństwa kodu.
 
 ## 🚀 Funkcjonalności
 
-- **Dynamiczny koszyk zakupowy** - dodawanie produktów z automatycznym przeliczaniem
+- **Dynamiczny koszyk licencji** - dodawanie produktów z automatycznym przeliczaniem liczby licencji
 - **Checkout z walidacją** - walidacja telefonu i uwag
 - **Animacje** - płynne animacje przy dodawaniu produktów
 - **Responsywny design** - działa na wszystkich urządzeniach
@@ -208,21 +208,23 @@ szkolnegazetki.pl/
 
 ## 🔌 Endpointy API
 
-### Zamówienia
+### Zamówienia nauczyciela
 
 **POST `/api/orders`** - Złóż nowe zamówienie
 ```json
 {
-  "customerName": "Szkoła Podstawowa nr 10",
+  "customerName": "Anna Nowak",
   "customerEmail": "kontakt@szkolnegazetki.pl",
   "customerPhone": "512345678",
   "paymentMethod": "bank_transfer",
-  "notes": "Proszę o szybką realizację",
+  "notes": "Licencje do 2 projektów klasowych",
   "items": [
     {"name": "Plakaty szkolne PDF", "price": 45, "qty": 2}
   ]
 }
 ```
+
+`qty` oznacza liczbę licencji nauczyciela (np. do kilku klas lub projektów).
 
 ### Health check
 
@@ -253,26 +255,34 @@ Automatyczne usunięcie lokalnych gałęzi, które są już zmergowane:
 npm run ops:local:cleanup
 ```
 
-## 💾 Schemat Zamówienia
+## 💾 Schemat zamówienia
 
-Każde zamówienie w MongoDB zawiera:
+Każde zamówienie nauczyciela w MongoDB zawiera:
 ```json
 {
   "_id": "ObjectId",
-  "phone": "string",
+  "customerName": "string",
+  "customerEmail": "string",
+  "customerPhone": "string",
+  "paymentMethod": "bank_transfer|blik",
   "notes": "string",
   "items": [
     {"name": "string", "price": "number", "qty": "number"}
   ],
+  "productsTotal": "number",
   "total": "number",
-  "status": "oczekuje-na-platnosc|oplacone|w-realizacji|gotowe|anulowane",
-  "paymentStatus": "oczekiwanie-na-wplate",
-  "userId": "string|null",
-  "userEmail": "string|null",
+  "status": "pending_payment",
+  "paymentStatus": "pending",
+  "transferTitle": "string",
+  "paymentTarget": "string",
+  "orderRef": "string",
+  "environment": "development|production|test",
   "createdAt": "Date",
   "updatedAt": "Date"
 }
 ```
+
+W polu `items[].qty` przechowywana jest liczba licencji dla danego produktu.
 
 ## 🎨 Produkty
 
