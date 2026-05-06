@@ -302,7 +302,7 @@ async function renderCategoryProducts(
     li.className = "category-product-item";
 
     const productImg = document.createElement("img");
-    productImg.src = product.image;
+    productImg.src = previews[0]?.svgThumb ?? product.image;
     productImg.alt = product.name;
     productImg.className = "category-product-image";
     productImg.loading = "lazy";
