@@ -46,7 +46,7 @@ function buildBanner(): HTMLElement {
     <div class="cookie-consent-card">
       <h3>Ustawienia cookies</h3>
       <p>
-        Używamy niezbędnych plików cookies i pamięci przeglądarki do działania sklepu (np. zapisu koszyka).
+        Używamy tylko niezbędnych plików cookies i zapisujemy koszyk w Twojej przeglądarce.
         Opcjonalne cookies możesz zaakceptować lub odrzucić.
       </p>
       <div class="cookie-consent-actions">
