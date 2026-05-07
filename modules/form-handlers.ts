@@ -1,6 +1,6 @@
 import type { OrderData, OrderConfirmationData } from "../types.js";
 import { CartManager } from "./cart-manager.js";
-import { ApiHttpError, apiFetch } from "../config/api.js";
+import { API_BASE_URL, ApiHttpError, apiFetch } from "../config/api.js";
 import { showToast } from "./utils.js";
 
 export interface FormElements {
@@ -80,13 +80,25 @@ export async function submitOrder(
 
     return result;
   } catch (error) {
+    const isLocalhostUi =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const pointsToLocalApi =
+      API_BASE_URL.includes("localhost") || API_BASE_URL.includes("127.0.0.1");
+
     if (
       error instanceof ApiHttpError &&
       error.status === 404 &&
-      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      isLocalhostUi
     ) {
       showToast(
-        "Lokalne API zamówień nie jest uruchomione. Uruchom backend przez `vercel dev` albo ustaw `VITE_API_BASE_URL` na działający adres API."
+        "Lokalne API zamówień nie jest uruchomione. Uruchom backend przez npm run dev:api lub npm run dev:full."
+      );
+      return null;
+    }
+
+    if (error instanceof TypeError && isLocalhostUi && pointsToLocalApi) {
+      showToast(
+        "Brak połączenia z lokalnym API zamówień na porcie 3000. Uruchom npm run dev:api lub npm run dev:full."
       );
       return null;
     }
