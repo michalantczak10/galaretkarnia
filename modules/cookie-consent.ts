@@ -40,6 +40,7 @@ function buildBanner(): HTMLElement {
   container.setAttribute("role", "dialog");
   container.setAttribute("aria-live", "polite");
   container.setAttribute("aria-label", "Ustawienia cookies");
+  container.setAttribute("data-testid", "cookie-banner");
 
   container.innerHTML = `
     <div class="cookie-consent-card">
@@ -49,9 +50,9 @@ function buildBanner(): HTMLElement {
         Opcjonalne cookies możesz zaakceptować lub odrzucić.
       </p>
       <div class="cookie-consent-actions">
-        <button type="button" class="cookie-btn cookie-btn-secondary" data-cookie-action="reject">Odrzuć opcjonalne</button>
-        <button type="button" class="cookie-btn cookie-btn-secondary" data-cookie-action="settings">Ustawienia</button>
-        <button type="button" class="cookie-btn cookie-btn-primary" data-cookie-action="accept">Akceptuj wszystkie</button>
+        <button type="button" class="cookie-btn cookie-btn-secondary" data-cookie-action="reject" data-testid="btn-cookie-reject">Odrzuć opcjonalne</button>
+        <button type="button" class="cookie-btn cookie-btn-secondary" data-cookie-action="settings" data-testid="btn-cookie-settings">Ustawienia</button>
+        <button type="button" class="cookie-btn cookie-btn-primary" data-cookie-action="accept" data-testid="btn-cookie-accept">Akceptuj wszystkie</button>
       </div>
       <p class="cookie-consent-note">
         Szczegóły: <a href="#legal" data-legal-open="privacy">Polityka prywatności</a>
@@ -72,8 +73,8 @@ function buildBanner(): HTMLElement {
         <span>Marketingowe</span>
       </label>
       <div class="cookie-consent-actions">
-        <button type="button" class="cookie-btn cookie-btn-secondary" data-cookie-action="cancel-settings">Anuluj</button>
-        <button type="button" class="cookie-btn cookie-btn-primary" data-cookie-action="save-settings">Zapisz ustawienia</button>
+        <button type="button" class="cookie-btn cookie-btn-secondary" data-cookie-action="cancel-settings" data-testid="btn-cookie-cancel-settings">Anuluj</button>
+        <button type="button" class="cookie-btn cookie-btn-primary" data-cookie-action="save-settings" data-testid="btn-cookie-save-settings">Zapisz ustawienia</button>
       </div>
     </div>
   `;
@@ -88,6 +89,7 @@ function buildManageButton(): HTMLButtonElement {
   manageBtn.className = "cookie-manage-btn";
   manageBtn.textContent = "Ustawienia cookies";
   manageBtn.setAttribute("aria-label", "Otwórz ustawienia cookies");
+  manageBtn.setAttribute("data-testid", "btn-cookie-manage");
   return manageBtn;
 }
 

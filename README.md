@@ -74,6 +74,12 @@ npm run dev
 ```
 Otwórz `http://localhost:5173`.
 
+### Development frontend + API (zalecane do testowania zamówień)
+```bash
+npm run dev:full
+```
+Uruchamia równolegle frontend (`vite`) i lokalne API Vercel na `http://localhost:3000`.
+
 ### Produkcyjny build frontendu
 ```bash
 npm run build

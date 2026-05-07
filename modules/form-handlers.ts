@@ -1,6 +1,6 @@
 import type { OrderData, OrderConfirmationData } from "../types.js";
 import { CartManager } from "./cart-manager.js";
-import { apiFetch } from "../config/api.js";
+import { ApiHttpError, apiFetch } from "../config/api.js";
 import { showToast } from "./utils.js";
 
 export interface FormElements {
@@ -80,6 +80,17 @@ export async function submitOrder(
 
     return result;
   } catch (error) {
+    if (
+      error instanceof ApiHttpError &&
+      error.status === 404 &&
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ) {
+      showToast(
+        "Lokalne API zamówień nie jest uruchomione. Uruchom backend przez `vercel dev` albo ustaw `VITE_API_BASE_URL` na działający adres API."
+      );
+      return null;
+    }
+
     const message = error instanceof Error ? error.message : String(error);
     showToast(`Błąd podczas wysyłania zamówienia: ${message}`);
     return null;

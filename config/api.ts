@@ -5,6 +5,18 @@
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
+export class ApiHttpError extends Error {
+  status: number;
+  responseBody: string;
+
+  constructor(status: number, responseBody: string) {
+    super(`HTTP ${status}: ${responseBody}`);
+    this.name = "ApiHttpError";
+    this.status = status;
+    this.responseBody = responseBody;
+  }
+}
+
 export function buildApiUrl(path: string): string {
   return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 }
@@ -28,7 +40,7 @@ export async function apiFetch<T>(
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`HTTP ${response.status}: ${text}`);
+      throw new ApiHttpError(response.status, text);
     }
 
     return await response.json();

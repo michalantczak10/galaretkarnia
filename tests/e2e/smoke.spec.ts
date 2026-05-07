@@ -32,7 +32,7 @@ test.describe('Szkolne gazetki smoke', () => {
     const toast = page.locator('#toastMessage');
     await expect(toast).toBeVisible();
     await expect(toast).toContainText('Podsumowanie nie zawiera wybranego produktu.');
-    await expect(page.locator('#order-confirm-modal')).toHaveCount(0);
+    await expect(page.getByTestId('order-confirm-modal')).toHaveCount(0);
   });
 
   test('keeps cart items after page reload', async ({ page }) => {
@@ -79,15 +79,21 @@ test.describe('Szkolne gazetki smoke', () => {
 
   test('legal drawer opens and switches documents', async ({ page }) => {
     await page.getByRole('link', { name: 'Regulamin' }).first().click();
-    const drawer = page.locator('#legalDrawer');
+    const drawer = page.getByTestId('legal-drawer');
 
     await expect(drawer).toBeVisible();
     await expect(drawer).toContainText('Informacje ogólne');
 
-    await page.getByRole('tab', { name: 'Polityka prywatności' }).click();
+    const termsTab = page.getByTestId('tab-legal-terms');
+    await expect(termsTab).toHaveClass(/active/);
+
+    await page.getByTestId('tab-legal-privacy').click();
     await expect(drawer).toContainText('Administrator danych');
 
-    await page.getByRole('button', { name: 'Zamknij panel prawny' }).click();
+    await termsTab.click();
+    await expect(drawer).toContainText('Informacje ogólne');
+
+    await page.getByTestId('btn-legal-drawer-close').click();
     await expect(drawer).not.toBeVisible();
   });
 
@@ -96,16 +102,16 @@ test.describe('Szkolne gazetki smoke', () => {
     await page.evaluate(() => localStorage.removeItem('cookieConsent_v1'));
     await page.reload();
 
-    const banner = page.locator('.cookie-consent');
+    const banner = page.getByTestId('cookie-banner');
     await expect(banner).toBeVisible({ timeout: 5000 });
 
     await banner.getByRole('link', { name: 'Polityka prywatności' }).click();
 
-    const drawer = page.locator('#legalDrawer');
+    const drawer = page.getByTestId('legal-drawer');
     await expect(drawer).toBeVisible();
     await expect(drawer).toContainText('Administrator danych');
 
-    const privacyTab = page.getByRole('tab', { name: 'Polityka prywatności' });
+    const privacyTab = page.getByTestId('tab-legal-privacy');
     await expect(privacyTab).toHaveClass(/active/);
   });
 
@@ -195,11 +201,11 @@ test.describe('Szkolne gazetki smoke', () => {
     await expect(summary.locator('.checkout-summary-product-qty').first()).toHaveText('1');
 
     // Click increase (+)
-    await summary.locator('.cart-btn-increase').first().click();
+    await summary.getByTestId('btn-cart-increase').first().click();
     await expect(summary.locator('.checkout-summary-product-qty').first()).toHaveText('2');
 
     // Click decrease (-)
-    await summary.locator('.cart-btn-decrease').first().click();
+    await summary.getByTestId('btn-cart-decrease').first().click();
     await expect(summary.locator('.checkout-summary-product-qty').first()).toHaveText('1');
   });
 
@@ -231,10 +237,10 @@ test.describe('Szkolne gazetki smoke', () => {
     await page.evaluate(() => localStorage.removeItem('cookieConsent_v1'));
     await page.reload();
 
-    const banner = page.locator('.cookie-consent');
+    const banner = page.getByTestId('cookie-banner');
     await expect(banner).toBeVisible({ timeout: 5000 });
 
-    await page.getByRole('button', { name: 'Odrzuć opcjonalne' }).click();
+    await page.getByTestId('btn-cookie-reject').click();
     await expect(banner).not.toBeVisible();
   });
 
@@ -243,10 +249,45 @@ test.describe('Szkolne gazetki smoke', () => {
     await page.evaluate(() => localStorage.removeItem('cookieConsent_v1'));
     await page.reload();
 
-    const banner = page.locator('.cookie-consent');
+    const banner = page.getByTestId('cookie-banner');
     await expect(banner).toBeVisible({ timeout: 5000 });
 
-    await page.getByRole('button', { name: 'Akceptuj wszystkie' }).click();
+    await page.getByTestId('btn-cookie-accept').click();
     await expect(banner).not.toBeVisible();
+  });
+
+  test('cookie settings panel opens, can be cancelled and saved', async ({ page }) => {
+    await page.evaluate(() => localStorage.removeItem('cookieConsent_v1'));
+    await page.reload();
+
+    const banner = page.getByTestId('cookie-banner');
+    await expect(banner).toBeVisible({ timeout: 5000 });
+
+    // Open settings panel
+    await page.getByTestId('btn-cookie-settings').click();
+
+    // Cancel goes back to banner
+    await page.getByTestId('btn-cookie-cancel-settings').click();
+    await expect(banner).toBeVisible();
+
+    // Open again and save
+    await page.getByTestId('btn-cookie-settings').click();
+    await page.getByTestId('btn-cookie-save-settings').click();
+    await expect(banner).not.toBeVisible();
+  });
+
+  test('cookie manage button reopens settings banner', async ({ page }) => {
+    // Accept consent so manage button is visible
+    await page.evaluate(() => localStorage.removeItem('cookieConsent_v1'));
+    await page.reload();
+
+    const banner = page.getByTestId('cookie-banner');
+    await expect(banner).toBeVisible({ timeout: 5000 });
+    await page.getByTestId('btn-cookie-accept').click();
+    await expect(banner).not.toBeVisible();
+
+    // Manage button should now be present and reopen banner
+    await page.getByTestId('btn-cookie-manage').click();
+    await expect(banner).toBeVisible();
   });
 });

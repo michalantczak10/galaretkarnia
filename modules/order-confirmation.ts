@@ -14,6 +14,7 @@ export function showOrderConfirmationModal(
   const overlay = document.createElement("div");
   overlay.id = "order-confirm-modal";
   overlay.className = "order-confirm-modal-overlay";
+  overlay.setAttribute("data-testid", "order-confirm-modal");
 
   const modal = document.createElement("div");
   modal.className = "order-confirm-modal";

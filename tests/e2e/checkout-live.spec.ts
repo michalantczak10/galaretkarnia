@@ -24,10 +24,10 @@ test.describe('Szkolne gazetki checkout live', () => {
 
     await page.getByTestId('btn-submit-order').click();
 
-    await expect(page.locator('#order-confirm-modal')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('order-confirm-modal')).toBeVisible({ timeout: 15000 });
     await expect(page.locator('.order-confirm-modal-thankyou')).toContainText('Zamówienie przyjęte!');
-    await expect(page.locator('#order-confirm-modal')).toContainText('Numer zamówienia:');
-    await expect(page.locator('#order-confirm-modal')).toContainText('Do zapłaty:');
+    await expect(page.getByTestId('order-confirm-modal')).toContainText('Numer zamówienia:');
+    await expect(page.getByTestId('order-confirm-modal')).toContainText('Do zapłaty:');
   });
 
   test('resets form and cart after closing order confirmation modal', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('Szkolne gazetki checkout live', () => {
     await page.getByTestId('input-customer-notes').fill(`E2E reset check ${Date.now()}`);
     await page.getByTestId('btn-submit-order').click();
 
-    const modal = page.locator('#order-confirm-modal');
+    const modal = page.getByTestId('order-confirm-modal');
     await expect(modal).toBeVisible({ timeout: 15000 });
     await modal.getByRole('button', { name: 'OK' }).click();
     await expect(modal).toHaveCount(0);

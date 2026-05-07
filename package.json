@@ -10,6 +10,7 @@
     "@playwright/test": "^1.58.2",
     "@secretlint/secretlint-rule-preset-recommend": "^11.2.4",
     "@vercel/node": "^5.7.15",
+    "concurrently": "^9.2.1",
     "playwright": "^1.58.2",
     "secretlint": "^11.2.4",
     "sharp": "^0.33.5",
@@ -21,6 +22,8 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:api": "npx vercel dev --listen 3000",
+    "dev:full": "concurrently -n FE,API -c blue,green \"npm:dev\" \"npm:dev:api\"",
     "dev:test": "vite",
     "build": "vite build",
     "start": "npm run build",

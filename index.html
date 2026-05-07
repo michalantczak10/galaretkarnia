@@ -295,6 +295,7 @@
     <aside
       class="legal-drawer"
       id="legalDrawer"
+      data-testid="legal-drawer"
       aria-hidden="true"
       aria-labelledby="legalDrawerTitle"
       role="dialog"
@@ -302,12 +303,12 @@
     >
       <div class="legal-drawer-header">
         <h2 id="legalDrawerTitle">Regulamin i polityka prywatności</h2>
-        <button type="button" class="legal-drawer-close" id="legalDrawerClose" aria-label="Zamknij panel prawny">×</button>
+        <button type="button" class="legal-drawer-close" id="legalDrawerClose" data-testid="btn-legal-drawer-close" aria-label="Zamknij panel prawny">×</button>
       </div>
 
       <div class="legal-drawer-tabs" role="tablist" aria-label="Dokumenty prawne">
-        <button type="button" class="legal-drawer-tab active" id="legalTabTerms" role="tab" aria-selected="true" aria-controls="legalDocTerms" data-legal-switch="terms">Regulamin</button>
-        <button type="button" class="legal-drawer-tab" id="legalTabPrivacy" role="tab" aria-selected="false" aria-controls="legalDocPrivacy" data-legal-switch="privacy">Polityka prywatności</button>
+        <button type="button" class="legal-drawer-tab active" id="legalTabTerms" role="tab" aria-selected="true" aria-controls="legalDocTerms" data-legal-switch="terms" data-testid="tab-legal-terms">Regulamin</button>
+        <button type="button" class="legal-drawer-tab" id="legalTabPrivacy" role="tab" aria-selected="false" aria-controls="legalDocPrivacy" data-legal-switch="privacy" data-testid="tab-legal-privacy">Polityka prywatności</button>
       </div>
 
       <div class="legal-drawer-body">
